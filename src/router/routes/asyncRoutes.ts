@@ -105,6 +105,72 @@ export const asyncRoutes: AppRouteRecord[] = [
     ]
   },
   {
+    path: '/articles',
+    name: 'Article',
+    component: RoutesAlias.Layout,
+    meta: {
+      title: 'menus.article.title',
+      icon: '&#xe7ae;',
+      roles: ['R_SUPER', 'R_ADMIN']
+    },
+    children: [
+      {
+        path: 'article-list',
+        name: 'ArticleList',
+        component: RoutesAlias.ArticleList,
+        meta: {
+          title: 'menus.article.articleList',
+          keepAlive: true
+          // authList: [
+          //   {
+          //     title: '新增',
+          //     auth_mark: 'add'
+          //   },
+          //   {
+          //     title: '编辑',
+          //     auth_mark: 'edit'
+          //   }
+          // ]
+        }
+      },
+
+      {
+        path: 'detail',
+        name: 'ArticleDetail',
+        component: RoutesAlias.ArticleDetail,
+        meta: {
+          title: 'menus.article.articleDetail',
+          isHide: true,
+          keepAlive: true
+        }
+      },
+      // {
+      //   path: 'comment',
+      //   name: 'ArticleComment',
+      //   component: RoutesAlias.Comment,
+      //   meta: {
+      //     title: 'menus.article.comment',
+      //     keepAlive: true
+      //   }
+      // },
+      {
+        path: 'publish',
+        name: 'ArticlePublish',
+        component: RoutesAlias.ArticlePublish,
+        meta: {
+          title: 'menus.article.articlePublish',
+          keepAlive: true
+          // authList: [
+          //   {
+          //     title: '发布',
+          //     auth_mark: 'article/article-publish/add'
+          //   }
+          // ]
+        }
+      }
+    ]
+  },
+  {
     path: '/result',
     name: 'Result',
     component: RoutesAlias.Layout,

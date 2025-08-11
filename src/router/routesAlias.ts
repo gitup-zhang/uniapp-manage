@@ -24,5 +24,11 @@ export enum RoutesAlias {
   User = '/system/user', // 账户
   Role = '/system/role', // 角色
   UserCenter = '/system/user-center', // 用户中心
-  Menu = '/system/menu' // 菜单
+  Menu = '/system/menu', // 菜单
+
+  //文章管理
+  ArticleList = '/articles/list', // 文章列表
+  ArticleDetail = '/articles/detail', // 文章详情
+  // Comment = '/article/comment', // 评论
+  ArticlePublish = '/articles/publish' // 文章发布
 }
