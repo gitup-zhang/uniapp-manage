@@ -20,15 +20,16 @@ export interface Article {
 
 // 兼容原有的文章类型命名
 export interface ArticleType {
-  id?: number
-  blog_class: string
-  title: string
-  count?: number
-  html_content: string
-  create_time: string
-  home_img: string
-  brief: string
-  type_name?: string
+  article_id: number // 文章ID
+  article_title: string // 标题
+  article_type_code: string // 类型编码，例如 POLICY
+  article_type: string // 类型名称，例如 政策
+  field_name: string // 所属领域
+  release_time: string // 发布时间 ISO 格式
+  brief_content: string // 摘要内容
+  is_selection: number // 是否精选，1 表示精选
+  cover_image_url: string // 封面图片 URL
+  article_source?: string // 来源，可选字段
 }
 
 // 文章分类类型 (新命名规范)

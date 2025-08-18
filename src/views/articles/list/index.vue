@@ -1,7 +1,7 @@
 <template>
   <div class="page-content article-list">
-    <ElRow justify="space-between" :gutter="10">
-      <ElCol :lg="6" :md="6" :sm="14" :xs="16">
+    <ElRow :gutter="10" align="middle">
+      <ElCol :span="6">
         <ElInput
           v-model="searchVal"
           :prefix-icon="Search"
@@ -10,19 +10,35 @@
           @keyup.enter="searchArticle"
         />
       </ElCol>
-      <ElCol :lg="12" :md="12" :sm="0" :xs="0">
-        <div class="custom-segmented">
-          <ElSegmented v-model="yearVal" :options="options" @change="searchArticleByYear" />
-        </div>
+      <ElCol :span="6">
+        <el-select v-model="selecttype" placeholder="Select" style="width: 240px">
+          <el-option
+            v-for="item in articlestore.fieldType"
+            :key="item.field_id"
+            :label="item.field_name"
+            :value="item.field_code"
+          />
+        </el-select>
       </ElCol>
-      <ElCol :lg="6" :md="6" :sm="10" :xs="6" style="display: flex; justify-content: end">
+      <ElCol :span="6">
+        <!-- <div class="custom-segmented"> -->
+        <ElSegmented v-model="yearVal" :options="options" @change="searchArticleByYear" />
+        <!-- </div> -->
+      </ElCol>
+
+      <ElCol :span="6" style="display: flex; justify-content: flex-end">
         <ElButton @click="toAddArticle">新增文章</ElButton>
       </ElCol>
     </ElRow>
 
     <div class="list">
       <div class="offset">
-        <div class="item" v-for="item in articleList" :key="item.id" @click="toDetail(item)">
+        <div
+          class="item"
+          v-for="item in articlestore.ArticlesNew"
+          :key="item.article_id"
+          @click="toDetail(item)"
+        >
           <!-- 骨架屏 -->
           <ElSkeleton animated :loading="isLoading" style="width: 100%; height: 100%">
             <template #template>
@@ -40,7 +56,7 @@
 
             <template #default>
               <div class="top">
-                <ElImage class="cover" :src="item.home_img" lazy fit="cover">
+                <ElImage class="cover" :src="item.cover_image_url" lazy fit="cover">
                   <template #error>
                     <div class="image-slot">
                       <ElIcon><icon-picture /></ElIcon>
@@ -48,17 +64,17 @@
                   </template>
                 </ElImage>
 
-                <span class="type">{{ item.type_name }}</span>
+                <span class="type">{{ item.article_type }}</span>
               </div>
               <div class="bottom">
-                <h2>{{ item.title }}</h2>
+                <h2>{{ item.article_title }}</h2>
                 <div class="info">
                   <div class="text">
                     <i class="iconfont-sys">&#xe6f7;</i>
-                    <span>{{ useDateFormat(item.create_time, 'YYYY-MM-DD') }}</span>
+                    <span>{{ useDateFormat(item.release_time, 'YYYY-MM-DD') }}</span>
                     <div class="line"></div>
                     <i class="iconfont-sys">&#xe689;</i>
-                    <span>{{ item.count }}</span>
+                    <!-- <span>{{ item.count }}</span> -->
                   </div>
                   <ElButton v-auth="'edit'" size="small" @click.stop="toEdit(item)">编辑</ElButton>
                 </div>
@@ -81,7 +97,7 @@
         :page-size="pageSize"
         :pager-count="9"
         layout="prev, pager, next, total,jumper"
-        :total="total"
+        :total="articlestore.articletotal"
         :hide-on-single-page="true"
         @current-change="handleCurrentChange"
       />
@@ -101,36 +117,55 @@
   import { useCommon } from '@/composables/useCommon'
   import { RoutesAlias } from '@/router/routesAlias'
   import { ArticleType } from '@/api/modules'
+  import { useArticlesStore } from '@/store/modules/article'
 
   defineOptions({ name: 'ArticleList' })
 
-  const yearVal = ref('All')
+  const yearVal = ref('POLICY')
 
-  const options = ['All', '2024', '2023', '2022', '2021', '2020', '2019']
+  const options = ['POLICY', 'NEWS']
 
   const searchVal = ref('')
   const articleList = ref<ArticleType[]>([])
   const currentPage = ref(1)
-  const pageSize = ref(40)
+  const pageSize = ref(15)
+  const selecttype = ref('全部')
   // const lastPage = ref(0)
-  const total = ref(0)
+  //const total = ref(0)
   const isLoading = ref(true)
 
+  // 传参的结构体
+  const Params = {
+    page: 1,
+    page_size: 15,
+    field_type: '',
+    article_title: '',
+    article_type: 'POLICY'
+  }
+
   const showEmpty = computed(() => {
-    return articleList.value.length === 0 && !isLoading.value
+    return articlestore.articletotal === 0 && !isLoading.value
   })
+
+  // 文章pinia实例化
+  const articlestore = useArticlesStore()
 
   onMounted(() => {
     getArticleList({ backTop: false })
+    articlestore.getArticles(Params)
+    articlestore.getArticleTypes()
   })
 
   // 搜索文章
   const searchArticle = () => {
-    getArticleList({ backTop: true })
+    console.log('搜索的文章为：', searchVal.value)
+    Params.article_title = searchVal.value
+    articlestore.getArticles(Params)
   }
 
   // 根据年份查询文章
   const searchArticleByYear = () => {
+    console.log('选择的领域：', yearVal.value)
     getArticleList({ backTop: true })
   }
 
@@ -187,7 +222,7 @@
     router.push({
       path: RoutesAlias.ArticleDetail,
       query: {
-        id: item.id
+        id: item.article_id
       }
     })
   }
@@ -196,7 +231,7 @@
     router.push({
       path: RoutesAlias.ArticlePublish,
       query: {
-        id: item.id
+        id: item.article_id
       }
     })
   }

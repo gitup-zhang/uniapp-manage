@@ -1,22 +1,22 @@
 import request from '@/utils/http'
 import { PaginationResponse, BaseResponse } from '@/types/api'
-import { ArticleType, ArticleCategoryType, ArticleQueryParams } from './modules/articles'
+import { ArticleType, ArticleQueryParams } from './modules/articles'
 
 // 文章
 export class ArticleService {
   // 获取文章列表
   static getArticleList(params: ArticleQueryParams) {
-    const { page, size, searchVal, year } = params
+    // const { page, size, searchVal, year } = params
     return request.get<PaginationResponse<ArticleType>>({
-      url: `/api/articles/${page}/${size}?title=${searchVal}&year=${year}`
+      url: '/api/articles',
+      params
     })
   }
 
   // 获取文章类型
-  static getArticleTypes(params: object) {
-    return request.get<BaseResponse<ArticleCategoryType[]>>({
-      url: '/api/articles/types',
-      params
+  static getArticleTypes() {
+    return request.get({
+      url: '/api//fieldType'
     })
   }
 

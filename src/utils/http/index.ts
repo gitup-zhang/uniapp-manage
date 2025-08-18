@@ -5,10 +5,10 @@ import { HttpError, handleError, showError } from './error'
 import { $t } from '@/locales'
 
 // 常量定义
-const REQUEST_TIMEOUT = 15000 // 请求超时时间(毫秒)
-const LOGOUT_DELAY = 1000 // 退出登录延迟时间(毫秒)
-const MAX_RETRIES = 2 // 最大重试次数
-const RETRY_DELAY = 1000 // 重试延迟时间(毫秒)
+const REQUEST_TIMEOUT = 15000
+const LOGOUT_DELAY = 1000
+const MAX_RETRIES = 2
+const RETRY_DELAY = 1000
 
 // 扩展 AxiosRequestConfig 类型
 interface ExtendedAxiosRequestConfig extends AxiosRequestConfig {
@@ -17,11 +17,12 @@ interface ExtendedAxiosRequestConfig extends AxiosRequestConfig {
 
 const { VITE_API_URL, VITE_WITH_CREDENTIALS } = import.meta.env
 
+// 创建 Axios 实例
 const axiosInstance = axios.create({
-  timeout: REQUEST_TIMEOUT, // 请求超时时间(毫秒)
-  baseURL: VITE_API_URL, // API地址
-  withCredentials: VITE_WITH_CREDENTIALS === 'true', // 是否携带cookie，默认关闭
-  validateStatus: (status) => status >= 200 && status < 300, // 只接受 2xx 的状态码
+  timeout: REQUEST_TIMEOUT,
+  baseURL: import.meta.env.DEV ? '' : VITE_API_URL, // 开发环境走代理
+  withCredentials: VITE_WITH_CREDENTIALS === 'true',
+  validateStatus: (status) => status >= 200 && status < 300,
   transformResponse: [
     (data, headers) => {
       const contentType = headers['content-type']
@@ -42,12 +43,10 @@ axiosInstance.interceptors.request.use(
   (request: InternalAxiosRequestConfig) => {
     const { accessToken } = useUserStore()
 
-    // 设置 token
     if (accessToken) {
       request.headers.set('Authorization', accessToken)
     }
 
-    // 根据请求数据类型设置 Content-Type
     if (request.data && !(request.data instanceof FormData) && !request.headers['Content-Type']) {
       request.headers.set('Content-Type', 'application/json')
       request.data = JSON.stringify(request.data)
@@ -61,25 +60,33 @@ axiosInstance.interceptors.request.use(
   }
 )
 
-// 响应拦截器
+// 响应拦截器：直接返回响应数据
 axiosInstance.interceptors.response.use(
-  (response: AxiosResponse<Api.Http.BaseResponse>) => {
-    const { code, msg } = response.data
-
-    switch (code) {
-      case ApiStatus.success:
-        return response
-      case ApiStatus.unauthorized:
-        logOut()
-        throw new HttpError(msg || $t('httpMsg.unauthorized'), ApiStatus.unauthorized)
-      default:
-        throw new HttpError(msg || $t('httpMsg.requestFailed'), code)
-    }
-  },
-  (error) => {
-    return Promise.reject(handleError(error))
-  }
+  (response: AxiosResponse) => response.data,
+  (error) => Promise.reject(handleError(error))
 )
+
+// 请求函数
+async function request<T = any>(config: ExtendedAxiosRequestConfig): Promise<T> {
+  // 对 POST | PUT 请求特殊处理
+  if (config.method?.toUpperCase() === 'POST' || config.method?.toUpperCase() === 'PUT') {
+    if (config.params && !config.data) {
+      config.data = config.params
+      config.params = undefined
+    }
+  }
+
+  try {
+    const res = await axiosInstance.request<T>(config)
+    return res as T // 直接返回拦截器处理后的数据
+  } catch (error) {
+    if (error instanceof HttpError) {
+      const showErrorMessage = config.showErrorMessage !== false
+      showError(error, showErrorMessage)
+    }
+    return Promise.reject(error)
+  }
+}
 
 // 请求重试函数
 async function retryRequest<T>(
@@ -108,28 +115,12 @@ function shouldRetry(statusCode: number): boolean {
   ].includes(statusCode)
 }
 
-// 请求函数
-async function request<T = any>(config: ExtendedAxiosRequestConfig): Promise<T> {
-  // 对 POST | PUT 请求特殊处理
-  if (config.method?.toUpperCase() === 'POST' || config.method?.toUpperCase() === 'PUT') {
-    if (config.params && !config.data) {
-      config.data = config.params
-      config.params = undefined
-    }
-  }
-
-  try {
-    const res = await axiosInstance.request<Api.Http.BaseResponse<T>>(config)
-    return res.data.data as T
-  } catch (error) {
-    if (error instanceof HttpError) {
-      // 根据配置决定是否显示错误消息
-      const showErrorMessage = config.showErrorMessage !== false
-      showError(error, showErrorMessage)
-    }
-    return Promise.reject(error)
-  }
-}
+// 退出登录函数
+// const logOut = (): void => {
+//   setTimeout(() => {
+//     useUserStore().logOut()
+//   }, LOGOUT_DELAY)
+// }
 
 // API 方法集合
 const api = {
@@ -148,13 +139,6 @@ const api = {
   request<T>(config: ExtendedAxiosRequestConfig): Promise<T> {
     return retryRequest<T>({ ...config })
   }
-}
-
-// 退出登录函数
-const logOut = (): void => {
-  setTimeout(() => {
-    useUserStore().logOut()
-  }, LOGOUT_DELAY)
 }
 
 export default api
