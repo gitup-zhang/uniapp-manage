@@ -1,15 +1,17 @@
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
 import { ArticleService } from '@/api/articleApi'
-import { ArticleType } from '@/api/modules'
+import { ArticleType, Field } from '@/api/modules'
 export const useArticlesStore = defineStore('article', () => {
   // 新闻和政策列表
   const ArticlesNew = ref<ArticleType[]>([])
   const ArticlesPolicy = ref([])
   // 获取到的领域
-  const fieldType = ref([])
+  const fieldType = ref<Field[]>([])
   // 获取到的总数
   const articletotal = ref(0)
+  // 获取到的新闻政策详情
+  const ArticleDetail = ref({})
   // 获取政策和新闻
   const getArticles = async (param: any) => {
     try {
@@ -39,15 +41,28 @@ export const useArticlesStore = defineStore('article', () => {
       console.log(e)
     }
   }
+  // 获取文章详情
+  const getArticleDetail = async (id: number) => {
+    try {
+      const res = await ArticleService.getArticleDetail(id)
+
+      ArticleDetail.value = res.data
+      console.log(ArticleDetail.value)
+    } catch (e) {
+      console.log(e)
+    }
+  }
   return {
     // 数据
     ArticlesNew,
     ArticlesPolicy,
     articletotal,
     fieldType,
+    ArticleDetail,
     // 方法
 
     getArticles,
-    getArticleTypes
+    getArticleTypes,
+    getArticleDetail
   }
 })

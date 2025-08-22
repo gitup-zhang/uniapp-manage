@@ -71,3 +71,11 @@ export interface ArticleFormData {
   tags?: string[]
   status?: number
 }
+// 领域类型
+export interface Field {
+  field_id: number
+  field_code: string
+  field_name: string
+  create_time: string | null
+  update_time: string | null
+}
