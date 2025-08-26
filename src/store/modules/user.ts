@@ -19,18 +19,24 @@ export const useUserStore = defineStore(
   () => {
     // 语言设置
     const language = ref(LanguageEnum.ZH)
-    // 登录状态
-    const isLogin = ref(false)
+    // 登录状态 - 临时设置为已登录，跳过登录流程
+    const isLogin = ref(true)
     // 锁屏状态
     const isLock = ref(false)
     // 锁屏密码
     const lockPassword = ref('')
-    // 用户信息
-    const info = ref<Partial<Api.User.UserInfo>>({})
+    // 用户信息 - 默认设置一个模拟用户
+    const info = ref<Partial<Api.User.UserInfo>>({
+      userId: 1,
+      userName: 'Admin',
+      email: 'admin@example.com',
+      roles: ['R_SUPER', 'R_ADMIN'],
+      buttons: ['add', 'edit', 'delete']
+    })
     // 搜索历史记录
     const searchHistory = ref<AppRouteRecord[]>([])
-    // 访问令牌
-    const accessToken = ref('')
+    // 访问令牌 - 设置模拟令牌
+    const accessToken = ref('mock-token')
     // 刷新令牌
     const refreshToken = ref('')
 

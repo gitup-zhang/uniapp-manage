@@ -77,17 +77,17 @@ declare namespace Api {
     interface UserListItem {
       id: number
       avatar: string
-      createBy: string
       createTime: string
-      updateBy: string
       updateTime: string
       status: '1' | '2' | '3' | '4' // 1: 在线 2: 离线 3: 异常 4: 注销
-      userName: string
-      userGender: string
-      nickName: string
-      userPhone: string
-      userEmail: string
-      userRoles: string[]
+      name: string // 姓名
+      gender: string // 性别
+      phone: string // 电话
+      email: string // 邮箱
+      position: string // 职位
+      industry: string // 行业
+      company: string // 单位
+      department: string // 部门
     }
   }
 }

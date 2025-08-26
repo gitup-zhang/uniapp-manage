@@ -333,6 +333,12 @@
       "comment": "Comment",
       "articlePublish": "Article Publish"
     },
+    "activity": {
+      "title": "Activity Management",
+      "create": "Activity Create",
+      "list": "Activity List",
+      "detail": "Activity Detail"
+    },
     "result": {
       "title": "Result Page",
       "success": "Success",
@@ -350,6 +356,7 @@
       "role": "Role Manage",
       "userCenter": "User Center",
       "menu": "Menu Manage",
+      "admin": "Admin Manage",
       "nested": "Nested Menu",
       "menu1": "Menu 1",
       "menu2": "Menu 2",

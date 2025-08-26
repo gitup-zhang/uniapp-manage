@@ -9,11 +9,7 @@
 
     <ElCard class="art-table-card" shadow="never">
       <!-- 表格头部 -->
-      <ArtTableHeader v-model:columns="columnChecks" @refresh="refreshAll">
-        <template #left>
-          <ElButton @click="showDialog('add')">新增用户</ElButton>
-        </template>
-      </ArtTableHeader>
+      <ArtTableHeader v-model:columns="columnChecks" @refresh="refreshAll" />
 
       <!-- 表格 -->
       <ArtTable
@@ -27,13 +23,8 @@
       >
       </ArtTable>
 
-      <!-- 用户弹窗 -->
-      <UserDialog
-        v-model:visible="dialogVisible"
-        :type="dialogType"
-        :user-data="currentUserData"
-        @submit="handleDialogSubmit"
-      />
+      <!-- 用户详情弹窗 -->
+      <UserDetailDialog v-model:visible="detailVisible" :user-data="currentUserDetail" />
     </ElCard>
   </div>
 </template>
@@ -41,22 +32,20 @@
 <script setup lang="ts">
   import ArtButtonTable from '@/components/core/forms/art-button-table/index.vue'
   import { ACCOUNT_TABLE_DATA } from '@/mock/temp/formData'
-  import { ElMessageBox, ElMessage, ElTag } from 'element-plus'
+  import { ElTag } from 'element-plus'
   import { useTable } from '@/composables/useTable'
   import { UserService } from '@/api/usersApi'
   import UserSearch from './modules/user-search.vue'
-  import UserDialog from './modules/user-dialog.vue'
+  import UserDetailDialog from './modules/user-detail-dialog.vue'
 
   defineOptions({ name: 'User' })
 
   type UserListItem = Api.User.UserListItem
-  const { width } = useWindowSize()
   const { getUserList } = UserService
 
-  // 弹窗相关
-  const dialogType = ref<Form.DialogType>('add')
-  const dialogVisible = ref(false)
-  const currentUserData = ref<Partial<UserListItem>>({})
+  // 用户详情弹窗相关
+  const detailVisible = ref(false)
+  const currentUserDetail = ref<Partial<UserListItem>>({})
 
   // 选中行
   const selectedRows = ref<UserListItem[]>([])
@@ -122,54 +111,48 @@
         { type: 'selection' }, // 勾选列
         { type: 'index', width: 60, label: '序号' }, // 序号
         {
-          prop: 'avatar',
-          label: '用户名',
-          minWidth: width.value < 500 ? 220 : '',
-          formatter: (row) => {
-            return h('div', { class: 'user', style: 'display: flex; align-items: center' }, [
-              h('img', { class: 'avatar', src: row.avatar }),
-              h('div', {}, [
-                h('p', { class: 'user-name' }, row.userName),
-                h('p', { class: 'email' }, row.userEmail)
-              ])
-            ])
-          }
+          prop: 'name',
+          label: '姓名',
+          width: 120,
+          formatter: (row) => row.name
         },
         {
-          prop: 'userGender',
+          prop: 'gender',
           label: '性别',
-          sortable: true,
-          // checked: false, // 隐藏列
-          formatter: (row) => row.userGender
+          width: 80,
+          formatter: (row) => row.gender
         },
-        { prop: 'userPhone', label: '手机号' },
+        {
+          prop: 'phone',
+          label: '电话',
+          width: 120,
+          formatter: (row) => row.phone
+        },
+        {
+          prop: 'email',
+          label: '邮箱',
+          minWidth: 180,
+          formatter: (row) => row.email
+        },
         {
           prop: 'status',
           label: '状态',
+          width: 80,
           formatter: (row) => {
             const statusConfig = getUserStatusConfig(row.status)
             return h(ElTag, { type: statusConfig.type }, () => statusConfig.text)
           }
         },
         {
-          prop: 'createTime',
-          label: '创建日期',
-          sortable: true
-        },
-        {
           prop: 'operation',
           label: '操作',
-          width: 120,
-          fixed: 'right', // 固定列
+          width: 80,
+          fixed: 'right',
           formatter: (row) =>
             h('div', [
               h(ArtButtonTable, {
-                type: 'edit',
-                onClick: () => showDialog('edit', row)
-              }),
-              h(ArtButtonTable, {
-                type: 'delete',
-                onClick: () => deleteUser(row)
+                type: 'view',
+                onClick: () => showUserDetail(row)
               })
             ])
         }
@@ -177,21 +160,86 @@
     },
     // 数据处理
     transform: {
-      // 数据转换器 - 替换头像
-      dataTransformer: (records: any) => {
-        // 类型守卫检查
-        if (!Array.isArray(records)) {
-          console.warn('数据转换器: 期望数组类型，实际收到:', typeof records)
-          return []
-        }
-
-        // 使用本地头像替换接口返回的头像
-        return records.map((item: any, index: number) => {
-          return {
-            ...item,
-            avatar: ACCOUNT_TABLE_DATA[index % ACCOUNT_TABLE_DATA.length].avatar
+      // 数据转换器 - 直接返回模拟的用户数据
+      dataTransformer: () => {
+        // 直接返回模拟的用户数据
+        return [
+          {
+            id: 1,
+            name: '张三',
+            gender: '男',
+            phone: '13800138001',
+            email: 'zhangsan@example.com',
+            status: '1',
+            avatar: ACCOUNT_TABLE_DATA[0].avatar,
+            position: '高级工程师',
+            industry: '互联网',
+            company: '阿里巴巴集团',
+            department: '研发部',
+            createTime: '2023-01-15',
+            updateTime: '2023-01-15'
+          },
+          {
+            id: 2,
+            name: '李四',
+            gender: '女',
+            phone: '13800138002',
+            email: 'lisi@example.com',
+            status: '1',
+            avatar: ACCOUNT_TABLE_DATA[1].avatar,
+            position: '产品经理',
+            industry: '金融',
+            company: '腾讯科技',
+            department: '产品部',
+            createTime: '2023-02-20',
+            updateTime: '2023-02-20'
+          },
+          {
+            id: 3,
+            name: '王五',
+            gender: '男',
+            phone: '13800138003',
+            email: 'wangwu@example.com',
+            status: '2',
+            avatar: ACCOUNT_TABLE_DATA[2].avatar,
+            position: '设计师',
+            industry: '教育',
+            company: '百度公司',
+            department: '设计部',
+            createTime: '2023-03-10',
+            updateTime: '2023-03-10'
+          },
+          {
+            id: 4,
+            name: '赵六',
+            gender: '女',
+            phone: '13800138004',
+            email: 'zhaoliu@example.com',
+            status: '1',
+            avatar: ACCOUNT_TABLE_DATA[3].avatar,
+            position: '项目经理',
+            industry: '医疗',
+            company: '京东集团',
+            department: '运营部',
+            createTime: '2023-04-05',
+            updateTime: '2023-04-05'
+          },
+          {
+            id: 5,
+            name: '孙七',
+            gender: '男',
+            phone: '13800138005',
+            email: 'sunqi@example.com',
+            status: '3',
+            avatar: ACCOUNT_TABLE_DATA[4].avatar,
+            position: '运营专员',
+            industry: '电商',
+            company: '美团点评',
+            department: '市场部',
+            createTime: '2023-05-12',
+            updateTime: '2023-05-12'
           }
-        })
+        ]
       }
     }
   })
@@ -211,41 +259,12 @@
   }
 
   /**
-   * 显示用户弹窗
+   * 显示用户详情
    */
-  const showDialog = (type: Form.DialogType, row?: UserListItem): void => {
-    console.log('打开弹窗:', { type, row })
-    dialogType.value = type
-    currentUserData.value = row || {}
-    nextTick(() => {
-      dialogVisible.value = true
-    })
-  }
-
-  /**
-   * 删除用户
-   */
-  const deleteUser = (row: UserListItem): void => {
-    console.log('删除用户:', row)
-    ElMessageBox.confirm(`确定要注销该用户吗？`, '注销用户', {
-      confirmButtonText: '确定',
-      cancelButtonText: '取消',
-      type: 'error'
-    }).then(() => {
-      ElMessage.success('注销成功')
-    })
-  }
-
-  /**
-   * 处理弹窗提交事件
-   */
-  const handleDialogSubmit = async () => {
-    try {
-      dialogVisible.value = false
-      currentUserData.value = {}
-    } catch (error) {
-      console.error('提交失败:', error)
-    }
+  const showUserDetail = (row: UserListItem): void => {
+    console.log('查看用户详情:', row)
+    currentUserDetail.value = row
+    detailVisible.value = true
   }
 
   /**

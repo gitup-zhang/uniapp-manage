@@ -18,6 +18,9 @@ import * as ElementPlusIconsVue from '@element-plus/icons-vue'
 import { setupGlobDirectives } from './directives'
 import language from './locales'
 
+// 🔧 注意：当前已配置为自动登录模式，跳过登录验证
+// 📍 在 src/router/guards/beforeEach.ts 和 src/store/modules/user.ts 中已设置默认登录状态
+
 document.addEventListener(
   'touchstart',
   function () {},

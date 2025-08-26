@@ -91,7 +91,7 @@ async function handleRouteGuard(
   setSystemTheme(to)
 
   // 处理登录状态
-  if (!(await handleLoginStatus(to, userStore, next))) {
+  if (!(await handleLoginStatus(to, userStore))) {
     return
   }
 
@@ -129,13 +129,21 @@ async function handleRouteGuard(
  */
 async function handleLoginStatus(
   to: RouteLocationNormalized,
-  userStore: ReturnType<typeof useUserStore>,
-  next: NavigationGuardNext
+  userStore: ReturnType<typeof useUserStore>
 ): Promise<boolean> {
+  // 临时跳过登录检查，自动设置为已登录状态
   if (!userStore.isLogin && to.path !== RoutesAlias.Login && !to.meta.noLogin) {
-    userStore.logOut()
-    next(RoutesAlias.Login)
-    return false
+    // 自动模拟登录
+    userStore.setLoginStatus(true)
+    userStore.setUserInfo({
+      userId: 1,
+      userName: 'Admin',
+      email: 'admin@example.com',
+      roles: ['R_SUPER', 'R_ADMIN'],
+      buttons: ['add', 'edit', 'delete']
+    })
+    userStore.setToken('mock-token')
+    console.log('🔓 自动登录已启用，跳过登录验证')
   }
   return true
 }

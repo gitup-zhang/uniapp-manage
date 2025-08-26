@@ -25,10 +25,16 @@ export enum RoutesAlias {
   Role = '/system/role', // 角色
   UserCenter = '/system/user-center', // 用户中心
   Menu = '/system/menu', // 菜单
+  Admin = '/system/admin', // 管理员管理
 
   //文章管理
   ArticleList = '/articles/list', // 文章列表
   ArticleDetail = '/articles/detail', // 文章详情
   // Comment = '/article/comment', // 评论
-  ArticlePublish = '/articles/publish' // 文章发布
+  ArticlePublish = '/articles/publish', // 文章发布
+
+  // 活动管理
+  ActivityCreate = '/activity/create', // 活动创建
+  ActivityList = '/activity/list', // 活动列表
+  ActivityDetail = '/activity/detail' // 活动详情
 }

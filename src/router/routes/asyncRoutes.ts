@@ -58,13 +58,27 @@ export const asyncRoutes: AppRouteRecord[] = [
         }
       },
       {
-        path: 'role',
-        name: 'Role',
-        component: RoutesAlias.Role,
+        path: 'admin',
+        name: 'Admin',
+        component: RoutesAlias.Admin,
         meta: {
-          title: 'menus.system.role',
+          title: 'menus.system.admin',
           keepAlive: true,
-          roles: ['R_SUPER']
+          roles: ['R_SUPER'],
+          authList: [
+            {
+              title: '新增',
+              authMark: 'add'
+            },
+            {
+              title: '删除',
+              authMark: 'delete'
+            },
+            {
+              title: '修改密码',
+              authMark: 'reset-password'
+            }
+          ]
         }
       },
       {
@@ -77,19 +91,47 @@ export const asyncRoutes: AppRouteRecord[] = [
           keepAlive: true,
           isHideTab: true
         }
-      },
+      }
+    ]
+  },
+  {
+    path: '/activity',
+    name: 'Activity',
+    component: RoutesAlias.Layout,
+    meta: {
+      title: 'menus.activity.title',
+      icon: '&#xe7f0;',
+      roles: ['R_SUPER', 'R_ADMIN']
+    },
+    children: [
       {
-        path: 'menu',
-        name: 'Menus',
-        component: RoutesAlias.Menu,
+        path: 'create',
+        name: 'ActivityCreate',
+        component: RoutesAlias.ActivityCreate,
         meta: {
-          title: 'menus.system.menu',
+          title: 'menus.activity.create',
           keepAlive: true,
-          roles: ['R_SUPER'],
+          roles: ['R_SUPER', 'R_ADMIN'],
           authList: [
             {
-              title: '新增',
-              authMark: 'add'
+              title: '创建',
+              authMark: 'create'
+            }
+          ]
+        }
+      },
+      {
+        path: 'list',
+        name: 'ActivityList',
+        component: RoutesAlias.ActivityList,
+        meta: {
+          title: 'menus.activity.list',
+          keepAlive: true,
+          roles: ['R_SUPER', 'R_ADMIN'],
+          authList: [
+            {
+              title: '查看',
+              authMark: 'view'
             },
             {
               title: '编辑',
@@ -100,6 +142,18 @@ export const asyncRoutes: AppRouteRecord[] = [
               authMark: 'delete'
             }
           ]
+        }
+      },
+      {
+        path: 'detail/:id',
+        name: 'ActivityDetail',
+        component: RoutesAlias.ActivityDetail,
+        meta: {
+          title: 'menus.activity.detail',
+          isHide: true,
+          keepAlive: false,
+          isHideTab: true,
+          activePath: '/activity/list'
         }
       }
     ]
