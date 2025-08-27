@@ -3,6 +3,7 @@
  */
 
 export * from './articles'
+export * from './activity'
 // 这里可以继续添加其他业务模块的类型导出
 // export * from './user'
 // export * from './menu'

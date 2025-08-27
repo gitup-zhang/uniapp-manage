@@ -71,11 +71,37 @@ export interface ArticleFormData {
   tags?: string[]
   status?: number
 }
-// 领域类型
+// // 领域类型
+// export interface Field {
+//   field_id: number
+//   field_code: string
+//   field_name: string
+//   create_time: string | null
+//   update_time: string | null
+// }
+// 单个领域对象的类型
 export interface Field {
-  field_id: number
-  field_code: string
-  field_name: string
-  create_time: string | null
-  update_time: string | null
+  field_id: number // 领域id
+  field_code: string // 领域类型编码
+  field_name: string // 领域类型名称
+}
+
+// 响应数据的类型
+export interface FieldListResponse {
+  data: Field[] // 领域数组
+}
+// 单条文章对象
+export interface Article {
+  article_id: number // 文章id
+  article_title: string // 文章标题
+  field_name: string // 领域类型
+  release_time: string // 发布时间，建议ISO字符串
+  article_content: string // 文章内容
+  article_type_code: 'POLICY' | 'NEWS' // 文章类型编码
+  article_type: string // 文章类型（政策，新闻）
+}
+
+// 接口响应
+export interface ArticleResponse {
+  data: Article
 }

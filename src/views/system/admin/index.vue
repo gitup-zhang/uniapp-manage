@@ -8,24 +8,55 @@
     <AdminSearch v-model:filter="defaultFilter" @reset="resetSearch" @search="handleSearch" />
 
     <ElCard class="art-table-card" shadow="never">
-      <!-- 表格头部 -->
-      <ArtTableHeader v-model:columns="columnChecks" @refresh="refreshAll">
-        <template #left>
+      <!-- 操作栏 -->
+      <div class="table-header">
+        <div class="header-left">
           <ElButton @click="showDialog('add')">新增管理员</ElButton>
-        </template>
-      </ArtTableHeader>
+        </div>
+        <div class="header-right">
+          <ElButton :icon="Refresh" @click="refreshAll">刷新</ElButton>
+        </div>
+      </div>
 
       <!-- 表格 -->
-      <ArtTable
-        :loading="isLoading"
-        :data="tableData"
-        :columns="columns"
-        :pagination="paginationState"
-        @selection-change="handleSelectionChange"
-        @pagination:size-change="onPageSizeChange"
-        @pagination:current-change="onCurrentPageChange"
-      >
-      </ArtTable>
+      <div class="table-wrapper">
+        <ElTable
+          v-loading="isLoading"
+          :data="tableData"
+          @selection-change="handleSelectionChange"
+          style="width: 100%; flex: 1"
+          border
+          stripe
+        >
+          <ElTableColumn type="selection" width="55" />
+          <ElTableColumn type="index" label="序号" width="160" />
+          <ElTableColumn label="管理员名称" width="250" prop="name" />
+          <ElTableColumn label="手机号" width="220" prop="phone" />
+          <ElTableColumn label="邮箱" width="280" prop="email" />
+          <ElTableColumn label="操作" min-width="280" fixed="right">
+            <template #default="{ row }">
+              <ElButton type="warning" link @click="showDialog('edit', row)">编辑</ElButton>
+              <ElButton type="primary" link @click="showResetPasswordDialog(row)"
+                >修改密码</ElButton
+              >
+              <ElButton type="danger" link @click="deleteAdmin(row)">删除</ElButton>
+            </template>
+          </ElTableColumn>
+        </ElTable>
+
+        <!-- 分页组件 -->
+        <div class="pagination-wrapper">
+          <ElPagination
+            v-model:current-page="paginationState.current"
+            v-model:page-size="paginationState.size"
+            :page-sizes="[10, 20, 50, 100]"
+            :total="paginationState.total"
+            layout="total, sizes, prev, pager, next, jumper"
+            @size-change="onPageSizeChange"
+            @current-change="onCurrentPageChange"
+          />
+        </div>
+      </div>
 
       <!-- 管理员弹窗 -->
       <AdminDialog
@@ -46,8 +77,15 @@
 </template>
 
 <script setup lang="ts">
-  import ArtButtonTable from '@/components/core/forms/art-button-table/index.vue'
-  import { ElMessageBox, ElMessage } from 'element-plus'
+  import {
+    ElMessageBox,
+    ElMessage,
+    ElTable,
+    ElTableColumn,
+    ElPagination,
+    ElButton
+  } from 'element-plus'
+  import { Refresh } from '@element-plus/icons-vue'
   import { useTable } from '@/composables/useTable'
   import { UserService } from '@/api/usersApi'
   import AdminSearch from './modules/admin-search.vue'
@@ -85,8 +123,6 @@
   })
 
   const {
-    columns,
-    columnChecks,
     tableData,
     isLoading,
     paginationState,
@@ -104,52 +140,7 @@
         current: 1,
         size: 20,
         ...defaultFilter.value
-      },
-      columnsFactory: () => [
-        { type: 'selection' }, // 勾选列
-        { type: 'index', width: 60, label: '序号' }, // 序号
-        {
-          prop: 'name',
-          label: '管理员名称',
-          minWidth: 150,
-          formatter: (row) => row.name
-        },
-        {
-          prop: 'phone',
-          label: '手机号',
-          width: 120,
-          formatter: (row) => row.phone
-        },
-        {
-          prop: 'email',
-          label: '邮箱',
-          minWidth: 180,
-          formatter: (row) => row.email
-        },
-        {
-          prop: 'operation',
-          label: '操作',
-          width: 200,
-          fixed: 'right',
-          formatter: (row) =>
-            h('div', [
-              h(ArtButtonTable, {
-                type: 'edit',
-                text: '编辑',
-                onClick: () => showDialog('edit', row)
-              }),
-              h(ArtButtonTable, {
-                type: 'view',
-                text: '修改密码',
-                onClick: () => showResetPasswordDialog(row)
-              }),
-              h(ArtButtonTable, {
-                type: 'delete',
-                onClick: () => deleteAdmin(row)
-              })
-            ])
-        }
-      ]
+      }
     },
     // 数据处理
     transform: {
@@ -297,6 +288,42 @@
 
 <style lang="scss" scoped>
   .admin-page {
+    .table-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+      flex-shrink: 0;
+
+      .header-left {
+        display: flex;
+        gap: 8px;
+      }
+
+      .header-right {
+        display: flex;
+        gap: 8px;
+      }
+    }
+
+    .table-wrapper {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+
+      .el-table {
+        flex: 1;
+      }
+
+      .pagination-wrapper {
+        margin-top: 16px;
+        display: flex;
+        justify-content: flex-end;
+        flex-shrink: 0;
+      }
+    }
+
     :deep(.admin) {
       .avatar {
         width: 40px;

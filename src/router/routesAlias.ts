@@ -36,5 +36,8 @@ export enum RoutesAlias {
   // 活动管理
   ActivityCreate = '/activity/create', // 活动创建
   ActivityList = '/activity/list', // 活动列表
-  ActivityDetail = '/activity/detail' // 活动详情
+  ActivityDetail = '/activity/detail', // 活动详情
+
+  // 调试页面
+  RouteDebug = '/debug/route-debug' // 路由调试
 }

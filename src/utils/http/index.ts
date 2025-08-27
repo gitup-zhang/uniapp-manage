@@ -6,7 +6,7 @@ import { $t } from '@/locales'
 
 // 常量定义
 const REQUEST_TIMEOUT = 15000
-const LOGOUT_DELAY = 1000
+//const LOGOUT_DELAY = 1000
 const MAX_RETRIES = 2
 const RETRY_DELAY = 1000
 

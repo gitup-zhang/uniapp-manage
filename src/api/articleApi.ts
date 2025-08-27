@@ -1,6 +1,11 @@
 import request from '@/utils/http'
 import { PaginationResponse, BaseResponse } from '@/types/api'
-import { ArticleType, ArticleQueryParams, Field } from './modules/articles'
+import {
+  ArticleType,
+  ArticleQueryParams,
+  FieldListResponse,
+  ArticleResponse
+} from './modules/articles'
 
 // 文章
 export class ArticleService {
@@ -15,14 +20,14 @@ export class ArticleService {
 
   // 获取文章类型
   static getArticleTypes() {
-    return request.get<Field[]>({
+    return request.get<FieldListResponse>({
       url: '/api//fieldType'
     })
   }
 
   // 获取文章详情
   static getArticleDetail(id: number) {
-    return request.get({
+    return request.get<ArticleResponse>({
       url: `/api/articles/${id}`
     })
   }

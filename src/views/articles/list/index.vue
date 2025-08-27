@@ -38,95 +38,101 @@
     <div class="list">
       <div class="offset">
         <!-- NEWS类型的卡片布局（原有布局） -->
-        <div
-          v-if="yearVal === 'NEWS'"
-          class="item news-item"
-          v-for="item in articlestore.ArticlesNew"
-          :key="item.article_id"
-          @click="toDetail(item)"
-        >
-          <!-- 骨架屏 -->
-          <ElSkeleton animated :loading="isLoading" style="width: 100%; height: 100%">
-            <template #template>
-              <div class="top">
-                <ElSkeletonItem
-                  variant="image"
-                  style="width: 100%; height: 100%; border-radius: 10px"
-                />
-                <div style="padding: 16px 0">
-                  <ElSkeletonItem variant="p" style="width: 80%" />
-                  <ElSkeletonItem variant="p" style="width: 40%; margin-top: 10px" />
-                </div>
-              </div>
-            </template>
-
-            <template #default>
-              <div class="top">
-                <ElImage class="cover" :src="item.cover_image_url" lazy fit="cover">
-                  <template #error>
-                    <div class="image-slot">
-                      <ElIcon><icon-picture /></ElIcon>
-                    </div>
-                  </template>
-                </ElImage>
-
-                <span class="type">{{ item.article_type }}</span>
-              </div>
-              <div class="bottom">
-                <h2>{{ item.article_title }}</h2>
-                <div class="info">
-                  <div class="text">
-                    <i class="iconfont-sys">&#xe6f7;</i>
-                    <span>{{ useDateFormat(item.release_time, 'YYYY-MM-DD') }}</span>
-                    <div class="line"></div>
-                    <i class="iconfont-sys">&#xe689;</i>
+        <template v-if="yearVal === 'NEWS'">
+          <div
+            class="item news-item"
+            v-for="item in articlestore.ArticlesNew"
+            :key="item.article_id"
+            @click="toDetail(item)"
+          >
+            <!-- 骨架屏 -->
+            <ElSkeleton animated :loading="isLoading" style="width: 100%; height: 100%">
+              <template #template>
+                <div class="top">
+                  <ElSkeletonItem
+                    variant="image"
+                    style="width: 100%; height: 100%; border-radius: 10px"
+                  />
+                  <div style="padding: 16px 0">
+                    <ElSkeletonItem variant="p" style="width: 80%" />
+                    <ElSkeletonItem variant="p" style="width: 40%; margin-top: 10px" />
                   </div>
-                  <ElButton v-auth="'edit'" size="small" @click.stop="toEdit(item)">编辑</ElButton>
                 </div>
-              </div>
-            </template>
-          </ElSkeleton>
-        </div>
+              </template>
 
-        <!-- POLICY类型的卡片布局（新的无图片布局） -->
-        <div
-          v-if="yearVal === 'POLICY'"
-          class="item policy-item"
-          v-for="item in articlestore.ArticlesNew"
-          :key="item.article_id"
-          @click="toDetail(item)"
-        >
-          <!-- 骨架屏 -->
-          <ElSkeleton animated :loading="isLoading" style="width: 100%; height: 100%">
-            <template #template>
-              <div class="policy-content">
-                <ElSkeletonItem variant="h1" style="width: 80%; margin-bottom: 12px" />
-                <ElSkeletonItem variant="p" style="width: 100%; margin-bottom: 8px" />
-                <ElSkeletonItem variant="p" style="width: 60%; margin-bottom: 12px" />
-                <ElSkeletonItem variant="text" style="width: 30%" />
-              </div>
-            </template>
+              <template #default>
+                <div class="top">
+                  <ElImage class="cover" :src="item.cover_image_url" lazy fit="cover">
+                    <template #error>
+                      <div class="image-slot">
+                        <ElIcon><icon-picture /></ElIcon>
+                      </div>
+                    </template>
+                  </ElImage>
 
-            <template #default>
-              <div class="policy-content">
-                <div class="header">
-                  <h2>{{ item.article_title }}</h2>
                   <span class="type">{{ item.article_type }}</span>
                 </div>
-                <div class="description">
-                  {{ item.brief_content || '暂无简介' }}
-                </div>
-                <div class="footer">
-                  <div class="time-info">
-                    <i class="iconfont-sys">&#xe6f7;</i>
-                    <span>{{ useDateFormat(item.release_time, 'YYYY-MM-DD') }}</span>
+                <div class="bottom">
+                  <h2>{{ item.article_title }}</h2>
+                  <div class="info">
+                    <div class="text">
+                      <i class="iconfont-sys">&#xe6f7;</i>
+                      <span>{{ useDateFormat(item.release_time, 'YYYY-MM-DD') }}</span>
+                      <div class="line"></div>
+                      <i class="iconfont-sys">&#xe689;</i>
+                    </div>
+                    <ElButton v-auth="'edit'" size="small" @click.stop="toEdit(item)"
+                      >编辑</ElButton
+                    >
                   </div>
-                  <ElButton v-auth="'edit'" size="small" @click.stop="toEdit(item)">编辑</ElButton>
                 </div>
-              </div>
-            </template>
-          </ElSkeleton>
-        </div>
+              </template>
+            </ElSkeleton>
+          </div>
+        </template>
+
+        <!-- POLICY类型的卡片布局（新的无图片布局） -->
+        <template v-if="yearVal === 'POLICY'">
+          <div
+            class="item policy-item"
+            v-for="item in articlestore.ArticlesNew"
+            :key="item.article_id"
+            @click="toDetail(item)"
+          >
+            <!-- 骨架屏 -->
+            <ElSkeleton animated :loading="isLoading" style="width: 100%; height: 100%">
+              <template #template>
+                <div class="policy-content">
+                  <ElSkeletonItem variant="h1" style="width: 80%; margin-bottom: 12px" />
+                  <ElSkeletonItem variant="p" style="width: 100%; margin-bottom: 8px" />
+                  <ElSkeletonItem variant="p" style="width: 60%; margin-bottom: 12px" />
+                  <ElSkeletonItem variant="text" style="width: 30%" />
+                </div>
+              </template>
+
+              <template #default>
+                <div class="policy-content">
+                  <div class="header">
+                    <h2>{{ item.article_title }}</h2>
+                    <span class="type">{{ item.article_type }}</span>
+                  </div>
+                  <div class="description">
+                    {{ item.brief_content || '暂无简介' }}
+                  </div>
+                  <div class="footer">
+                    <div class="time-info">
+                      <i class="iconfont-sys">&#xe6f7;</i>
+                      <span>{{ useDateFormat(item.release_time, 'YYYY-MM-DD') }}</span>
+                    </div>
+                    <ElButton v-auth="'edit'" size="small" @click.stop="toEdit(item)"
+                      >编辑</ElButton
+                    >
+                  </div>
+                </div>
+              </template>
+            </ElSkeleton>
+          </div>
+        </template>
       </div>
     </div>
 

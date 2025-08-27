@@ -63,5 +63,19 @@ export const staticRoutes: AppRouteRecordRaw[] = [
         meta: { title: 'iframe' }
       }
     ]
+  },
+  {
+    path: '/debug',
+    component: () => import('@views/index/index.vue'),
+    name: 'Debug',
+    meta: { title: '调试页面' },
+    children: [
+      {
+        path: RoutesAlias.RouteDebug,
+        name: 'RouteDebug',
+        component: () => import('@views/debug/route-debug.vue'),
+        meta: { title: '路由调试' }
+      }
+    ]
   }
 ]

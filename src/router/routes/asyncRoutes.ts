@@ -64,7 +64,7 @@ export const asyncRoutes: AppRouteRecord[] = [
         meta: {
           title: 'menus.system.admin',
           keepAlive: true,
-          roles: ['R_SUPER'],
+          roles: ['R_SUPER', 'R_ADMIN'],
           authList: [
             {
               title: '新增',

@@ -32,9 +32,7 @@ export const useArticlesStore = defineStore('article', () => {
       fieldType.value.unshift({
         field_id: 3,
         field_code: 'ALL',
-        field_name: '全部',
-        create_time: null,
-        update_time: null
+        field_name: '全部'
       })
       console.log('领域值：', fieldType.value)
     } catch (e) {

@@ -8,20 +8,56 @@
     <UserSearch v-model:filter="defaultFilter" @reset="resetSearch" @search="handleSearch" />
 
     <ElCard class="art-table-card" shadow="never">
-      <!-- 表格头部 -->
-      <ArtTableHeader v-model:columns="columnChecks" @refresh="refreshAll" />
+      <!-- 操作栏 -->
+      <div class="table-header">
+        <div class="header-right">
+          <ElButton :icon="Refresh" @click="refreshAll">刷新</ElButton>
+        </div>
+      </div>
 
       <!-- 表格 -->
-      <ArtTable
-        :loading="isLoading"
-        :data="tableData"
-        :columns="columns"
-        :pagination="paginationState"
-        @selection-change="handleSelectionChange"
-        @pagination:size-change="onPageSizeChange"
-        @pagination:current-change="onCurrentPageChange"
-      >
-      </ArtTable>
+      <div class="table-wrapper">
+        <ElTable
+          v-loading="isLoading"
+          :data="tableData"
+          @selection-change="handleSelectionChange"
+          style="width: 100%; flex: 1"
+          border
+          stripe
+        >
+          <ElTableColumn type="selection" width="55" />
+          <ElTableColumn type="index" label="序号" width="120" />
+          <ElTableColumn label="姓名" width="160" prop="name" />
+          <ElTableColumn label="性别" width="180" prop="gender" />
+          <ElTableColumn label="电话" width="200" prop="phone" />
+          <ElTableColumn label="邮箱" width="200" prop="email" />
+          <ElTableColumn label="状态">
+            <template #default="{ row }">
+              <ElTag :type="getUserStatusConfig(row.status).type">
+                {{ getUserStatusConfig(row.status).text }}
+              </ElTag>
+            </template>
+          </ElTableColumn>
+          <ElTableColumn label="操作" width="200" fixed="right">
+            <template #default="{ row }">
+              <ElButton type="primary" link @click="showUserDetail(row)">查看</ElButton>
+            </template>
+          </ElTableColumn>
+        </ElTable>
+
+        <!-- 分页组件 -->
+        <div class="pagination-wrapper">
+          <ElPagination
+            v-model:current-page="paginationState.current"
+            v-model:page-size="paginationState.size"
+            :page-sizes="[10, 20, 50, 100]"
+            :total="paginationState.total"
+            layout="total, sizes, prev, pager, next, jumper"
+            @size-change="onPageSizeChange"
+            @current-change="onCurrentPageChange"
+          />
+        </div>
+      </div>
 
       <!-- 用户详情弹窗 -->
       <UserDetailDialog v-model:visible="detailVisible" :user-data="currentUserDetail" />
@@ -30,9 +66,8 @@
 </template>
 
 <script setup lang="ts">
-  import ArtButtonTable from '@/components/core/forms/art-button-table/index.vue'
-  import { ACCOUNT_TABLE_DATA } from '@/mock/temp/formData'
-  import { ElTag } from 'element-plus'
+  import { ElTag, ElTable, ElTableColumn, ElPagination, ElButton } from 'element-plus'
+  import { Refresh } from '@element-plus/icons-vue'
   import { useTable } from '@/composables/useTable'
   import { UserService } from '@/api/usersApi'
   import UserSearch from './modules/user-search.vue'
@@ -80,8 +115,6 @@
   }
 
   const {
-    columns,
-    columnChecks,
     tableData,
     isLoading,
     paginationState,
@@ -99,64 +132,7 @@
         current: 1,
         size: 20,
         ...defaultFilter.value
-        // pageNum: 1,
-        // pageSize: 20
-      },
-      // 自定义分页字段映射，同时需要在 apiParams 中配置字段名
-      // paginationKey: {
-      //   current: 'pageNum',
-      //   size: 'pageSize'
-      // },
-      columnsFactory: () => [
-        { type: 'selection' }, // 勾选列
-        { type: 'index', width: 60, label: '序号' }, // 序号
-        {
-          prop: 'name',
-          label: '姓名',
-          width: 120,
-          formatter: (row) => row.name
-        },
-        {
-          prop: 'gender',
-          label: '性别',
-          width: 80,
-          formatter: (row) => row.gender
-        },
-        {
-          prop: 'phone',
-          label: '电话',
-          width: 120,
-          formatter: (row) => row.phone
-        },
-        {
-          prop: 'email',
-          label: '邮箱',
-          minWidth: 180,
-          formatter: (row) => row.email
-        },
-        {
-          prop: 'status',
-          label: '状态',
-          width: 80,
-          formatter: (row) => {
-            const statusConfig = getUserStatusConfig(row.status)
-            return h(ElTag, { type: statusConfig.type }, () => statusConfig.text)
-          }
-        },
-        {
-          prop: 'operation',
-          label: '操作',
-          width: 80,
-          fixed: 'right',
-          formatter: (row) =>
-            h('div', [
-              h(ArtButtonTable, {
-                type: 'view',
-                onClick: () => showUserDetail(row)
-              })
-            ])
-        }
-      ]
+      }
     },
     // 数据处理
     transform: {
@@ -171,7 +147,7 @@
             phone: '13800138001',
             email: 'zhangsan@example.com',
             status: '1',
-            avatar: ACCOUNT_TABLE_DATA[0].avatar,
+            avatar: '',
             position: '高级工程师',
             industry: '互联网',
             company: '阿里巴巴集团',
@@ -186,7 +162,7 @@
             phone: '13800138002',
             email: 'lisi@example.com',
             status: '1',
-            avatar: ACCOUNT_TABLE_DATA[1].avatar,
+            avatar: '',
             position: '产品经理',
             industry: '金融',
             company: '腾讯科技',
@@ -201,7 +177,7 @@
             phone: '13800138003',
             email: 'wangwu@example.com',
             status: '2',
-            avatar: ACCOUNT_TABLE_DATA[2].avatar,
+            avatar: '',
             position: '设计师',
             industry: '教育',
             company: '百度公司',
@@ -216,7 +192,7 @@
             phone: '13800138004',
             email: 'zhaoliu@example.com',
             status: '1',
-            avatar: ACCOUNT_TABLE_DATA[3].avatar,
+            avatar: '',
             position: '项目经理',
             industry: '医疗',
             company: '京东集团',
@@ -231,7 +207,7 @@
             phone: '13800138005',
             email: 'sunqi@example.com',
             status: '3',
-            avatar: ACCOUNT_TABLE_DATA[4].avatar,
+            avatar: '',
             position: '运营专员',
             industry: '电商',
             company: '美团点评',
@@ -278,6 +254,37 @@
 
 <style lang="scss" scoped>
   .user-page {
+    .table-header {
+      display: flex;
+      justify-content: flex-end;
+      align-items: center;
+      margin-bottom: 12px;
+      flex-shrink: 0;
+
+      .header-right {
+        display: flex;
+        gap: 8px;
+      }
+    }
+
+    .table-wrapper {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+
+      .el-table {
+        flex: 1;
+      }
+
+      .pagination-wrapper {
+        margin-top: 16px;
+        display: flex;
+        justify-content: flex-end;
+        flex-shrink: 0;
+      }
+    }
+
     :deep(.user) {
       .avatar {
         width: 40px;
