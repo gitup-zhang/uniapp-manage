@@ -225,6 +225,70 @@ export const asyncRoutes: AppRouteRecord[] = [
     ]
   },
   {
+    path: '/notice',
+    name: 'Notice',
+    component: RoutesAlias.Layout,
+    meta: {
+      title: 'menus.notice.title',
+      icon: '&#xe766;',
+      roles: ['R_SUPER', 'R_ADMIN']
+    },
+    children: [
+      {
+        path: 'list',
+        name: 'NoticeList',
+        component: RoutesAlias.NoticeList,
+        meta: {
+          title: 'menus.notice.list',
+          keepAlive: true,
+          roles: ['R_SUPER', 'R_ADMIN'],
+          authList: [
+            {
+              title: '查看',
+              authMark: 'view'
+            },
+            {
+              title: '编辑',
+              authMark: 'edit'
+            },
+            {
+              title: '删除',
+              authMark: 'delete'
+            }
+          ]
+        }
+      },
+      {
+        path: 'create',
+        name: 'NoticeCreate',
+        component: RoutesAlias.NoticeCreate,
+        meta: {
+          title: 'menus.notice.create',
+          keepAlive: true,
+          roles: ['R_SUPER', 'R_ADMIN'],
+          authList: [
+            {
+              title: '创建',
+              authMark: 'create'
+            }
+          ]
+        }
+      },
+      {
+        path: 'detail/:id',
+        name: 'NoticeDetail',
+        component: RoutesAlias.NoticeDetail,
+        meta: {
+          title: 'menus.notice.detail',
+          isHide: true,
+          keepAlive: false,
+          isHideTab: true,
+          activePath: '/notice/list'
+        }
+      }
+    ]
+  },
+  {
     path: '/result',
     name: 'Result',
     component: RoutesAlias.Layout,

@@ -339,6 +339,12 @@
       "list": "Activity List",
       "detail": "Activity Detail"
     },
+    "notice": {
+      "title": "Notice Management",
+      "list": "Notice List",
+      "create": "Create Notice",
+      "detail": "Notice Detail"
+    },
     "result": {
       "title": "Result Page",
       "success": "Success",

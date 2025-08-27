@@ -2,11 +2,17 @@ import request from '@/utils/http'
 
 export class UserService {
   // 登录
-  static login(params: Api.Auth.LoginParams) {
-    return request.post<Api.Auth.LoginResponse>({
-      url: '/api/auth/login',
+  // static login(params: Api.Auth.LoginParams) {
+  //   return request.post<Api.Auth.LoginResponse>({
+  //     url: '/api/auth/login',
+  //     params
+  //     // showErrorMessage: false // 不显示错误消息
+  //   })
+  // }
+  static login(params: any) {
+    return request.post<any>({
+      url: '/api/user/bgLogin',
       params
-      // showErrorMessage: false // 不显示错误消息
     })
   }
 

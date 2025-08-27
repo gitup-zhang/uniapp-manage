@@ -331,6 +331,12 @@
       "list": "活动列表",
       "detail": "活动详情"
     },
+    "notice": {
+      "title": "公告管理",
+      "list": "公告列表",
+      "create": "新建公告",
+      "detail": "公告详情"
+    },
     "result": {
       "title": "结果页面",
       "success": "成功页",

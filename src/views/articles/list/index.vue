@@ -446,6 +446,7 @@
                 // 最多显示2行
                 display: -webkit-box;
                 -webkit-line-clamp: 2;
+                line-clamp: 2;
                 -webkit-box-orient: vertical;
                 overflow: hidden;
               }
@@ -478,6 +479,7 @@
               // 最多显示3行
               display: -webkit-box;
               -webkit-line-clamp: 3;
+              line-clamp: 3;
               -webkit-box-orient: vertical;
               overflow: hidden;
             }
@@ -599,6 +601,7 @@
                 .description {
                   font-size: 13px;
                   -webkit-line-clamp: 2;
+                  line-clamp: 2;
                 }
               }
             }

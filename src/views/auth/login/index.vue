@@ -228,10 +228,11 @@
       // 登录请求
       const { username, password } = formData
 
-      const { token, refreshToken } = await UserService.login({
+      const { token } = await UserService.login({
         userName: username,
         password
       })
+      console.log('token', token)
 
       // 验证token
       if (!token) {
@@ -239,14 +240,16 @@
       }
 
       // 存储token和用户信息
-      userStore.setToken(token, refreshToken)
-      const userInfo = await UserService.getUserInfo()
-      userStore.setUserInfo(userInfo)
+      userStore.setToken(token)
+      // const userInfo = await UserService.getUserInfo()
+      // userStore.setUserInfo(userInfo)
       userStore.setLoginStatus(true)
 
       // 登录成功处理
       showLoginSuccessNotice()
-      router.push('/')
+
+      // 处理重定向
+      router.push('/dashboard/console')
     } catch (error) {
       // 处理 HttpError
       if (error instanceof HttpError) {

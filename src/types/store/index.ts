@@ -14,7 +14,15 @@ export interface SystemThemeType {
 export type SystemThemeTypes = {
   [key in Exclude<SystemThemeEnum, SystemThemeEnum.AUTO>]: SystemThemeType
 }
-
+export interface UserInfo {
+  userId: number
+  userName: string
+  roles: string[]
+  buttons: string[]
+  avatar?: string
+  email?: string
+  phone?: string
+}
 // 菜单主题样式
 export interface MenuThemeType {
   theme: MenuThemeEnum
