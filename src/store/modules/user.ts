@@ -29,6 +29,15 @@ export const useUserStore = defineStore(
     const accessToken = ref('')
     const refreshToken = ref('')
 
+    // 初始化时根据token状态自动设置登录状态
+    const initializeLoginStatus = () => {
+      if (accessToken.value && accessToken.value.trim() !== '') {
+        isLogin.value = true
+      } else {
+        isLogin.value = false
+      }
+    }
+
     const getUserInfo = computed(() => info.value)
     const getSettingState = computed(() => useSettingStore().$state)
     const getWorktabState = computed(() => useWorktabStore().$state)
@@ -63,6 +72,10 @@ export const useUserStore = defineStore(
       if (newRefreshToken) {
         refreshToken.value = newRefreshToken
       }
+      // 设置token时自动更新登录状态
+      if (newAccessToken && newAccessToken.trim() !== '') {
+        isLogin.value = true
+      }
     }
 
     // const logOut = () => {
@@ -78,6 +91,7 @@ export const useUserStore = defineStore(
     //   router.push(RoutesAlias.Login)
     // }
     const logOut = () => {
+      info.value = {}
       isLogin.value = false
       isLock.value = false
       lockPassword.value = ''
@@ -85,9 +99,12 @@ export const useUserStore = defineStore(
       refreshToken.value = ''
       useWorktabStore().opened = []
       sessionStorage.removeItem('iframeRoutes')
-      resetRouterState(router)
+      resetRouterState()
       router.push(RoutesAlias.Login)
     }
+
+    // 在store初始化后检查登录状态
+    initializeLoginStatus()
 
     return {
       language,
@@ -108,7 +125,8 @@ export const useUserStore = defineStore(
       setLockStatus,
       setLockPassword,
       setToken,
-      logOut
+      logOut,
+      initializeLoginStatus
     }
   },
   {

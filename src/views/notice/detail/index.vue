@@ -17,7 +17,7 @@
         <div class="detail-section">
           <div class="section-header">
             <div class="title-container">
-              <h2 class="notice-title">{{ noticeData.title }}</h2>
+              <h2 class="notice-title">{{ noticeStore.noticeDetail.title }}</h2>
             </div>
           </div>
 
@@ -26,22 +26,24 @@
               <ElCol :span="6">
                 <div class="meta-item">
                   <span class="meta-label">作者：</span>
-                  <span class="meta-value">{{ noticeData.author }}</span>
+                  <span class="meta-value">管理员</span>
                 </div>
               </ElCol>
               <ElCol :span="6">
                 <div class="meta-item">
                   <span class="meta-label">创建时间：</span>
-                  <span class="meta-value">{{ formatTime(noticeData.create_time) }}</span>
+                  <span class="meta-value">{{
+                    formatTime(noticeStore.noticeDetail.release_time)
+                  }}</span>
                 </div>
               </ElCol>
-              <ElCol :span="6">
+              <!-- <ElCol :span="6">
                 <div class="meta-item">
                   <span class="meta-label">更新时间：</span>
                   <span class="meta-value">{{ formatTime(noticeData.update_time) }}</span>
                 </div>
-              </ElCol>
-              <ElCol :span="6">
+              </ElCol> -->
+              <!-- <ElCol :span="6">
                 <div class="meta-item">
                   <span class="meta-label">浏览次数：</span>
                   <span class="meta-value">{{ noticeData.views }}</span>
@@ -52,7 +54,7 @@
                   <span class="meta-label">发布时间：</span>
                   <span class="meta-value">{{ formatTime(noticeData.publish_time) }}</span>
                 </div>
-              </ElCol>
+              </ElCol> -->
             </ElRow>
           </div>
         </div>
@@ -62,11 +64,11 @@
           <div class="section-header">
             <h3>公告内容</h3>
           </div>
-          <div class="content-container" v-html="noticeData.content"></div>
+          <div class="content-container" v-html="noticeStore.noticeDetail.content"></div>
         </div>
 
         <!-- 操作记录 -->
-        <div class="detail-section">
+        <!-- <div class="detail-section">
           <div class="section-header">
             <h3>操作记录</h3>
           </div>
@@ -84,10 +86,10 @@
               </div>
             </ElTimelineItem>
           </ElTimeline>
-        </div>
+        </div> -->
 
         <!-- 统计信息 -->
-        <div class="detail-section">
+        <!-- <div class="detail-section">
           <div class="section-header">
             <h3>统计信息</h3>
           </div>
@@ -117,7 +119,7 @@
               </div>
             </ElCol>
           </ElRow>
-        </div>
+        </div> -->
       </div>
     </ElCard>
   </div>
@@ -126,8 +128,9 @@
 <script setup lang="ts">
   import { ElMessage, ElMessageBox } from 'element-plus'
   import { ArrowLeft } from '@element-plus/icons-vue'
-  import { ref, reactive, computed, onMounted } from 'vue'
+  import { ref, reactive, onMounted } from 'vue'
   import { useRouter, useRoute } from 'vue-router'
+  import { useNoticeStore } from '@/store/modules/notice'
   import type { Notice } from '@/api/modules/notice'
 
   defineOptions({ name: 'NoticeDetail' })
@@ -136,13 +139,15 @@
   const route = useRoute()
   const loading = ref(false)
 
+  const noticeStore = useNoticeStore()
+
   // 公告数据
   const noticeData = reactive<Notice>({
     id: 0,
     title: '',
     content: '',
     status: 'published',
-    create_time: '',
+    release_time: '',
     update_time: '',
     publish_time: '',
     author: '',
@@ -150,45 +155,45 @@
   })
 
   // 模拟统计数据
-  const todayViews = ref(12)
-  const weekViews = ref(45)
+  // const todayViews = ref(12)
+  // const weekViews = ref(45)
 
   // 操作记录
-  const operationRecords = ref([
-    {
-      id: 1,
-      operation: '公告发布',
-      description: '公告已成功发布，对用户可见',
-      operator: '系统管理员',
-      time: '2024-01-15 11:00:00',
-      type: 'primary' as const
-    },
-    {
-      id: 2,
-      operation: '内容修改',
-      description: '更新了公告标题和部分内容',
-      operator: '系统管理员',
-      time: '2024-01-15 10:45:00',
-      type: 'warning' as const
-    },
-    {
-      id: 3,
-      operation: '公告创建',
-      description: '创建了新的公告',
-      operator: '系统管理员',
-      time: '2024-01-15 10:30:00',
-      type: 'success' as const
-    }
-  ])
+  // const operationRecords = ref([
+  //   {
+  //     id: 1,
+  //     operation: '公告发布',
+  //     description: '公告已成功发布，对用户可见',
+  //     operator: '系统管理员',
+  //     time: '2024-01-15 11:00:00',
+  //     type: 'primary' as const
+  //   },
+  //   {
+  //     id: 2,
+  //     operation: '内容修改',
+  //     description: '更新了公告标题和部分内容',
+  //     operator: '系统管理员',
+  //     time: '2024-01-15 10:45:00',
+  //     type: 'warning' as const
+  //   },
+  //   {
+  //     id: 3,
+  //     operation: '公告创建',
+  //     description: '创建了新的公告',
+  //     operator: '系统管理员',
+  //     time: '2024-01-15 10:30:00',
+  //     type: 'success' as const
+  //   }
+  // ])
 
   // 计算发布天数
-  const publishDays = computed(() => {
-    if (!noticeData.publish_time) return 0
-    const publishDate = new Date(noticeData.publish_time)
-    const now = new Date()
-    const diffTime = now.getTime() - publishDate.getTime()
-    return Math.floor(diffTime / (1000 * 60 * 60 * 24))
-  })
+  // const publishDays = computed(() => {
+  //   if (!noticeData.publish_time) return 0
+  //   const publishDate = new Date(noticeData.publish_time)
+  //   const now = new Date()
+  //   const diffTime = now.getTime() - publishDate.getTime()
+  //   return Math.floor(diffTime / (1000 * 60 * 60 * 24))
+  // })
 
   // 格式化时间
   const formatTime = (time: string) => {
@@ -199,6 +204,7 @@
   // 获取公告详情
   const getNoticeDetail = async () => {
     const id = route.params.id as string
+    console.log('id', id)
     if (!id) {
       ElMessage.error('公告ID不存在')
       router.back()
@@ -207,43 +213,9 @@
 
     try {
       loading.value = true
-      // const response = await NoticeService.getNoticeDetail(Number(id))
+      await noticeStore.getNoticeDetail(Number(id))
 
       // 模拟数据
-      const mockData = {
-        id: Number(id),
-        title: '系统维护通知',
-        content: `
-          <h3>维护内容</h3>
-          <p>尊敬的用户，您好！</p>
-          <p>为了提供更好的服务体验，我们将于今晚 <strong>22:00-24:00</strong> 进行系统维护升级。</p>
-
-          <h4>维护期间影响：</h4>
-          <ul>
-            <li>系统可能无法正常访问</li>
-            <li>部分功能可能暂时不可用</li>
-            <li>正在进行的操作可能会中断</li>
-          </ul>
-
-          <h4>注意事项：</h4>
-          <ol>
-            <li>请提前保存您的工作内容</li>
-            <li>建议在维护期间暂停重要操作</li>
-            <li>维护完成后系统将自动恢复</li>
-          </ol>
-
-          <p>如有紧急情况，请联系客服热线：400-xxx-xxxx</p>
-          <p>感谢您的理解与支持！</p>
-        `,
-        status: 'published',
-        create_time: '2024-01-15 10:30:00',
-        update_time: '2024-01-15 10:45:00',
-        publish_time: '2024-01-15 11:00:00',
-        author: '系统管理员',
-        views: 156
-      }
-
-      Object.assign(noticeData, mockData)
     } catch {
       ElMessage.error('获取公告详情失败')
       router.back()

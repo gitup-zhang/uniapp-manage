@@ -2,6 +2,7 @@ import request from '@/utils/http'
 import {
   NoticeListResponse,
   Notice,
+  NoticeDetail,
   CreateNoticeRequest,
   UpdateNoticeRequest
 } from '@/api/modules/notice'
@@ -17,7 +18,7 @@ export class NoticeService {
 
   // 获取公告详情
   static getNoticeDetail(id: number) {
-    return request.get<Notice>({
+    return request.get<NoticeDetail<Notice>>({
       url: `/api/notice/${id}`
     })
   }

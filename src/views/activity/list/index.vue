@@ -164,6 +164,7 @@
   import { useActivityStore } from '@/store/modules/activity'
   import { ref, onMounted } from 'vue'
   import { formatTime } from '@/utils/date'
+  import { ActivityService } from '@/api/activityApi'
 
   defineOptions({ name: 'ActivityList' })
 
@@ -256,14 +257,23 @@
   }
 
   // 删除活动
-  const handleDelete = (row: ActivityItem) => {
-    ElMessageBox.confirm(`确定要删除活动"${row.name}"吗？此操作不可恢复。`, '删除活动', {
-      confirmButtonText: '确定',
-      cancelButtonText: '取消',
-      type: 'warning'
-    }).then(() => {
+  const handleDelete = async (row: ActivityItem) => {
+    console.log('删除活动：', row)
+    try {
+      await ElMessageBox.confirm(`确定要删除活动 "${row.name}" 吗？此操作不可恢复。`, '删除活动', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      })
+      // 用户点击了确认
+      await ActivityService.deleteActivity(row.id)
       ElMessage.success('删除成功')
-    })
+      activityStore.getActivityList(requestParams)
+    } catch (error) {
+      console.log('删除活动失败：', error)
+      // 用户点了取消或关闭弹窗
+      ElMessage.info('已取消删除')
+    }
   }
 
   // 批量删除

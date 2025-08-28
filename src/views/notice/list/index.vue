@@ -38,72 +38,126 @@
         </div>
       </div>
 
-      <!-- 表格 -->
-      <div class="table-wrapper">
-        <ElTable
-          :data="noticeList"
-          @selection-change="handleSelectionChange"
-          style="width: 100%; flex: 1"
-          stripe
-        >
-          <ElTableColumn type="index" label="序号" width="60" />
-          <ElTableColumn label="公告标题" min-width="300">
-            <template #default="{ row }">
-              <span style="font-weight: 500">{{ row.title }}</span>
-            </template>
-          </ElTableColumn>
-          <ElTableColumn label="作者" width="120" prop="author" />
-          <ElTableColumn label="浏览次数" width="100" prop="views" />
-          <ElTableColumn label="创建时间" width="160">
-            <template #default="{ row }">
-              {{ formatTime(row.create_time) }}
-            </template>
-          </ElTableColumn>
-          <ElTableColumn label="操作" width="150" fixed="right">
-            <template #default="{ row }">
-              <ElButton type="primary" link @click="handleView(row)">查看</ElButton>
-              <ElButton type="warning" link @click="handleEdit(row)">编辑</ElButton>
-              <ElButton type="danger" link @click="handleDelete(row)">删除</ElButton>
-            </template>
-          </ElTableColumn>
-        </ElTable>
-
-        <!-- 分页组件 -->
-        <div class="pagination-wrapper">
-          <ElPagination
-            v-model:current-page="currentPage"
-            :page-size="pageSize"
-            :total="total"
-            :hide-on-single-page="true"
-            layout="prev, pager, next, total, jumper"
-            @current-change="onCurrentPageChange"
-          />
+      <!-- 骨架屏 -->
+      <div v-if="loading" class="skeleton-container">
+        <div class="skeleton-grid">
+          <div v-for="index in 15" :key="index" class="skeleton-card">
+            <div class="skeleton-header">
+              <ElSkeleton animated>
+                <template #template>
+                  <ElSkeletonItem variant="circle" style="width: 40px; height: 40px" />
+                  <div style="margin-left: 50px">
+                    <ElSkeletonItem
+                      variant="text"
+                      style="width: 60%; height: 16px; margin-bottom: 8px"
+                    />
+                    <ElSkeletonItem variant="text" style="width: 40%; height: 12px" />
+                  </div>
+                </template>
+              </ElSkeleton>
+            </div>
+            <div class="skeleton-content">
+              <ElSkeleton :rows="3" animated>
+                <template #template>
+                  <ElSkeletonItem
+                    variant="text"
+                    style="width: 100%; height: 12px; margin-bottom: 6px"
+                  />
+                  <ElSkeletonItem
+                    variant="text"
+                    style="width: 80%; height: 12px; margin-bottom: 6px"
+                  />
+                  <ElSkeletonItem variant="text" style="width: 60%; height: 12px" />
+                </template>
+              </ElSkeleton>
+            </div>
+            <div class="skeleton-footer">
+              <ElSkeleton animated>
+                <template #template>
+                  <div style="display: flex; gap: 8px; margin-top: 12px">
+                    <ElSkeletonItem variant="button" style="width: 50px; height: 24px" />
+                    <ElSkeletonItem variant="button" style="width: 50px; height: 24px" />
+                    <ElSkeletonItem variant="button" style="width: 50px; height: 24px" />
+                  </div>
+                </template>
+              </ElSkeleton>
+            </div>
+          </div>
         </div>
+      </div>
+
+      <!-- 实际数据展示 -->
+      <div v-else class="notice-list-container">
+        <div class="notice-grid">
+          <div v-for="notice in noticeStore.noticeList" :key="notice.id" class="notice-card">
+            <div class="card-header">
+              <div class="notice-icon">
+                <ElIcon><Bell /></ElIcon>
+              </div>
+              <div class="notice-info">
+                <h3 class="notice-title">{{ notice.title }}</h3>
+                <p class="notice-time">{{ formatTime(notice.release_time) }}</p>
+              </div>
+            </div>
+            <div class="card-content">
+              <p class="notice-desc" v-html="'暂无描述'"></p>
+            </div>
+            <div class="card-actions">
+              <ElButton size="small" type="primary" @click="handleView(notice)">查看</ElButton>
+              <ElButton size="small" type="warning" @click="handleEdit(notice)">编辑</ElButton>
+              <ElButton size="small" type="danger" @click="handleDelete(notice)">删除</ElButton>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 分页组件 -->
+      <div class="pagination-wrapper">
+        <ElPagination
+          v-model:current-page="currentPage"
+          :page-size="Params.page_size"
+          :total="noticeStore.noticeTotal"
+          :hide-on-single-page="true"
+          layout="prev, pager, next, total, jumper"
+          @current-change="onCurrentPageChange"
+        />
       </div>
     </ElCard>
   </div>
 </template>
 
 <script setup lang="ts">
-  import { ElMessageBox, ElMessage, ElTable, ElTableColumn, ElButton } from 'element-plus'
+  import {
+    ElMessageBox,
+    ElMessage,
+    ElButton,
+    ElSkeleton,
+    ElSkeletonItem,
+    ElIcon
+  } from 'element-plus'
+  import { Bell } from '@element-plus/icons-vue'
   import { ref, reactive, onMounted } from 'vue'
   import { useRouter } from 'vue-router'
+  import { useNoticeStore } from '@/store/modules/notice'
   import type { Notice } from '@/api/modules/notice'
 
   defineOptions({ name: 'NoticeList' })
 
   const router = useRouter()
-
+  const noticeStore = useNoticeStore()
+  // 传参的结构体
+  const Params = {
+    page: 1,
+    page_size: 15
+  }
   // 分页参数
   const currentPage = ref(1)
-  const pageSize = ref(10)
-  const total = ref(0)
 
   // 公告列表数据
-  const noticeList = ref<Notice[]>([])
+  // const noticeList = ref<Notice[]>([])
 
-  // 选中的行
-  const selectedRows = ref<Notice[]>([])
+  // 加载状态
+  const loading = ref(false)
 
   // 搜索表单
   const searchForm = reactive({
@@ -116,83 +170,44 @@
     return new Date(time).toLocaleString('zh-CN')
   }
 
-  // 获取公告列表
-  const getNoticeList = async () => {
-    try {
-      // 这里使用模拟数据，实际应该调用 NoticeService.getNoticeList(params)
-      const mockData = {
-        data: [
-          {
-            id: 1,
-            title: '系统维护通知',
-            content: '系统将于今晚进行维护升级...',
-            status: 'published' as const,
-            create_time: '2024-01-15 10:30:00',
-            update_time: '2024-01-15 10:30:00',
-            publish_time: '2024-01-15 11:00:00',
-            author: '系统管理员',
-            views: 156
-          },
-          {
-            id: 2,
-            title: '新功能发布公告',
-            content: '我们很高兴地宣布新功能已上线...',
-            status: 'published' as const,
-            create_time: '2024-01-14 15:20:00',
-            update_time: '2024-01-14 15:20:00',
-            publish_time: '2024-01-14 16:00:00',
-            author: '产品经理',
-            views: 89
-          },
-          {
-            id: 3,
-            title: '用户协议更新',
-            content: '根据相关法律法规要求，用户协议已更新...',
-            status: 'published' as const,
-            create_time: '2024-01-13 09:15:00',
-            update_time: '2024-01-13 09:15:00',
-            publish_time: '2024-01-13 10:00:00',
-            author: '法务部',
-            views: 45
-          }
-        ],
-        page: currentPage.value,
-        page_size: pageSize.value,
-        total: 23
-      }
+  // 钩子函数
+  onMounted(async () => {
+    await loadNoticeList()
+  })
 
-      noticeList.value = mockData.data
-      total.value = mockData.total
-    } catch {
-      ElMessage.error('获取公告列表失败')
+  // 加载公告列表
+  const loadNoticeList = async () => {
+    try {
+      loading.value = true
+      await noticeStore.getNoticeList(Params)
+    } catch (error) {
+      console.error('加载公告列表失败:', error)
+    } finally {
+      loading.value = false
     }
   }
 
-  // 钩子函数
-  onMounted(() => {
-    getNoticeList()
-  })
-
   // 换页
-  const onCurrentPageChange = (page: number) => {
+  const onCurrentPageChange = async (page: number) => {
     currentPage.value = page
-    getNoticeList()
+    Params.page = page
+    await loadNoticeList()
   }
 
   // 搜索
-  const handleSearch = () => {
+  const handleSearch = async () => {
     currentPage.value = 1
-    getNoticeList()
+    await loadNoticeList()
   }
 
   // 重置搜索
-  const handleReset = () => {
+  const handleReset = async () => {
     Object.assign(searchForm, {
       title: '',
       dateRange: []
     })
     currentPage.value = 1
-    getNoticeList()
+    await loadNoticeList()
   }
 
   // 新建公告
@@ -202,6 +217,7 @@
 
   // 查看公告
   const handleView = (row: Notice) => {
+    console.log(row)
     router.push(`/notice/detail/${row.id}`)
   }
 
@@ -220,16 +236,10 @@
       try {
         // await NoticeService.deleteNotice(row.id)
         ElMessage.success('删除成功')
-        getNoticeList()
       } catch {
         ElMessage.error('删除失败')
       }
     })
-  }
-
-  // 处理表格行选择变化
-  const handleSelectionChange = (selection: Notice[]) => {
-    selectedRows.value = selection
   }
 </script>
 
@@ -317,23 +327,247 @@
         }
       }
 
-      .table-wrapper {
+      // 骨架屏样式
+      .skeleton-container {
         flex: 1;
-        display: flex;
-        flex-direction: column;
-        overflow: hidden;
+        overflow-y: auto;
+        padding: 16px 0;
 
-        .el-table {
-          flex: 1;
-        }
+        .skeleton-grid {
+          display: grid;
+          grid-template-columns: repeat(5, 1fr);
+          grid-template-rows: repeat(3, 1fr);
+          gap: 16px;
+          height: calc(100vh - 320px);
 
-        .pagination-wrapper {
-          margin-top: 16px;
-          display: flex;
-          justify-content: flex-end;
-          flex-shrink: 0;
+          .skeleton-card {
+            background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+            border-radius: 16px;
+            padding: 20px;
+            border: 1px solid #e2e8f0;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            height: 180px;
+
+            &::before {
+              content: '';
+              position: absolute;
+              top: 0;
+              left: 0;
+              right: 0;
+              height: 3px;
+              background: linear-gradient(90deg, #3b82f6 0%, #8b5cf6 50%, #06b6d4 100%);
+              opacity: 0.8;
+              animation: rainbowPulse 2s ease-in-out infinite;
+            }
+
+            &::after {
+              content: '';
+              position: absolute;
+              top: 0;
+              left: -100%;
+              width: 100%;
+              height: 100%;
+              background: linear-gradient(
+                90deg,
+                transparent,
+                rgba(255, 255, 255, 0.1),
+                transparent
+              );
+              animation: shimmerGlow 3s infinite;
+              pointer-events: none;
+            }
+
+            .skeleton-header {
+              margin-bottom: 16px;
+              position: relative;
+            }
+
+            .skeleton-content {
+              flex: 1;
+              margin-bottom: 16px;
+            }
+
+            .skeleton-footer {
+              margin-top: auto;
+            }
+          }
         }
       }
+
+      // 公告列表样式
+      .notice-list-container {
+        flex: 1;
+        overflow-y: auto;
+        padding: 16px 0;
+
+        .notice-grid {
+          display: grid;
+          grid-template-columns: repeat(5, 1fr);
+          grid-template-rows: repeat(3, 1fr);
+          gap: 16px;
+          height: calc(100vh - 320px);
+
+          .notice-card {
+            background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+            border-radius: 16px;
+            padding: 20px;
+            border: 1px solid #e2e8f0;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            height: 180px;
+            cursor: pointer;
+
+            &::before {
+              content: '';
+              position: absolute;
+              top: 0;
+              left: 0;
+              right: 0;
+              height: 3px;
+              background: linear-gradient(90deg, #3b82f6 0%, #8b5cf6 50%, #06b6d4 100%);
+              opacity: 0;
+              transition: opacity 0.3s ease;
+            }
+
+            &:hover {
+              transform: translateY(-8px) scale(1.02);
+              box-shadow: 0 12px 24px rgba(0, 0, 0, 0.12);
+
+              &::before {
+                opacity: 1;
+              }
+
+              .card-actions {
+                transform: translateY(0);
+                opacity: 1;
+              }
+            }
+
+            .card-header {
+              display: flex;
+              align-items: flex-start;
+              gap: 12px;
+              margin-bottom: 16px;
+
+              .notice-icon {
+                width: 46px;
+                height: 46px;
+                border-radius: 50%;
+                background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                color: white;
+                font-size: 20px;
+                box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+                flex-shrink: 0;
+              }
+
+              .notice-info {
+                flex: 1;
+                min-width: 0;
+
+                .notice-title {
+                  margin: 0 0 4px 0;
+                  font-size: 16px;
+                  font-weight: 600;
+                  color: var(--el-text-color-primary);
+                  overflow: hidden;
+                  text-overflow: ellipsis;
+                  white-space: nowrap;
+                  line-height: 1.3;
+                }
+
+                .notice-time {
+                  margin: 0;
+                  font-size: 12px;
+                  color: var(--el-text-color-regular);
+                  opacity: 0.8;
+                }
+              }
+            }
+
+            .card-content {
+              flex: 1;
+              margin-bottom: 16px;
+
+              .notice-desc {
+                margin: 0;
+                font-size: 13px;
+                line-height: 1.4;
+                color: var(--el-text-color-regular);
+                display: -webkit-box;
+                -webkit-line-clamp: 2;
+                line-clamp: 2;
+                -webkit-box-orient: vertical;
+                overflow: hidden;
+              }
+            }
+
+            .card-actions {
+              display: flex;
+              gap: 8px;
+              justify-content: center;
+              margin-top: auto;
+              transform: translateY(4px);
+              opacity: 0.8;
+              transition: all 0.3s ease;
+
+              .el-button {
+                border-radius: 6px;
+                font-size: 12px;
+              }
+            }
+          }
+        }
+      }
+
+      .pagination-wrapper {
+        margin-top: 16px;
+        display: flex;
+        justify-content: flex-end;
+        flex-shrink: 0;
+        padding-top: 16px;
+        border-top: 1px solid var(--el-border-color-lighter);
+      }
+    }
+  }
+
+  // 骨架屏动画关键帧
+  @keyframes shimmer {
+    0% {
+      background-position: -200% 0;
+    }
+    100% {
+      background-position: 200% 0;
+    }
+  }
+
+  @keyframes shimmerGlow {
+    0% {
+      left: -100%;
+    }
+    100% {
+      left: 100%;
+    }
+  }
+
+  @keyframes rainbowPulse {
+    0%,
+    100% {
+      opacity: 0.8;
+    }
+    50% {
+      opacity: 1;
     }
   }
 </style>

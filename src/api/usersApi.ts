@@ -17,14 +17,23 @@ export class UserService {
   }
 
   // 获取用户信息
+  // static getUserInfo() {
+  //   return request.get<Api.User.UserInfo>({
+  //     url: '/api/user/info'
+  //     // 自定义请求头
+  //     // headers: {
+  //     //   'X-Custom-Header': 'your-custom-value'
+  //     // }
+  //   })
+  // }
   static getUserInfo() {
-    return request.get<Api.User.UserInfo>({
-      url: '/api/user/info'
-      // 自定义请求头
-      // headers: {
-      //   'X-Custom-Header': 'your-custom-value'
-      // }
-    })
+    return {
+      userId: 1,
+      userName: 'Admin',
+      email: 'admin@example.com',
+      roles: ['R_SUPER', 'R_ADMIN'],
+      buttons: ['add', 'edit', 'delete']
+    }
   }
 
   // 获取用户列表

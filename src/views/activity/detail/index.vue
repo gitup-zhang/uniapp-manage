@@ -6,13 +6,13 @@
         <div class="detail-header">
           <ElButton type="primary" :icon="ArrowLeft" @click="handleBack"> 返回列表 </ElButton>
           <div class="header-actions">
-            <ElButton v-if="activityData.status === 'pending'" type="primary" @click="handleEdit">
+            <!-- <ElButton v-if="activityData.status === 'pending'" type="primary" @click="handleEdit">
               编辑活动
             </ElButton>
             <ElButton v-if="activityData.status === 'active'" type="warning" @click="handleEnd">
               结束活动
-            </ElButton>
-            <ElButton type="danger" @click="handleDelete"> 删除活动 </ElButton>
+            </ElButton> -->
+            <!-- <ElButton type="danger" @click="handleDelete"> 删除活动 </ElButton> -->
           </div>
         </div>
       </template>
@@ -22,58 +22,72 @@
         <div class="detail-section">
           <div class="section-header">
             <h3>基本信息</h3>
-            <ElTag :type="getActivityStatusConfig(activityData.status).type" size="large">
+            <!-- <ElTag :type="getActivityStatusConfig(activityData.status).type" size="large">
               {{ getActivityStatusConfig(activityData.status).text }}
-            </ElTag>
+            </ElTag> -->
           </div>
 
           <ElRow :gutter="24">
             <ElCol :span="12">
               <div class="detail-item">
                 <span class="item-label">活动名称：</span>
-                <span class="item-value">{{ activityData.name }}</span>
+                <span class="item-value">{{ activityStore.ActivityDetail.title }}</span>
               </div>
             </ElCol>
             <ElCol :span="12">
+              <div class="detail-item">
+                <span class="item-label">活动费用：</span>
+                <span class="item-value">{{ activityStore.ActivityDetail.registration_fee }}</span>
+              </div>
+            </ElCol>
+            <!-- <ElCol :span="12">
               <div class="detail-item">
                 <span class="item-label">活动类型：</span>
                 <span class="item-value">{{ getActivityTypeText(activityData.type) }}</span>
               </div>
-            </ElCol>
+            </ElCol> -->
             <ElCol :span="12">
               <div class="detail-item">
                 <span class="item-label">报名开始时间：</span>
-                <span class="item-value">{{ activityData.registrationStartTime }}</span>
+                <span class="item-value">{{
+                  formatTime(activityStore.ActivityDetail.registration_start_time)
+                }}</span>
               </div>
             </ElCol>
             <ElCol :span="12">
               <div class="detail-item">
                 <span class="item-label">报名结束时间：</span>
-                <span class="item-value">{{ activityData.registrationEndTime }}</span>
+                <span class="item-value">{{
+                  formatTime(activityStore.ActivityDetail.registration_end_time)
+                }}</span>
               </div>
             </ElCol>
             <ElCol :span="12">
               <div class="detail-item">
                 <span class="item-label">活动开始时间：</span>
-                <span class="item-value">{{ activityData.startTime }}</span>
+                <span class="item-value">{{
+                  formatTime(activityStore.ActivityDetail.event_start_time)
+                }}</span>
               </div>
             </ElCol>
             <ElCol :span="12">
               <div class="detail-item">
                 <span class="item-label">活动结束时间：</span>
-                <span class="item-value">{{ activityData.endTime }}</span>
+                <span class="item-value">{{
+                  formatTime(activityStore.ActivityDetail.event_end_time)
+                }}</span>
               </div>
             </ElCol>
             <ElCol :span="12">
               <div class="detail-item">
                 <span class="item-label">创建者：</span>
-                <span class="item-value">{{ activityData.creator }}</span>
+                <span class="item-value">管理员</span>
               </div>
             </ElCol>
-            <ElCol :span="12">
+            <ElCol :span="24">
               <div class="detail-item">
-                <span class="item-label">创建时间：</span>
-                <span class="item-value">{{ activityData.createTime }}</span>
+                <span class="item-label">地址：</span>
+                <span class="item-value">{{ activityStore.ActivityDetail.event_address }}</span>
               </div>
             </ElCol>
           </ElRow>
@@ -86,8 +100,8 @@
           </div>
           <div class="cover-container">
             <ElImage
-              :src="activityData.cover"
-              :preview-src-list="[activityData.cover]"
+              :src="activityStore.ActivityDetail.images[0]"
+              :preview-src-list="[activityStore.ActivityDetail.images[0]]"
               fit="cover"
               class="activity-cover"
             />
@@ -97,17 +111,19 @@
         <!-- 活动展示图片 -->
         <div
           class="detail-section"
-          v-if="activityData.displayImages && activityData.displayImages.length > 0"
+          v-if="
+            activityStore.ActivityDetail.images && activityStore.ActivityDetail.images.length > 0
+          "
         >
           <div class="section-header">
             <h3>活动展示图片</h3>
           </div>
           <div class="display-images-container">
             <ElImage
-              v-for="(image, index) in activityData.displayImages"
+              v-for="(image, index) in activityStore.ActivityDetail.images"
               :key="index"
               :src="image"
-              :preview-src-list="activityData.displayImages"
+              :preview-src-list="activityStore.ActivityDetail.images"
               :initial-index="index"
               fit="cover"
               class="display-image"
@@ -116,17 +132,17 @@
         </div>
 
         <!-- 活动描述 -->
-        <div class="detail-section">
+        <!-- <div class="detail-section">
           <div class="section-header">
             <h3>活动描述</h3>
           </div>
           <div class="description-content">
             {{ activityData.description }}
           </div>
-        </div>
+        </div> -->
 
         <!-- 参与统计 -->
-        <div class="detail-section">
+        <!-- <div class="detail-section">
           <div class="section-header">
             <h3>参与统计</h3>
           </div>
@@ -158,10 +174,10 @@
               </div>
             </ElCol>
           </ElRow>
-        </div>
+        </div> -->
 
         <!-- 活动标签 -->
-        <div class="detail-section" v-if="activityData.tags && activityData.tags.length > 0">
+        <!-- <div class="detail-section" v-if="activityData.tags && activityData.tags.length > 0">
           <div class="section-header">
             <h3>活动标签</h3>
           </div>
@@ -170,14 +186,14 @@
               {{ tag }}
             </ElTag>
           </div>
-        </div>
+        </div>-->
 
-        <!-- 活动详情内容 -->
+        <!-- 活动详情 -->
         <div class="detail-section">
           <div class="section-header">
             <h3>活动详情</h3>
           </div>
-          <div class="content-container" v-html="activityData.content"></div>
+          <div class="content-container" v-html="activityStore.ActivityDetail.detail"></div>
         </div>
 
         <!-- 参与者列表 -->
@@ -207,14 +223,18 @@
 </template>
 
 <script setup lang="ts">
-  import { ElMessageBox, ElMessage, ElTag, ElImage } from 'element-plus'
+  import { ElMessage, ElImage } from 'element-plus'
   import { ArrowLeft } from '@element-plus/icons-vue'
+  import { useActivityStore } from '@/store/modules/activity'
+  import { formatTime } from '@/utils/date'
 
   defineOptions({ name: 'ActivityDetail' })
 
+  const activityStore = useActivityStore()
+
   interface ActivityDetailData {
     id: number
-    name: string
+    title: string
     type: string
     status: string
     cover: string
@@ -248,7 +268,7 @@
   // 活动数据
   const activityData = ref<ActivityDetailData>({
     id: 0,
-    name: '',
+    title: '',
     type: '',
     status: '',
     cover: '',
@@ -270,111 +290,71 @@
   const participantsList = ref<Participant[]>([])
 
   // 活动状态配置
-  const ACTIVITY_STATUS_CONFIG = {
-    pending: { type: 'warning' as const, text: '未开始' },
-    active: { type: 'success' as const, text: '进行中' },
-    ended: { type: 'info' as const, text: '已结束' },
-    expired: { type: 'danger' as const, text: '已过期' }
-  } as const
+  // const ACTIVITY_STATUS_CONFIG = {
+  //   pending: { type: 'warning' as const, text: '未开始' },
+  //   active: { type: 'success' as const, text: '进行中' },
+  //   ended: { type: 'info' as const, text: '已结束' },
+  //   expired: { type: 'danger' as const, text: '已过期' }
+  // } as const
 
   // 活动类型配置
-  const ACTIVITY_TYPE_CONFIG = {
-    marketing: '营销活动',
-    brand: '品牌活动',
-    promotion: '促销活动',
-    user: '用户活动'
-  } as const
+  // const ACTIVITY_TYPE_CONFIG = {
+  //   marketing: '营销活动',
+  //   brand: '品牌活动',
+  //   promotion: '促销活动',
+  //   user: '用户活动'
+  // } as const
 
   /**
    * 获取活动状态配置
    */
-  const getActivityStatusConfig = (status: string) => {
-    return (
-      ACTIVITY_STATUS_CONFIG[status as keyof typeof ACTIVITY_STATUS_CONFIG] || {
-        type: 'info' as const,
-        text: '未知'
-      }
-    )
-  }
+  // const getActivityStatusConfig = (status: string) => {
+  //   return (
+  //     ACTIVITY_STATUS_CONFIG[status as keyof typeof ACTIVITY_STATUS_CONFIG] || {
+  //       type: 'info' as const,
+  //       text: '未知'
+  //     }
+  //   )
+  // }
 
   /**
    * 获取活动类型文本
    */
-  const getActivityTypeText = (type: string) => {
-    return ACTIVITY_TYPE_CONFIG[type as keyof typeof ACTIVITY_TYPE_CONFIG] || '未知'
-  }
+  // const getActivityTypeText = (type: string) => {
+  //   return ACTIVITY_TYPE_CONFIG[type as keyof typeof ACTIVITY_TYPE_CONFIG] || '未知'
+  // }
 
   // 计算参与率
-  const participationRate = computed(() => {
-    if (activityData.value.maxParticipants <= 0) {
-      return '--'
-    }
-    return `${((activityData.value.participants / activityData.value.maxParticipants) * 100).toFixed(1)}%`
-  })
+  // const participationRate = computed(() => {
+  //   if (activityData.value.maxParticipants <= 0) {
+  //     return '--'
+  //   }
+  //   return `${((activityData.value.participants / activityData.value.maxParticipants) * 100).toFixed(1)}%`
+  // })
 
   // 计算剩余天数
-  const remainingDays = computed(() => {
-    const endDate = new Date(activityData.value.endTime)
-    const today = new Date()
-    const timeDiff = endDate.getTime() - today.getTime()
-    const daysDiff = Math.ceil(timeDiff / (1000 * 3600 * 24))
+  // const remainingDays = computed(() => {
+  //   const endDate = new Date(activityData.value.endTime)
+  //   const today = new Date()
+  //   const timeDiff = endDate.getTime() - today.getTime()
+  //   const daysDiff = Math.ceil(timeDiff / (1000 * 3600 * 24))
 
-    if (daysDiff < 0) {
-      return '已过期'
-    } else if (daysDiff === 0) {
-      return '今天结束'
-    } else {
-      return `${daysDiff}天`
-    }
-  })
+  //   if (daysDiff < 0) {
+  //     return '已过期'
+  //   } else if (daysDiff === 0) {
+  //     return '今天结束'
+  //   } else {
+  //     return `${daysDiff}天`
+  //   }
+  // })
 
   // 获取活动详情
-  const fetchActivityDetail = async (id: string) => {
+  const fetchActivityDetail = async (id: number) => {
     try {
       loading.value = true
 
       // 模拟API调用
-      await new Promise((resolve) => setTimeout(resolve, 500))
-
-      // 模拟数据
-      activityData.value = {
-        id: Number(id),
-        name: `测试活动 ${id}`,
-        type: 'marketing',
-        status: 'active',
-        cover: `https://picsum.photos/600/400?random=${id}`,
-        displayImages: [
-          `https://picsum.photos/400/300?random=${Number(id) + 100}`,
-          `https://picsum.photos/400/300?random=${Number(id) + 200}`,
-          `https://picsum.photos/400/300?random=${Number(id) + 300}`,
-          `https://picsum.photos/400/300?random=${Number(id) + 400}`
-        ],
-        description: '这是一个非常精彩的营销活动，旨在提升品牌知名度和用户参与度。',
-        content: `
-          <h3>活动详情</h3>
-          <p>欢迎参加我们的精彩活动！本次活动将为您带来丰富的体验和惊喜。</p>
-          <h4>活动亮点：</h4>
-          <ul>
-            <li>丰厚的奖品等您来拿</li>
-            <li>专业团队精心策划</li>
-            <li>多重互动环节</li>
-            <li>限时优惠活动</li>
-          </ul>
-          <h4>参与方式：</h4>
-          <p>1. 扫描二维码关注我们</p>
-          <p>2. 填写参与信息</p>
-          <p>3. 等待活动开始</p>
-        `,
-        registrationStartTime: '2024-12-15 09:00:00',
-        registrationEndTime: '2024-12-28 23:59:59',
-        startTime: '2025-01-01 10:00:00',
-        endTime: '2025-02-01 23:59:59',
-        participants: 1250,
-        maxParticipants: 2000,
-        createTime: '2024-12-01 14:30:00',
-        creator: '管理员',
-        tags: ['营销', '促销', '限时']
-      }
+      await activityStore.getActivityDetail(id)
 
       // 模拟参与者数据
       participantsList.value = Array.from({ length: 20 }, (_, index) => ({
@@ -399,37 +379,37 @@
   }
 
   // 编辑活动
-  const handleEdit = () => {
-    router.push(`/activity/create?id=${activityData.value.id}&mode=edit`)
-  }
+  // const handleEdit = () => {
+  //   router.push(`/activity/create?id=${activityData.value.id}&mode=edit`)
+  // }
 
   // 结束活动
-  const handleEnd = () => {
-    ElMessageBox.confirm('确定要结束此活动吗？结束后将无法恢复。', '结束活动', {
-      confirmButtonText: '确定',
-      cancelButtonText: '取消',
-      type: 'warning'
-    }).then(() => {
-      activityData.value.status = 'ended'
-      ElMessage.success('活动已结束')
-    })
-  }
+  // const handleEnd = () => {
+  //   ElMessageBox.confirm('确定要结束此活动吗？结束后将无法恢复。', '结束活动', {
+  //     confirmButtonText: '确定',
+  //     cancelButtonText: '取消',
+  //     type: 'warning'
+  //   }).then(() => {
+  //     //activityData.value.status = 'ended'
+  //     ElMessage.success('活动已结束')
+  //   })
+  // }
 
   // 删除活动
-  const handleDelete = () => {
-    ElMessageBox.confirm(
-      `确定要删除活动"${activityData.value.name}"吗？此操作不可恢复。`,
-      '删除活动',
-      {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
-        type: 'error'
-      }
-    ).then(() => {
-      ElMessage.success('删除成功')
-      router.push('/activity/list')
-    })
-  }
+  // const handleDelete = () => {
+  //   ElMessageBox.confirm(
+  //     `确定要删除活动"${activityData.value.title}"吗？此操作不可恢复。`,
+  //     '删除活动',
+  //     {
+  //       confirmButtonText: '确定',
+  //       cancelButtonText: '取消',
+  //       type: 'error'
+  //     }
+  //   ).then(() => {
+  //     ElMessage.success('删除成功')
+  //     router.push('/activity/list')
+  //   })
+  // }
 
   // 导出参与者
   const handleExportParticipants = () => {
@@ -444,8 +424,10 @@
   // 初始化
   onMounted(() => {
     const activityId = route.params.id as string
+
     if (activityId) {
-      fetchActivityDetail(activityId)
+      activityData.value.id = parseInt(activityId, 10)
+      fetchActivityDetail(activityData.value.id)
     }
   })
 </script>

@@ -21,3 +21,17 @@ export interface PaginatedResponse<T> {
 
 // 活动列表接口的响应
 export type ActivityListResponse = PaginatedResponse<Activity>
+
+// 活动详情接口
+export interface EventDetail {
+  id?: number
+  title: string // 活动标题
+  detail: string // 活动详情
+  event_start_time: string // 活动开始时间，例如 "2025-08-28 10:00:00"
+  event_end_time: string // 活动结束时间
+  registration_start_time: string // 报名开始时间
+  registration_end_time: string // 报名截止时间
+  event_address: string // 活动地点
+  registration_fee: number // 报名费用
+  images: string[] // 图片 URL 列表
+}

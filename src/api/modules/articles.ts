@@ -3,20 +3,20 @@
  */
 
 // 文章类型 (新命名规范)
-export interface Article {
-  id?: number
-  blogClass: string
-  title: string
-  count?: number
-  htmlContent: string
-  createTime: string
-  homeImg: string
-  brief: string
-  typeName?: string
-  status?: number
-  author?: string
-  tags?: string[]
-}
+// export interface Article {
+//   id?: number
+//   blogClass: string
+//   title: string
+//   count?: number
+//   htmlContent: string
+//   createTime: string
+//   homeImg: string
+//   brief: string
+//   typeName?: string
+//   status?: number
+//   author?: string
+//   tags?: string[]
+// }
 
 // 兼容原有的文章类型命名
 export interface ArticleType {

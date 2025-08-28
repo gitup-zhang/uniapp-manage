@@ -241,8 +241,8 @@
 
       // 存储token和用户信息
       userStore.setToken(token)
-      // const userInfo = await UserService.getUserInfo()
-      // userStore.setUserInfo(userInfo)
+      const userInfo = await UserService.getUserInfo()
+      userStore.setUserInfo(userInfo)
       userStore.setLoginStatus(true)
 
       // 登录成功处理
