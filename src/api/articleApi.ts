@@ -35,7 +35,7 @@ export class ArticleService {
   // 新增文章
   static addArticle(params: any) {
     return request.post<BaseResponse>({
-      url: '/api/articles/',
+      url: '/api/articles/create',
       data: params
     })
   }
@@ -45,6 +45,12 @@ export class ArticleService {
     return request.put<BaseResponse>({
       url: `/api/articles/${id}`,
       data: params
+    })
+  }
+  // 删除文章
+  static deleteArticle(id: number) {
+    return request.del<BaseResponse>({
+      url: `/api//articles/delete/${id}`
     })
   }
 }

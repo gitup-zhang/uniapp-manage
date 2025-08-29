@@ -211,7 +211,7 @@
   import { ApiStatus } from '@/utils/http/status'
   import { ActivityService } from '@/api/activityApi'
   import { useActivityStore } from '@/store/modules/activity'
-  import { ref, reactive, onMounted } from 'vue'
+  import { ref, reactive, onMounted, watch } from 'vue'
   import { useRoute, useRouter } from 'vue-router'
 
   defineOptions({ name: 'ActivityCreate' })
@@ -380,6 +380,20 @@
       }
     }
   }
+  // 恢复初始状态函数
+  const resetFormData = () => {
+    formData.title = ''
+    formData.registration_start_time = ''
+    formData.registration_end_time = ''
+    formData.event_start_time = ''
+    formData.event_end_time = ''
+    formData.cover_image_url = ''
+    formData.image_id_list = []
+    formData.detail = ''
+    formData.event_address = ''
+    formData.registration_fee = 0
+    formData.tags = []
+  }
 
   // 提交表单
   const handleSubmit = async () => {
@@ -398,6 +412,7 @@
         await ActivityService.createActivity(formData)
         ElMessage.success('活动创建成功!')
       }
+      resetFormData()
 
       router.push('/activity/list')
     } catch (error) {
@@ -414,6 +429,7 @@
 
   // 初始化页面数据
   const initPageData = async () => {
+    resetFormData()
     const { id, mode } = route.query
 
     if (mode === 'edit' && id) {
@@ -472,6 +488,12 @@
   onMounted(() => {
     initPageData()
   })
+  watch(
+    () => route.query.id,
+    () => {
+      initPageData()
+    }
+  )
 </script>
 
 <style lang="scss" scoped>

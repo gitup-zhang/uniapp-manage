@@ -24,7 +24,7 @@ export interface ErrorLogData {
 // 自定义 HttpError 类
 export class HttpError extends Error {
   public readonly code: number
-  public readonly data?: unknown
+  public readonly data?: any
   public readonly timestamp: string
   public readonly url?: string
   public readonly method?: string
@@ -123,7 +123,8 @@ export function handleError(error: AxiosError<ErrorResponse>): never {
  */
 export function showError(error: HttpError, showMessage: boolean = true): void {
   if (showMessage) {
-    ElMessage.error(error.message)
+    console.log('[HTTP Error]', error)
+    ElMessage.error(error.data.message)
   }
   // 记录错误日志
   console.error('[HTTP Error]', error.toLogData())

@@ -314,6 +314,7 @@
   import { RoutesAlias } from '@/router/routesAlias'
   import { ArticleType } from '@/api/modules'
   import { useArticlesStore } from '@/store/modules/article'
+  import { ArticleService } from '@/api/articleApi'
 
   defineOptions({ name: 'ArticleList' })
 
@@ -436,6 +437,7 @@
 
   // 删除文章
   const handleDelete = (item: ArticleType) => {
+    console.log('删除文章：', item.article_id)
     ElMessageBox.confirm(`确定要删除文章"${item.article_title}"吗？此操作不可恢复。`, '删除文章', {
       confirmButtonText: '确定',
       cancelButtonText: '取消',
@@ -443,7 +445,7 @@
     }).then(async () => {
       try {
         // 这里应该调用删除文章的API
-        // await ArticleService.deleteArticle(item.article_id)
+        await ArticleService.deleteArticle(item.article_id)
         ElMessage.success('删除成功')
         // 重新获取文章列表
         articlestore.getArticles(Params)
