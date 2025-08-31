@@ -289,6 +289,58 @@ export const asyncRoutes: AppRouteRecord[] = [
     ]
   },
   {
+    path: '/groups',
+    name: 'Groups',
+    component: RoutesAlias.Layout,
+    meta: {
+      title: 'menus.groups.title',
+      icon: '&#xe668;',
+      roles: ['R_SUPER', 'R_ADMIN']
+    },
+    children: [
+      {
+        path: 'create',
+        name: 'GroupCreate',
+        component: RoutesAlias.GroupCreate,
+        meta: {
+          title: 'menus.groups.create',
+          keepAlive: true,
+          roles: ['R_SUPER', 'R_ADMIN'],
+          authList: [
+            {
+              title: '创建',
+              authMark: 'create'
+            }
+          ]
+        }
+      },
+      {
+        path: 'list',
+        name: 'GroupList',
+        component: RoutesAlias.GroupList,
+        meta: {
+          title: 'menus.groups.list',
+          keepAlive: true,
+          roles: ['R_SUPER', 'R_ADMIN'],
+          authList: [
+            {
+              title: '查看',
+              authMark: 'view'
+            },
+            {
+              title: '编辑',
+              authMark: 'edit'
+            },
+            {
+              title: '删除',
+              authMark: 'delete'
+            }
+          ]
+        }
+      }
+    ]
+  },
+  {
     path: '/result',
     name: 'Result',
     component: RoutesAlias.Layout,

@@ -345,6 +345,11 @@
       "create": "Create Notice",
       "detail": "Notice Detail"
     },
+    "groups": {
+      "title": "Group Messages",
+      "create": "Create Group",
+      "list": "Group List"
+    },
     "result": {
       "title": "Result Page",
       "success": "Success",

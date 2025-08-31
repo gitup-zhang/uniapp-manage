@@ -337,6 +337,11 @@
       "create": "新建公告",
       "detail": "公告详情"
     },
+    "groups": {
+      "title": "群组消息",
+      "create": "创建群组",
+      "list": "群组列表"
+    },
     "result": {
       "title": "结果页面",
       "success": "成功页",

@@ -1,4 +1,5 @@
 import request from '@/utils/http'
+import { UserListResponse } from '@/api/modules/user'
 
 export class UserService {
   // 登录
@@ -37,9 +38,9 @@ export class UserService {
   }
 
   // 获取用户列表
-  static getUserList(params: Api.Common.PaginatingSearchParams) {
-    return request.get<Api.User.UserListData>({
-      url: '/api/user/list',
+  static getUserList(params: any) {
+    return request.get<UserListResponse>({
+      url: '/api/user/listAll',
       params
     })
   }

@@ -43,6 +43,10 @@ export enum RoutesAlias {
   NoticeCreate = '/notice/create', // 新建公告
   NoticeDetail = '/notice/detail', // 公告详情
 
+  // 群组管理
+  GroupCreate = '/groups/create', // 创建群组
+  GroupList = '/groups/list', // 群组列表
+
   // 调试页面
   RouteDebug = '/debug/route-debug' // 路由调试
 }
