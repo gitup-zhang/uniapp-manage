@@ -110,7 +110,7 @@ export const asyncRoutes: AppRouteRecord[] = [
         component: RoutesAlias.ActivityCreate,
         meta: {
           title: 'menus.activity.create',
-          keepAlive: true,
+          keepAlive: false,
           roles: ['R_SUPER', 'R_ADMIN'],
           authList: [
             {
@@ -213,7 +213,7 @@ export const asyncRoutes: AppRouteRecord[] = [
         component: RoutesAlias.ArticlePublish,
         meta: {
           title: 'menus.article.articlePublish',
-          keepAlive: true
+          keepAlive: false
           // authList: [
           //   {
           //     title: '发布',
@@ -336,6 +336,30 @@ export const asyncRoutes: AppRouteRecord[] = [
               authMark: 'delete'
             }
           ]
+        }
+      },
+      {
+        path: 'detail/:id',
+        name: 'GroupDetail',
+        component: RoutesAlias.GroupDetail,
+        meta: {
+          title: 'menus.groups.detail',
+          isHide: true,
+          keepAlive: false,
+          isHideTab: true,
+          activePath: '/groups/list'
+        }
+      },
+      {
+        path: 'chat/:id',
+        name: 'GroupChat',
+        component: RoutesAlias.GroupChat,
+        meta: {
+          title: 'menus.groups.chat',
+          isHide: true,
+          keepAlive: false,
+          isHideTab: true,
+          activePath: '/groups/list'
         }
       }
     ]

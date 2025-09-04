@@ -88,11 +88,15 @@
             </ElTag>
           </template>
         </ElTableColumn>
-        <ElTableColumn label="操作" min-width="200" align="center" fixed="right">
+        <ElTableColumn label="操作" min-width="260" align="center" fixed="right">
           <template #default="{ row }">
             <ElButton type="primary" size="small" @click="handleView(row)">
               <ElIcon><View /></ElIcon>
               查看
+            </ElButton>
+            <ElButton type="success" size="small" @click="handleChat(row)">
+              <ElIcon><ChatDotRound /></ElIcon>
+              发送消息
             </ElButton>
             <ElButton type="warning" size="small" @click="handleEdit(row)">
               <ElIcon><Edit /></ElIcon>
@@ -117,21 +121,76 @@
         />
       </div>
     </ElCard>
+
+    <!-- 编辑群组弹出框 -->
+    <ElDialog
+      v-model="editDialogVisible"
+      title="编辑群组"
+      width="500px"
+      :close-on-click-modal="false"
+      :close-on-press-escape="false"
+    >
+      <ElForm ref="editFormRef" :model="editForm" :rules="editFormRules" label-width="80px">
+        <ElFormItem label="群组名称" prop="group_name">
+          <ElInput v-model="editForm.group_name" placeholder="请输入群组名称" clearable />
+        </ElFormItem>
+        <ElFormItem label="群组描述" prop="desc">
+          <ElInput
+            v-model="editForm.desc"
+            type="textarea"
+            :rows="4"
+            placeholder="请输入群组描述"
+            maxlength="200"
+            show-word-limit
+          />
+        </ElFormItem>
+      </ElForm>
+
+      <template #footer>
+        <div class="dialog-footer">
+          <ElButton @click="cancelEdit">取消</ElButton>
+          <ElButton type="primary" @click="confirmEdit" :loading="editLoading">确认</ElButton>
+        </div>
+      </template>
+    </ElDialog>
   </div>
 </template>
 
 <script setup lang="ts">
   import { ref, reactive, onMounted, onActivated } from 'vue'
   import { useRouter } from 'vue-router'
-  import { ElMessage, ElMessageBox } from 'element-plus'
-  import { Search, Refresh, Plus, View, Edit, Delete } from '@element-plus/icons-vue'
+  import { ElMessage, ElMessageBox, type FormInstance, type FormRules } from 'element-plus'
+  import { Search, Refresh, Plus, View, Edit, Delete, ChatDotRound } from '@element-plus/icons-vue'
   import { useGroupStore } from '@/store/modules/group'
+  import { groupService } from '@/api/groupApi'
+  import type { GroupItem } from '@/api/modules/group'
 
   defineOptions({ name: 'GroupList' })
 
   const router = useRouter()
   const loading = ref(false)
   const groupStore = useGroupStore()
+
+  // 编辑相关状态
+  const editDialogVisible = ref(false)
+  const editLoading = ref(false)
+  const editFormRef = ref<FormInstance>()
+  const currentEditGroup = ref<GroupItem | null>(null)
+
+  // 编辑表单数据
+  const editForm = reactive({
+    group_name: '',
+    desc: ''
+  })
+
+  // 编辑表单验证规则
+  const editFormRules: FormRules = {
+    group_name: [
+      { required: true, message: '请输入群组名称', trigger: 'blur' },
+      { min: 1, max: 50, message: '群组名称长度在 1 到 50 个字符', trigger: 'blur' }
+    ],
+    desc: [{ max: 200, message: '群组描述不能超过 200 个字符', trigger: 'blur' }]
+  }
 
   // 搜索表单
   const searchForm = reactive({
@@ -200,15 +259,64 @@
   }
 
   // 查看群组
-  const handleView = (row: any) => {
-    ElMessage.info(`查看群组: ${row.name}`)
-    // 这里可以跳转到群组详情页面
+  const handleView = (row: GroupItem) => {
+    // 将群组信息保存到sessionStorage
+    sessionStorage.setItem(`groupInfo_${row.id}`, JSON.stringify(row))
+    router.push(`/groups/detail/${row.id}`)
+  }
+
+  // 群组聊天
+  const handleChat = (row: GroupItem) => {
+    // 将群组信息保存到sessionStorage
+    sessionStorage.setItem(`groupInfo_${row.id}`, JSON.stringify(row))
+    router.push(`/groups/chat/${row.id}`)
   }
 
   // 编辑群组
-  const handleEdit = (row: any) => {
-    ElMessage.info(`编辑群组: ${row.name}`)
-    // 这里可以跳转到编辑页面或打开编辑弹框
+  const handleEdit = (row: GroupItem) => {
+    currentEditGroup.value = row
+    editForm.group_name = row.group_name
+    editForm.desc = row.desc || ''
+    editDialogVisible.value = true
+  }
+
+  // 取消编辑
+  const cancelEdit = () => {
+    editDialogVisible.value = false
+    editFormRef.value?.resetFields()
+    currentEditGroup.value = null
+  }
+
+  // 确认编辑
+  const confirmEdit = async () => {
+    if (!editFormRef.value || !currentEditGroup.value) return
+
+    try {
+      // 验证表单
+      await editFormRef.value.validate()
+
+      editLoading.value = true
+
+      // 调用更新API
+      await groupService.updateGroup(
+        {
+          group_name: editForm.group_name,
+          desc: editForm.desc
+        },
+        currentEditGroup.value.id
+      )
+
+      ElMessage.success('群组更新成功')
+      editDialogVisible.value = false
+
+      // 刷新数据
+      await loadData()
+    } catch (error) {
+      console.error('更新群组失败:', error)
+      ElMessage.error('更新群组失败，请重试')
+    } finally {
+      editLoading.value = false
+    }
   }
 
   // 删除群组
@@ -225,7 +333,7 @@
       )
 
       // 模拟删除API调用
-      ElMessage.success('删除成功')
+      await groupService.deleteGroup(row.id)
       // 删除成功后刷新数据
       loadData()
     } catch {
@@ -350,6 +458,38 @@
     :deep(.el-table) {
       .el-button {
         margin: 0 2px;
+      }
+    }
+
+    // 编辑对话框样式
+    :deep(.el-dialog) {
+      border-radius: 12px;
+
+      .el-dialog__header {
+        padding: 20px 20px 0;
+        border-bottom: 1px solid var(--el-border-color-light);
+        margin-bottom: 20px;
+
+        .el-dialog__title {
+          font-size: 18px;
+          font-weight: 600;
+          color: var(--el-text-color-primary);
+        }
+      }
+
+      .el-dialog__body {
+        padding: 0 20px 20px;
+      }
+
+      .el-dialog__footer {
+        padding: 20px;
+        border-top: 1px solid var(--el-border-color-light);
+
+        .dialog-footer {
+          display: flex;
+          justify-content: flex-end;
+          gap: 12px;
+        }
       }
     }
   }

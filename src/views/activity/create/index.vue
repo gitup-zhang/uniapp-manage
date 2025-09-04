@@ -213,6 +213,7 @@
   import { useActivityStore } from '@/store/modules/activity'
   import { ref, reactive, onMounted, watch } from 'vue'
   import { useRoute, useRouter } from 'vue-router'
+  import { formatTime } from '@/utils/date'
 
   defineOptions({ name: 'ActivityCreate' })
 
@@ -369,10 +370,12 @@
       console.log('删除的id', imageItem.id)
 
       // 如果是新上传的图片（有id且不是编辑模式下的原始图片），则调用删除API
-      if (imageItem.id && typeof imageItem.id === 'number' && imageItem.id > 0) {
+      // if (imageItem.id && typeof imageItem.id === 'number' && imageItem.id > 0) {
+      //   imageService.deleteImage(imageItem.id)
+      // }
+      if (imageItem.id > 0) {
         imageService.deleteImage(imageItem.id)
       }
-
       displayImagesList.value.splice(index, 1)
       // 同步更新image_id_list
       if (formData.image_id_list.length > index) {
@@ -445,34 +448,32 @@
         // 填充表单数据
         Object.assign(formData, {
           title: activityDetail.title || '',
-          registration_start_time: activityDetail.registration_start_time || '',
-          registration_end_time: activityDetail.registration_end_time || '',
-          event_start_time: activityDetail.event_start_time || '',
-          event_end_time: activityDetail.event_end_time || '',
+          registration_start_time: formatTime(activityDetail.registration_start_time) || '',
+          registration_end_time: formatTime(activityDetail.registration_end_time) || '',
+          event_start_time: formatTime(activityDetail.event_start_time) || '',
+          event_end_time: formatTime(activityDetail.event_end_time) || '',
           detail: activityDetail.detail || '',
           event_address: activityDetail.event_address || '',
           registration_fee: activityDetail.registration_fee || 0,
+          cover_image_url: activityDetail.cover_image_url || '',
           tags: [] // 如果后端返回tags数据，这里需要相应调整
         })
 
         // 处理图片数据
         if (activityDetail.images && activityDetail.images.length > 0) {
-          // 设置封面图片（取第一张图片作为封面）
-          formData.cover_image_url = activityDetail.images[0] || ''
-
           // 处理展示图片列表（除了封面图片外的其他图片）
-          if (activityDetail.images.length > 1) {
-            displayImagesList.value = activityDetail.images.slice(1).map((url, index) => ({
-              name: `existing_image_${index + 1}`,
-              url: url,
-              uid: `existing_${Date.now()}_${index}`,
-              id: `existing_${index}`, // 用字符串标识原有图片，区分于新上传的图片
-              status: 'success'
-            }))
+          // if (activityDetail.images.length > 1) {
+          displayImagesList.value = activityDetail.images.map((url, index) => ({
+            name: `existing_image_${index + 1}`,
+            url: url.url,
+            uid: `existing_${Date.now()}_${index}`,
+            id: url.image_id, // 用字符串标识原有图片，区分于新上传的图片
+            status: 'success'
+          }))
 
-            // 初始化image_id_list（编辑模式下可能不需要这个字段）
-            formData.image_id_list = []
-          }
+          // 初始化image_id_list（编辑模式下可能不需要这个字段）
+          formData.image_id_list = []
+          // }
         }
       } catch (error) {
         console.error('获取活动详情失败:', error)

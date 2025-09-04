@@ -17,10 +17,13 @@ export const useArticlesStore = defineStore('article', () => {
     article_id: 0,
     article_title: '',
     field_name: '',
+    field_type: '',
     release_time: '',
     article_content: '',
     article_type_code: 'POLICY',
-    article_type: ''
+    article_type: '',
+    cover_image_url: '',
+    brief_content: ''
   })
   // 获取政策和新闻
   const getArticles = async (param: any) => {

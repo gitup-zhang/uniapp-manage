@@ -90,15 +90,23 @@ export interface Field {
 export interface FieldListResponse {
   data: Field[] // 领域数组
 }
+interface ArticleImage {
+  image_id: number // 图片ID
+  url: string // 图片URL
+}
 // 单条文章对象
 export interface Article {
   article_id: number // 文章id
   article_title: string // 文章标题
   field_name: string // 领域类型
+  field_type: string
   release_time: string // 发布时间，建议ISO字符串
   article_content: string // 文章内容
   article_type_code: 'POLICY' | 'NEWS' // 文章类型编码
   article_type: string // 文章类型（政策，新闻）
+  brief_content: string // 文章摘要
+  cover_image_url: string
+  images?: ArticleImage[]
 }
 
 // 接口响应

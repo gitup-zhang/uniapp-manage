@@ -73,6 +73,7 @@
           stripe
         >
           <ElTableColumn type="index" label="序号" width="60" />
+          <ElTableColumn label="ID" width="60" prop="id" />
           <ElTableColumn label="活动封面" width="120">
             <template #default="{ row }">
               <ElImage

@@ -4,14 +4,11 @@
       <!-- 用户头像和基本信息 -->
       <div class="user-header">
         <img
-          :src="userData?.avatar || '/src/assets/images/avatar/avatar-default.png'"
+          :src="userData?.avatar_url || '/src/assets/images/avatar/avatar-default.png'"
           class="user-avatar"
         />
         <div class="user-basic">
-          <h3>{{ userData?.name }}</h3>
-          <ElTag :type="getStatusType(userData?.status)">
-            {{ getStatusText(userData?.status) }}
-          </ElTag>
+          <h3>{{ userData?.name || '未知' }}</h3>
         </div>
       </div>
 
@@ -20,56 +17,64 @@
         <ElRow :gutter="16">
           <ElCol :span="12">
             <div class="info-item">
+              <span class="label">昵称：</span>
+              <span class="value">{{ userData?.nickname || '未知' }}</span>
+            </div>
+          </ElCol>
+          <ElCol :span="12">
+            <div class="info-item">
               <span class="label">姓名：</span>
-              <span class="value">{{ userData?.name || '-' }}</span>
+              <span class="value">{{ userData?.name || '未知' }}</span>
             </div>
           </ElCol>
           <ElCol :span="12">
             <div class="info-item">
               <span class="label">性别：</span>
-              <span class="value">{{ userData?.gender || '-' }}</span>
+              <span class="value">{{ userData?.gender || '未知' }}</span>
             </div>
           </ElCol>
           <ElCol :span="12">
             <div class="info-item">
               <span class="label">电话：</span>
-              <span class="value">{{ userData?.phone || '-' }}</span>
+              <span class="value">{{ userData?.phone || userData?.phone_number || '未知' }}</span>
             </div>
           </ElCol>
           <ElCol :span="12">
             <div class="info-item">
               <span class="label">邮箱：</span>
-              <span class="value">{{ userData?.email || '-' }}</span>
+              <span class="value">{{ userData?.email || '未知' }}</span>
             </div>
           </ElCol>
           <ElCol :span="12">
             <div class="info-item">
-              <span class="label">职位：</span>
-              <span class="value">{{ userData?.position || '-' }}</span>
-            </div>
-          </ElCol>
-          <ElCol :span="12">
-            <div class="info-item">
-              <span class="label">行业：</span>
-              <span class="value">{{ userData?.industry || '-' }}</span>
-            </div>
-          </ElCol>
-          <ElCol :span="24">
-            <div class="info-item">
-              <span class="label">单位：</span>
-              <span class="value">{{ userData?.company || '-' }}</span>
+              <span class="label">岗位：</span>
+              <span class="value">{{ userData?.position || '未知' }}</span>
             </div>
           </ElCol>
           <ElCol :span="12">
             <div class="info-item">
               <span class="label">部门：</span>
-              <span class="value">{{ userData?.department || '-' }}</span>
+              <span class="value">{{ userData?.department || '未知' }}</span>
             </div>
           </ElCol>
           <ElCol :span="12">
             <div class="info-item">
-              <span class="label">创建时间：</span>
-              <span class="value">{{ userData?.createTime || '-' }}</span>
+              <span class="label">行业：</span>
+              <span class="value">{{
+                userData?.industry || userData?.industry_name || '未知'
+              }}</span>
+            </div>
+          </ElCol>
+          <ElCol :span="24">
+            <div class="info-item">
+              <span class="label">单位：</span>
+              <span class="value">{{ userData?.company || userData?.unit || '未知' }}</span>
+            </div>
+          </ElCol>
+          <ElCol :span="12">
+            <div class="info-item">
+              <span class="label">角色：</span>
+              <span class="value">{{ userData?.role_name || '未知' }}</span>
             </div>
           </ElCol>
         </ElRow>
@@ -85,11 +90,9 @@
 </template>
 
 <script setup lang="ts">
-  import { ElTag } from 'element-plus'
-
   interface Props {
     visible: boolean
-    userData?: Api.User.UserListItem | Record<string, any>
+    userData?: any
   }
 
   interface Emits {
@@ -106,26 +109,8 @@
   })
 
   // 状态类型映射
-  const getStatusType = (status?: string) => {
-    const statusMap = {
-      '1': 'success',
-      '2': 'info',
-      '3': 'warning',
-      '4': 'danger'
-    } as const
-    return statusMap[status as keyof typeof statusMap] || 'info'
-  }
 
   // 状态文本映射
-  const getStatusText = (status?: string) => {
-    const statusMap = {
-      '1': '在线',
-      '2': '离线',
-      '3': '异常',
-      '4': '注销'
-    }
-    return statusMap[status as keyof typeof statusMap] || '未知'
-  }
 </script>
 
 <style lang="scss" scoped>

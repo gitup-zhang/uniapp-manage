@@ -1,5 +1,5 @@
 import request from '@/utils/http'
-import { ActivityListResponse, EventDetail } from '@/api/modules/activity'
+import { ActivityListResponse, EventDetailApi, UserListResponse } from '@/api/modules/activity'
 
 export class ActivityService {
   // 获取活动列表
@@ -18,7 +18,7 @@ export class ActivityService {
   }
   // 活动详情
   static getActivityDetail(params: number) {
-    return request.get<EventDetail>({
+    return request.get<EventDetailApi>({
       url: `/api/event/${params}`
     })
   }
@@ -34,6 +34,13 @@ export class ActivityService {
   static deleteActivity(id: number) {
     return request.del({
       url: `/api/event/delete/${id}`
+    })
+  }
+  // 获取活动已报名的人
+  static getActivityEnrollList(id: number, pageParams?: { page?: number; page_size?: number }) {
+    return request.get<UserListResponse>({
+      url: `/api/event/regUsers/${id}`,
+      params: pageParams
     })
   }
 }

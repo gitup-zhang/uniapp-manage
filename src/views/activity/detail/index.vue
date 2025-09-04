@@ -100,8 +100,8 @@
           </div>
           <div class="cover-container">
             <ElImage
-              :src="activityStore.ActivityDetail.images[0]"
-              :preview-src-list="[activityStore.ActivityDetail.images[0]]"
+              :src="activityStore.ActivityDetail.cover_image_url"
+              :preview-src-list="[activityStore.ActivityDetail.cover_image_url]"
               fit="cover"
               class="activity-cover"
             />
@@ -120,73 +120,16 @@
           </div>
           <div class="display-images-container">
             <ElImage
-              v-for="(image, index) in activityStore.ActivityDetail.images"
-              :key="index"
-              :src="image"
-              :preview-src-list="activityStore.ActivityDetail.images"
-              :initial-index="index"
+              v-for="image in activityStore.ActivityDetail.images"
+              :key="image.image_id"
+              :src="image.url"
+              :preview-src-list="[image.url]"
+              :initial-index="image.image_id"
               fit="cover"
               class="display-image"
             />
           </div>
         </div>
-
-        <!-- 活动描述 -->
-        <!-- <div class="detail-section">
-          <div class="section-header">
-            <h3>活动描述</h3>
-          </div>
-          <div class="description-content">
-            {{ activityData.description }}
-          </div>
-        </div> -->
-
-        <!-- 参与统计 -->
-        <!-- <div class="detail-section">
-          <div class="section-header">
-            <h3>参与统计</h3>
-          </div>
-          <ElRow :gutter="24">
-            <ElCol :span="6">
-              <div class="stat-card">
-                <div class="stat-number">{{ activityData.participants }}</div>
-                <div class="stat-label">当前参与人数</div>
-              </div>
-            </ElCol>
-            <ElCol :span="6">
-              <div class="stat-card">
-                <div class="stat-number">
-                  {{ activityData.maxParticipants > 0 ? activityData.maxParticipants : '∞' }}
-                </div>
-                <div class="stat-label">最大参与人数</div>
-              </div>
-            </ElCol>
-            <ElCol :span="6">
-              <div class="stat-card">
-                <div class="stat-number">{{ participationRate }}</div>
-                <div class="stat-label">参与率</div>
-              </div>
-            </ElCol>
-            <ElCol :span="6">
-              <div class="stat-card">
-                <div class="stat-number">{{ remainingDays }}</div>
-                <div class="stat-label">剩余天数</div>
-              </div>
-            </ElCol>
-          </ElRow>
-        </div> -->
-
-        <!-- 活动标签 -->
-        <!-- <div class="detail-section" v-if="activityData.tags && activityData.tags.length > 0">
-          <div class="section-header">
-            <h3>活动标签</h3>
-          </div>
-          <div class="tags-container">
-            <ElTag v-for="tag in activityData.tags" :key="tag" class="activity-tag" type="info">
-              {{ tag }}
-            </ElTag>
-          </div>
-        </div>-->
 
         <!-- 活动详情 -->
         <div class="detail-section">
@@ -202,12 +145,11 @@
             <h3>参与者列表</h3>
             <ElButton size="small" @click="handleExportParticipants"> 导出参与者 </ElButton>
           </div>
-          <ElTable :data="participantsList" style="width: 100%" max-height="400">
+          <ElTable :data="activityStore.ActivityEnrollList" style="width: 100%">
             <ElTableColumn prop="name" label="姓名" width="120" />
-            <ElTableColumn prop="phone" label="手机号" width="140" />
+            <ElTableColumn prop="phone_number" label="手机号" width="140" />
             <ElTableColumn prop="email" label="邮箱" width="200" />
-            <ElTableColumn prop="joinTime" label="参与时间" width="180" />
-            <ElTableColumn prop="source" label="参与来源" width="120" />
+
             <ElTableColumn label="操作" width="100">
               <template #default="{ row }">
                 <ElButton size="small" type="text" @click="handleViewParticipant(row)">
@@ -216,6 +158,17 @@
               </template>
             </ElTableColumn>
           </ElTable>
+
+          <!-- 分页组件 -->
+          <div class="pagination-container">
+            <ElPagination
+              v-model:current-page="pageParams.page"
+              v-model:page-size="pageParams.pageSize"
+              :total="pageParams.total"
+              layout="total,prev, pager, next, jumper"
+              @current-change="handlePageChange"
+            />
+          </div>
         </div>
       </div>
     </ElCard>
@@ -264,6 +217,13 @@
   const route = useRoute()
   const router = useRouter()
   const loading = ref(true)
+
+  // 分页相关数据
+  const pageParams = reactive({
+    page: 1,
+    pageSize: 10,
+    total: 0
+  })
 
   // 活动数据
   const activityData = ref<ActivityDetailData>({
@@ -353,8 +313,14 @@
     try {
       loading.value = true
 
-      // 模拟API调用
-      await activityStore.getActivityDetail(id)
+      // 获取活动详情和第一页的参与者列表
+      await activityStore.getActivityDetail(id, {
+        page: pageParams.page,
+        page_size: pageParams.pageSize
+      })
+
+      // 更新分页数据
+      pageParams.total = activityStore.ActivityEnrollTotal
 
       // 模拟参与者数据
       participantsList.value = Array.from({ length: 20 }, (_, index) => ({
@@ -370,6 +336,32 @@
       console.error(error)
     } finally {
       loading.value = false
+    }
+  }
+
+  // 获取参与者列表（带分页）
+  const fetchParticipantsList = async (id: number) => {
+    try {
+      loading.value = true
+      await activityStore.getActivityDetail(id, {
+        page: pageParams.page,
+        page_size: pageParams.pageSize
+      })
+      pageParams.total = activityStore.ActivityEnrollTotal
+    } catch (error) {
+      ElMessage.error('获取参与者列表失败')
+      console.error(error)
+    } finally {
+      loading.value = false
+    }
+  }
+
+  // 处理分页变化
+  const handlePageChange = (newPage: number) => {
+    pageParams.page = newPage
+    const activityId = route.params.id as string
+    if (activityId) {
+      fetchParticipantsList(parseInt(activityId, 10))
     }
   }
 
@@ -582,6 +574,16 @@
             margin: 12px 0;
             color: var(--art-text-gray-700);
           }
+        }
+
+        // 分页容器样式
+        .pagination-container {
+          display: flex;
+          justify-content: flex-end;
+          align-items: center;
+          margin-top: 20px;
+          padding: 16px 0;
+          border-top: 1px solid var(--el-border-color-light);
         }
       }
     }

@@ -43,7 +43,7 @@ export class ArticleService {
   // 编辑文章
   static editArticle(id: number, params: any) {
     return request.put<BaseResponse>({
-      url: `/api/articles/${id}`,
+      url: `/api/articles/update/${id}`,
       data: params
     })
   }

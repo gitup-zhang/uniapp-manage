@@ -98,10 +98,22 @@
   } as const
 
   // 计算属性：上传服务器地址
-  const uploadServer = computed(
-    () =>
-      props.uploadConfig?.server || `${import.meta.env.VITE_API_URL}/api/common/upload/wangeditor`
-  )
+  // const uploadServer = computed(
+  //   () => props.uploadConfig?.server || `${import.meta.env.VITE_API_URL}/file/upload`
+  // )
+  // 计算属性：上传服务器地址
+  const uploadServer = computed(() => {
+    // 如果有自定义服务器地址，直接使用
+    if (props.uploadConfig?.server) {
+      return props.uploadConfig.server
+    }
+    // 开发环境使用代理地址，生产环境使用完整地址
+    if (import.meta.env.DEV) {
+      return '/api/file/upload'
+    } else {
+      return `${import.meta.env.VITE_API_URL}/file/upload`
+    }
+  })
 
   // 合并上传配置
   const mergedUploadConfig = computed(() => ({
@@ -132,24 +144,69 @@
   })
 
   // 编辑器配置
+  // const editorConfig: Partial<IEditorConfig> = {
+  //   placeholder: props.placeholder,
+  //   MENU_CONF: {
+  //     uploadImage: {
+  //       fieldName: mergedUploadConfig.value.fieldName,
+  //       maxFileSize: mergedUploadConfig.value.maxFileSize,
+  //       maxNumberOfFiles: mergedUploadConfig.value.maxNumberOfFiles,
+  //       allowedFileTypes: mergedUploadConfig.value.allowedFileTypes,
+  //       server: uploadServer.value,
+  //       headers: {
+  //         Authorization: userStore.accessToken
+  //       },
+  //       onSuccess() {
+  //         ElMessage.success(`图片上传成功 ${EmojiText[200]}`)
+  //       },
+  //       onError(file: File, err: any, res: any) {
+  //         console.error('图片上传失败:', err, res)
+  //         ElMessage.error(`图片上传失败 ${EmojiText[500]}`)
+  //       }
+  //     }
+  //   }
+  // }
+  // 编辑器配置
   const editorConfig: Partial<IEditorConfig> = {
     placeholder: props.placeholder,
     MENU_CONF: {
       uploadImage: {
-        fieldName: mergedUploadConfig.value.fieldName,
-        maxFileSize: mergedUploadConfig.value.maxFileSize,
-        maxNumberOfFiles: mergedUploadConfig.value.maxNumberOfFiles,
-        allowedFileTypes: mergedUploadConfig.value.allowedFileTypes,
-        server: uploadServer.value,
-        headers: {
-          Authorization: userStore.accessToken
-        },
-        onSuccess() {
-          ElMessage.success(`图片上传成功 ${EmojiText[200]}`)
-        },
-        onError(file: File, err: any, res: any) {
-          console.error('图片上传失败:', err, res)
-          ElMessage.error(`图片上传失败 ${EmojiText[500]}`)
+        // 使用自定义上传
+        async customUpload(file: File, insertFn: any) {
+          try {
+            // 创建FormData
+            const formData = new FormData()
+            formData.append(mergedUploadConfig.value.fieldName, file)
+
+            // 发送请求
+            const response = await fetch(uploadServer.value, {
+              method: 'POST',
+              headers: {
+                Authorization: `Bearer ${userStore.accessToken}`
+              },
+              body: formData
+            })
+
+            const res = await response.json()
+            console.log('上传响应:', res)
+
+            // 检查响应并解析图片URL - 根据你的响应格式
+            if (res && res.code === 200 && res.data && res.data.url) {
+              const imageUrl = res.data.url
+              const imageName = res.data.file_name || file.name
+
+              // 插入图片到编辑器
+              insertFn(imageUrl, imageName)
+              ElMessage.success(`图片上传成功 ${EmojiText[200]}`)
+              return
+            }
+
+            // 上传失败
+            throw new Error(res.message || '上传失败')
+          } catch (error) {
+            console.error('图片上传失败:', error)
+            ElMessage.error(`图片上传失败 ${EmojiText[500]}`)
+          }
         }
       }
     }

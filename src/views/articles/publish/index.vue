@@ -160,7 +160,7 @@
     article_type: '', // 类型代码
     brief_content: '', // 内容简介
     article_content: '', // 内容
-    is_selection: 2, // 是否精选，1-精选，2-非精选，默认=2
+    is_selection: 1, // 是否精选，1-精选，2-非精选，默认=2
     field_type: '', // 领域类型代码
     cover_image_url: '', // 封面url
     article_source: '', // 文章来源
@@ -240,9 +240,9 @@
       formData.value.article_title = Article.ArticleDetail.article_title
       formData.value.article_type = Article.ArticleDetail.article_type_code
       formData.value.article_content = Article.ArticleDetail.article_content
-      //formData.value.cover_image_url = Article.ArticleDetail.cover_image_url
-      //formData.value.brief_content = Article.ArticleDetail.brief_content
-      formData.value.field_type = Article.ArticleDetail.field_name
+      formData.value.cover_image_url = Article.ArticleDetail.cover_image_url
+      formData.value.brief_content = Article.ArticleDetail.brief_content
+      formData.value.field_type = Article.ArticleDetail.field_type
     } catch (e) {
       console.log('获取文章详情失败', e)
     }

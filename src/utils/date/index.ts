@@ -6,7 +6,7 @@ import dayjs from 'dayjs'
  * @param formatStr 格式化模板，默认 'YYYY-MM-DD HH:mm'
  * @returns 格式化后的时间字符串
  */
-export function formatTime(isoString: string, formatStr = 'YYYY-MM-DD HH:mm') {
+export function formatTime(isoString: string, formatStr = 'YYYY-MM-DD HH:mm:ss') {
   return dayjs(isoString).format(formatStr)
 }
 

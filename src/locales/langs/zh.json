@@ -340,7 +340,9 @@
     "groups": {
       "title": "群组消息",
       "create": "创建群组",
-      "list": "群组列表"
+      "list": "群组列表",
+      "detail": "群组详情",
+      "chat": "群组聊天"
     },
     "result": {
       "title": "结果页面",
