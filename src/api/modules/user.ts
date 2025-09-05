@@ -1,5 +1,5 @@
 // 单个用户信息
-export interface UserInfo {
+export interface UseInfo {
   user_id: number // 用户ID
   nickname: string // 昵称
   name: string // 姓名
@@ -16,8 +16,8 @@ export interface UserInfo {
 }
 
 // 返回的分页数据
-export interface UserListResponse {
-  data: UserInfo[]
+export interface UseListResponse {
+  data: UseInfo[]
   page: number // 当前页码
   page_size: number // 每页条数
   total: number // 总数

@@ -64,7 +64,7 @@ export const asyncRoutes: AppRouteRecord[] = [
         meta: {
           title: 'menus.system.admin',
           keepAlive: true,
-          roles: ['R_SUPER', 'R_ADMIN'],
+          roles: ['R_SUPER'],
           authList: [
             {
               title: '新增',
@@ -356,6 +356,18 @@ export const asyncRoutes: AppRouteRecord[] = [
         component: RoutesAlias.GroupChat,
         meta: {
           title: 'menus.groups.chat',
+          isHide: true,
+          keepAlive: false,
+          isHideTab: true,
+          activePath: '/groups/list'
+        }
+      },
+      {
+        path: 'message/:id',
+        name: 'GroupMessage',
+        component: RoutesAlias.GroupMessage,
+        meta: {
+          title: '群组消息',
           isHide: true,
           keepAlive: false,
           isHideTab: true,

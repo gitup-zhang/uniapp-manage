@@ -48,6 +48,7 @@ export enum RoutesAlias {
   GroupList = '/groups/list', // 群组列表
   GroupDetail = '/groups/detail', // 群组详情
   GroupChat = '/groups/chat', // 群组聊天
+  GroupMessage = '/groups/message', // 群组消息
 
   // 调试页面
   RouteDebug = '/debug/route-debug' // 路由调试

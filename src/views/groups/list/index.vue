@@ -94,7 +94,7 @@
               <ElIcon><View /></ElIcon>
               查看
             </ElButton>
-            <ElButton type="success" size="small" @click="handleChat(row)">
+            <ElButton type="success" size="small" @click="handleMessage(row)">
               <ElIcon><ChatDotRound /></ElIcon>
               发送消息
             </ElButton>
@@ -265,11 +265,11 @@
     router.push(`/groups/detail/${row.id}`)
   }
 
-  // 群组聊天
-  const handleChat = (row: GroupItem) => {
+  // 群组消息列表
+  const handleMessage = (row: GroupItem) => {
     // 将群组信息保存到sessionStorage
     sessionStorage.setItem(`groupInfo_${row.id}`, JSON.stringify(row))
-    router.push(`/groups/chat/${row.id}`)
+    router.push(`/groups/message/${row.id}`)
   }
 
   // 编辑群组

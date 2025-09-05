@@ -1,5 +1,5 @@
 import request from '@/utils/http'
-import { UserListResponse } from '@/api/modules/user'
+import { UseListResponse } from '@/api/modules/user'
 
 export class UserService {
   // 登录
@@ -32,14 +32,14 @@ export class UserService {
       userId: 1,
       userName: 'Admin',
       email: 'admin@example.com',
-      roles: ['R_SUPER', 'R_ADMIN'],
+      roles: ['R_ADMIN', 'R_SUPER'],
       buttons: ['add', 'edit', 'delete']
     }
   }
 
   // 获取用户列表
   static getUserList(params: any) {
-    return request.get<UserListResponse>({
+    return request.get<UseListResponse>({
       url: '/api/user/listAll',
       params
     })

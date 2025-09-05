@@ -302,8 +302,7 @@
 
 <script setup lang="ts">
   import { Picture as IconPicture } from '@element-plus/icons-vue'
-  import { ElMessageBox, ElMessage } from 'element-plus'
-
+  import { ElMessage, ElMessageBox } from 'element-plus'
   import { ref, onMounted, computed } from 'vue'
   import { router } from '@/router'
   import { useDateFormat } from '@vueuse/core'

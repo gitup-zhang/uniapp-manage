@@ -130,7 +130,7 @@
 
   import UserDetailDialog from './modules/user-detail-dialog.vue'
   import { useGroupStore } from '@/store/modules/group'
-  import { UserInfo } from '@/api/modules/user'
+  import { UseInfo } from '@/api/modules/user'
 
   defineOptions({ name: 'User' })
 
@@ -138,10 +138,10 @@
 
   // 用户详情弹窗相关
   const detailVisible = ref(false)
-  const currentUserDetail = ref<Partial<UserInfo>>({})
+  const currentUserDetail = ref<Partial<UseInfo>>({})
 
   // 选中行
-  const selectedRows = ref<UserInfo[]>([])
+  const selectedRows = ref<UseInfo[]>([])
 
   // 搜索表单数据
   const searchForm = ref({
@@ -227,7 +227,7 @@
   /**
    * 显示用户详情
    */
-  const showUserDetail = (row: UserInfo): void => {
+  const showUserDetail = (row: UseInfo): void => {
     console.log('查看用户详情:', row)
     currentUserDetail.value = row
     detailVisible.value = true
@@ -236,7 +236,7 @@
   /**
    * 处理表格行选择变化
    */
-  const handleSelectionChange = (selection: UserInfo[]): void => {
+  const handleSelectionChange = (selection: UseInfo[]): void => {
     selectedRows.value = selection
     console.log('选中行数据:', selectedRows.value)
   }
