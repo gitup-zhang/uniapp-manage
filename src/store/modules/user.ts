@@ -2,7 +2,8 @@ import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import { LanguageEnum } from '@/enums/appEnum'
 import { router } from '@/router'
-import { UserInfo } from '@/types/store'
+
+import { UserData } from '@/api/modules/user'
 import { useSettingStore } from './setting'
 import { useWorktabStore } from './worktab'
 import { AppRouteRecord } from '@/types/router'
@@ -18,12 +19,20 @@ export const useUserStore = defineStore(
     const isLogin = ref(false)
     const isLock = ref(false)
     const lockPassword = ref('')
-    const info = ref<Partial<Api.User.UserInfo>>({
-      userId: 1,
-      userName: 'Admin',
-      email: 'admin@example.com',
-      roles: ['R_SUPER', 'R_ADMIN'],
-      buttons: ['add', 'edit', 'delete']
+    const info = ref<UserData>({
+      nickname: '',
+      avatar_url: '',
+      name: '',
+      gender: '',
+      phone_number: '',
+      email: '',
+      unit: '',
+      department: '',
+      position: '',
+      industry: '',
+      industry_name: '',
+      role: [],
+      role_name: ''
     })
     const searchHistory = ref<AppRouteRecord[]>([])
     const accessToken = ref('')
@@ -42,8 +51,9 @@ export const useUserStore = defineStore(
     const getSettingState = computed(() => useSettingStore().$state)
     const getWorktabState = computed(() => useWorktabStore().$state)
 
-    const setUserInfo = (newInfo: UserInfo) => {
+    const setUserInfo = (newInfo: UserData) => {
       info.value = newInfo
+      console.log('个人信息', info.value)
     }
 
     const setLoginStatus = (status: boolean) => {
@@ -91,7 +101,7 @@ export const useUserStore = defineStore(
     //   router.push(RoutesAlias.Login)
     // }
     const logOut = () => {
-      info.value = {}
+      info.value = createEmptyUser()
       isLogin.value = false
       isLock.value = false
       lockPassword.value = ''
@@ -101,6 +111,24 @@ export const useUserStore = defineStore(
       sessionStorage.removeItem('iframeRoutes')
       resetRouterState()
       router.push(RoutesAlias.Login)
+    }
+    // 信息清空
+    function createEmptyUser(): UserData {
+      return {
+        nickname: '',
+        avatar_url: '',
+        name: '',
+        gender: '',
+        phone_number: '',
+        email: '',
+        unit: '',
+        department: '',
+        position: '',
+        industry: '',
+        industry_name: '',
+        role: [], // 或者 "SUPERADMIN" 之类的默认值
+        role_name: '' // 或者 "超级管理员"
+      }
     }
 
     // 在store初始化后检查登录状态

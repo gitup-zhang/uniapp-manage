@@ -145,7 +145,7 @@ async function handleLoginStatus(
   // 检查已登录用户的角色信息是否丢失
   if (userStore.isLogin && needsAuth) {
     const userInfo = userStore.info
-    if (!userInfo || !userInfo.roles || userInfo.roles.length === 0) {
+    if (!userInfo || !userInfo.role) {
       console.log('⚠️ 检测到用户角色信息丢失，重新登录')
       userStore.logOut()
       next(RoutesAlias.Login)
@@ -176,7 +176,7 @@ async function handleDynamicRoutes(
     if (isRefresh || !userStore.info || Object.keys(userStore.info).length === 0) {
       try {
         const data = await UserService.getUserInfo()
-        userStore.setUserInfo(data)
+        userStore.setUserInfo(data.data)
       } catch (error) {
         console.error('获取用户信息失败', error)
       }
@@ -223,7 +223,7 @@ async function getMenuData(router: Router): Promise<void> {
 async function processFrontendMenu(router: Router): Promise<void> {
   const menuList = asyncRoutes.map((route) => menuDataToRouter(route))
   const userStore = useUserStore()
-  const roles = userStore.info.roles
+  const roles = userStore.info.role
 
   if (!roles) {
     throw new Error('获取用户角色失败')

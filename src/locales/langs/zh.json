@@ -79,13 +79,7 @@
       }
     }
   },
-  "notice": {
-    "title": "通知",
-    "btnRead": "标为已读",
-    "bar": ["通知", "消息", "代办"],
-    "text": ["暂无"],
-    "viewAll": "查看全部"
-  },
+
   "worktab": {
     "btn": {
       "refresh": "刷新",
@@ -99,8 +93,8 @@
   },
   "login": {
     "leftView": {
-      "title": "专注于用户体验的后台管理系统模版",
-      "subTitle": "美观实用的界面，经过视觉优化，确保卓越的用户体验"
+      "title": "欢迎登陆",
+      "subTitle": "请输入您的账号和密码"
     },
     "title": "欢迎回来",
     "subTitle": "输入您的账号和密码登录",
@@ -331,12 +325,7 @@
       "list": "活动列表",
       "detail": "活动详情"
     },
-    "notice": {
-      "title": "公告管理",
-      "list": "公告列表",
-      "create": "新建公告",
-      "detail": "公告详情"
-    },
+
     "groups": {
       "title": "群组消息",
       "create": "创建群组",

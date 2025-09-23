@@ -44,7 +44,7 @@
             style="margin-top: 25px"
           >
             <ElFormItem prop="account">
-              <ElSelect v-model="formData.account" @change="setupAccount" class="account-select">
+              <!-- <ElSelect v-model="formData.account" @change="setupAccount" class="account-select">
                 <ElOption
                   v-for="account in accounts"
                   :key="account.key"
@@ -53,10 +53,10 @@
                 >
                   <span>{{ account.label }}</span>
                 </ElOption>
-              </ElSelect>
+              </ElSelect> -->
             </ElFormItem>
             <ElFormItem prop="username">
-              <ElInput :placeholder="$t('login.placeholder[0]')" v-model.trim="formData.username" />
+              <ElInput placeholder="请输入账号" v-model.trim="formData.username" />
             </ElFormItem>
             <ElFormItem prop="password">
               <ElInput
@@ -86,12 +86,12 @@
               }}</p>
             </div>
 
-            <div class="forget-password">
+            <!-- <div class="forget-password">
               <ElCheckbox v-model="formData.rememberPassword">{{
                 $t('login.rememberPwd')
               }}</ElCheckbox>
               <RouterLink :to="RoutesAlias.ForgetPassword">{{ $t('login.forgetPwd') }}</RouterLink>
-            </div>
+            </div> -->
 
             <div style="margin-top: 30px">
               <ElButton
@@ -105,12 +105,12 @@
               </ElButton>
             </div>
 
-            <div class="footer">
+            <!-- <div class="footer">
               <p>
                 {{ $t('login.noAccount') }}
                 <RouterLink :to="RoutesAlias.Register">{{ $t('login.register') }}</RouterLink>
               </p>
-            </div>
+            </div> -->
           </ElForm>
         </div>
       </div>
@@ -120,7 +120,7 @@
 
 <script setup lang="ts">
   import AppConfig from '@/config'
-  import { RoutesAlias } from '@/router/routesAlias'
+  //import { RoutesAlias } from '@/router/routesAlias'
   import { ElNotification, ElMessage } from 'element-plus'
   import { useUserStore } from '@/store/modules/user'
   import { getCssVar } from '@/utils/ui'
@@ -135,7 +135,7 @@
   import { useSettingStore } from '@/store/modules/setting'
   import type { FormInstance, FormRules } from 'element-plus'
 
-  type AccountKey = 'super' | 'admin' | 'user'
+  type AccountKey = 'super' | 'admin'
 
   export interface Account {
     key: AccountKey
@@ -145,29 +145,22 @@
     roles: string[]
   }
 
-  const accounts = computed<Account[]>(() => [
-    {
-      key: 'super',
-      label: t('login.roles.super'),
-      userName: 'Super',
-      password: '123456',
-      roles: ['R_SUPER']
-    },
-    {
-      key: 'admin',
-      label: t('login.roles.admin'),
-      userName: 'Admin',
-      password: '123456',
-      roles: ['R_ADMIN']
-    },
-    {
-      key: 'user',
-      label: t('login.roles.user'),
-      userName: 'User',
-      password: '123456',
-      roles: ['R_USER']
-    }
-  ])
+  // const accounts = computed<Account[]>(() => [
+  //   {
+  //     key: 'super',
+  //     label: t('login.roles.super'),
+  //     userName: 'Super',
+  //     password: '123456',
+  //     roles: ['R_SUPER']
+  //   },
+  //   {
+  //     key: 'admin',
+  //     label: t('login.roles.admin'),
+  //     userName: 'Admin',
+  //     password: '123456',
+  //     roles: ['R_ADMIN']
+  //   }
+  // ])
 
   const settingStore = useSettingStore()
   const { isDark, systemThemeType } = storeToRefs(settingStore)
@@ -197,16 +190,16 @@
   const loading = ref(false)
 
   onMounted(() => {
-    setupAccount('super')
+    // setupAccount('super')
   })
 
   // 设置账号
-  const setupAccount = (key: AccountKey) => {
-    const selectedAccount = accounts.value.find((account: Account) => account.key === key)
-    formData.account = key
-    formData.username = selectedAccount?.userName ?? ''
-    formData.password = selectedAccount?.password ?? ''
-  }
+  // const setupAccount = (key: AccountKey) => {
+  //   const selectedAccount = accounts.value.find((account: Account) => account.key === key)
+  //   formData.account = key
+  //   formData.username = selectedAccount?.userName ?? ''
+  //   formData.password = selectedAccount?.password ?? ''
+  // }
 
   // 登录
   const handleSubmit = async () => {
@@ -229,8 +222,8 @@
       const { username, password } = formData
 
       const { token } = await UserService.login({
-        userName: username,
-        password
+        phone_number: username,
+        password: password
       })
       console.log('token', token)
 
@@ -242,7 +235,7 @@
       // 存储token和用户信息
       userStore.setToken(token)
       const userInfo = await UserService.getUserInfo()
-      userStore.setUserInfo(userInfo)
+      userStore.setUserInfo(userInfo.data)
       userStore.setLoginStatus(true)
 
       // 登录成功处理

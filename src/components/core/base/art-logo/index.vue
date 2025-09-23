@@ -1,7 +1,8 @@
 <!-- 系统logo -->
 <template>
   <div class="art-logo">
-    <img :style="logoStyle" src="@imgs/common/logo.webp" alt="logo" />
+    <!-- <img :style="logoStyle" src="@imgs/common/logo.webp" alt="logo" /> -->
+    <img :style="logoStyle" src="@imgs/common/logo.jpg" alt="logo" />
   </div>
 </template>
 

@@ -76,7 +76,7 @@
         </ElTableColumn> -->
         <ElTableColumn prop="memberCount" label="成员数量" width="100" align="center">
           <template #default="{ row }">
-            <span>{{ row.include_all_user }}</span>
+            <span>{{ row.member_count }}</span>
           </template>
         </ElTableColumn>
         <ElTableColumn prop="desc" label="群组描述" width="300" show-overflow-tooltip />

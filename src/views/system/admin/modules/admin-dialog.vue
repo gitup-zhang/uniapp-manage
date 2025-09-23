@@ -1,14 +1,23 @@
 <template>
-  <ElDialog v-model="dialogVisible" :title="dialogTitle" width="400px" align-center>
-    <ElForm ref="formRef" :model="formData" :rules="rules" label-width="80px">
+  <ElDialog v-model="dialogVisible" :title="dialogTitle" width="450px" align-center>
+    <ElForm ref="formRef" :model="formData" :rules="rules" label-width="100px">
       <ElFormItem label="管理员名称" prop="name">
-        <ElInput v-model="formData.name" placeholder="请输入管理员名称" />
+        <ElInput v-model="formData.name" placeholder="2-10个中文字符或4-20个英文字符" />
+      </ElFormItem>
+      <ElFormItem label="昵称" prop="nickname">
+        <ElInput v-model="formData.nickname" placeholder="请输入昵称" />
       </ElFormItem>
       <ElFormItem label="手机号" prop="phone">
-        <ElInput v-model="formData.phone" placeholder="请输入手机号" />
+        <ElInput v-model="formData.phone_number" placeholder="请输入手机号" />
       </ElFormItem>
       <ElFormItem label="邮箱" prop="email">
         <ElInput v-model="formData.email" placeholder="请输入邮箱" />
+      </ElFormItem>
+      <ElFormItem label="角色" prop="role">
+        <ElSelect v-model="formData.role" placeholder="请选择角色" style="width: 100%">
+          <ElOption label="超级管理员" value="SUPERADMIN" />
+          <ElOption label="管理员" value="ADMIN" />
+        </ElSelect>
       </ElFormItem>
       <ElFormItem v-if="dialogType === 'add'" label="初始密码" prop="password">
         <ElInput
@@ -31,6 +40,7 @@
 <script setup lang="ts">
   import type { FormInstance, FormRules } from 'element-plus'
   import { ElMessage } from 'element-plus'
+  import { UserService } from '@/api/usersApi'
 
   interface Props {
     visible: boolean
@@ -67,8 +77,10 @@
   // 表单数据
   const formData = reactive({
     name: '',
-    phone: '',
+    nickname: '',
+    phone_number: '',
     email: '',
+    role: '',
     password: ''
   })
 
@@ -97,8 +109,10 @@
   // 表单验证规则
   const rules: FormRules = {
     name: [{ required: true, message: '请输入管理员名称', trigger: 'blur' }],
-    phone: [{ validator: validatePhone, trigger: 'blur' }],
+    nickname: [{ required: true, message: '请输入昵称', trigger: 'blur' }],
+    phone_number: [{ validator: validatePhone, trigger: 'blur' }],
     email: [{ validator: validateEmail, trigger: 'blur' }],
+    role: [{ required: true, message: '请选择角色', trigger: 'change' }],
     password: [
       { required: true, message: '请输入初始密码', trigger: 'blur' },
       { min: 6, max: 20, message: '密码长度在 6 到 20 个字符', trigger: 'blur' }
@@ -109,8 +123,10 @@
   const resetForm = () => {
     Object.assign(formData, {
       name: '',
-      phone: '',
+      nickname: '',
+      phone_number: '',
       email: '',
+      role: '',
       password: ''
     })
     nextTick(() => {
@@ -128,8 +144,10 @@
         if (dialogType.value === 'edit' && props.adminData) {
           Object.assign(formData, {
             name: props.adminData.name || '',
-            phone: props.adminData.phone || '',
-            email: props.adminData.email || ''
+            nickname: props.adminData.nickname || '',
+            phone_number: props.adminData.phone_number || '',
+            email: props.adminData.email || '',
+            role: props.adminData.role || 'ADMIN' // 默认管理员角色
           })
         }
       }
@@ -139,21 +157,39 @@
   // 提交表单
   const handleSubmit = async () => {
     if (!formRef.value) return
-
-    await formRef.value.validate((valid) => {
-      if (valid) {
-        loading.value = true
-
-        // 模拟API调用
-        setTimeout(() => {
-          const action = dialogType.value === 'add' ? '新增' : '编辑'
-          ElMessage.success(`${action}管理员成功`)
-          loading.value = false
-          emit('submit')
-        }, 1000)
+    try {
+      await formRef.value.validate()
+      loading.value = true
+      if (dialogType.value === 'add') {
+        await UserService.crestAdminUser(formData)
+        ElMessage.success('新增管理员成功')
+        emit('submit')
+      } else if (dialogType.value === 'edit') {
+        await UserService.updateUser(formData, props.adminData.user_id)
+        ElMessage.success('更新管理员成功')
+        emit('submit')
       }
-    })
+    } catch (error) {
+      console.log('error', error)
+    } finally {
+      loading.value = false
+    }
   }
+
+  //   await formRef.value.validate((valid) => {
+  //     if (valid) {
+  //       loading.value = true
+
+  //       // 模拟API调用
+  //       setTimeout(() => {
+  //         const action = dialogType.value === 'add' ? '新增' : '编辑'
+  //         ElMessage.success(`${action}管理员成功`)
+  //         loading.value = false
+  //         emit('submit')
+  //       }, 1000)
+  //     }
+  //   })
+  // }
 </script>
 
 <style lang="scss" scoped>

@@ -32,7 +32,11 @@
           <ElTableColumn type="index" label="序号" width="120" align="center" />
           <ElTableColumn prop="id" label="ID" width="120" />
           <ElTableColumn prop="title" label="标题" min-width="300" />
-          <ElTableColumn prop="send_time" label="发送时间" width="200" align="center" />
+          <ElTableColumn label="发送时间" width="200" align="center">
+            <template #default="{ row }">
+              {{ formatTime(row.send_time) }}
+            </template>
+          </ElTableColumn>
           <ElTableColumn label="操作" width="200" align="center" fixed="right">
             <template #default="{ row }">
               <ElButton size="small" type="primary" @click="viewMessageDetail(row)">
@@ -69,10 +73,10 @@
             {{ currentMessage.title }}
           </ElDescriptionsItem>
           <ElDescriptionsItem label="发送时间">
-            {{ currentMessage.send_time }}
+            {{ formatTime(currentMessage.send_time) }}
           </ElDescriptionsItem>
           <ElDescriptionsItem label="消息内容">
-            <div v-html="currentMessage.content"></div>
+            <div class="vhtml-content" v-html="currentMessage.content"></div>
           </ElDescriptionsItem>
         </ElDescriptions>
       </div>
@@ -131,6 +135,7 @@
   import { useGroupStore } from '@/store/modules/group'
   import ArtWangEditor from '@/components/core/forms/art-wang-editor/index.vue'
   import { groupService } from '@/api/groupApi'
+  import { formatTime } from '@/utils/date'
 
   defineOptions({ name: 'GroupMessage' })
 
@@ -372,5 +377,13 @@
         }
       }
     }
+  }
+  :deep(.vhtml-content img) {
+    width: 50%;
+    max-width: 100%; /* 避免超出容器 */
+    height: auto; /* 保持比例缩放 */
+    display: block; /* 避免 inline 元素带来的间隙 */
+    margin: 0 auto; /* 居中显示 */
+    object-fit: contain; /* 或者用 cover，根据需要 */
   }
 </style>

@@ -22,7 +22,7 @@ export const asyncRoutes: AppRouteRecord[] = [
     meta: {
       title: 'menus.dashboard.title',
       icon: '&#xe721;',
-      roles: ['R_SUPER', 'R_ADMIN']
+      roles: ['R_SUPER', 'R_ADMIN', 'SUPERADMIN']
     },
     children: [
       {
@@ -44,7 +44,7 @@ export const asyncRoutes: AppRouteRecord[] = [
     meta: {
       title: 'menus.system.title',
       icon: '&#xe7b9;',
-      roles: ['R_SUPER', 'R_ADMIN']
+      roles: ['R_SUPER', 'R_ADMIN', 'SUPERADMIN']
     },
     children: [
       {
@@ -54,7 +54,7 @@ export const asyncRoutes: AppRouteRecord[] = [
         meta: {
           title: 'menus.system.user',
           keepAlive: true,
-          roles: ['R_SUPER', 'R_ADMIN']
+          roles: ['R_SUPER', 'R_ADMIN', 'SUPERADMIN']
         }
       },
       {
@@ -64,7 +64,7 @@ export const asyncRoutes: AppRouteRecord[] = [
         meta: {
           title: 'menus.system.admin',
           keepAlive: true,
-          roles: ['R_SUPER'],
+          roles: ['R_SUPER', 'SUPERADMIN'],
           authList: [
             {
               title: '新增',
@@ -101,7 +101,7 @@ export const asyncRoutes: AppRouteRecord[] = [
     meta: {
       title: 'menus.activity.title',
       icon: '&#xe7f0;',
-      roles: ['R_SUPER', 'R_ADMIN']
+      roles: ['R_SUPER', 'R_ADMIN', 'SUPERADMIN']
     },
     children: [
       {
@@ -111,7 +111,7 @@ export const asyncRoutes: AppRouteRecord[] = [
         meta: {
           title: 'menus.activity.create',
           keepAlive: false,
-          roles: ['R_SUPER', 'R_ADMIN'],
+          roles: ['R_SUPER', 'R_ADMIN', 'SUPERADMIN'],
           authList: [
             {
               title: '创建',
@@ -127,7 +127,7 @@ export const asyncRoutes: AppRouteRecord[] = [
         meta: {
           title: 'menus.activity.list',
           keepAlive: true,
-          roles: ['R_SUPER', 'R_ADMIN'],
+          roles: ['R_SUPER', 'R_ADMIN', 'SUPERADMIN'],
           authList: [
             {
               title: '查看',
@@ -165,11 +165,11 @@ export const asyncRoutes: AppRouteRecord[] = [
     meta: {
       title: 'menus.article.title',
       icon: '&#xe7ae;',
-      roles: ['R_SUPER', 'R_ADMIN']
+      roles: ['R_SUPER', 'R_ADMIN', 'SUPERADMIN']
     },
     children: [
       {
-        path: 'article-list',
+        path: 'list',
         name: 'ArticleList',
         component: RoutesAlias.ArticleList,
         meta: {
@@ -225,77 +225,13 @@ export const asyncRoutes: AppRouteRecord[] = [
     ]
   },
   {
-    path: '/notice',
-    name: 'Notice',
-    component: RoutesAlias.Layout,
-    meta: {
-      title: 'menus.notice.title',
-      icon: '&#xe766;',
-      roles: ['R_SUPER', 'R_ADMIN']
-    },
-    children: [
-      {
-        path: 'list',
-        name: 'NoticeList',
-        component: RoutesAlias.NoticeList,
-        meta: {
-          title: 'menus.notice.list',
-          keepAlive: true,
-          roles: ['R_SUPER', 'R_ADMIN'],
-          authList: [
-            {
-              title: '查看',
-              authMark: 'view'
-            },
-            {
-              title: '编辑',
-              authMark: 'edit'
-            },
-            {
-              title: '删除',
-              authMark: 'delete'
-            }
-          ]
-        }
-      },
-      {
-        path: 'create',
-        name: 'NoticeCreate',
-        component: RoutesAlias.NoticeCreate,
-        meta: {
-          title: 'menus.notice.create',
-          keepAlive: true,
-          roles: ['R_SUPER', 'R_ADMIN'],
-          authList: [
-            {
-              title: '创建',
-              authMark: 'create'
-            }
-          ]
-        }
-      },
-      {
-        path: 'detail/:id',
-        name: 'NoticeDetail',
-        component: RoutesAlias.NoticeDetail,
-        meta: {
-          title: 'menus.notice.detail',
-          isHide: true,
-          keepAlive: false,
-          isHideTab: true,
-          activePath: '/notice/list'
-        }
-      }
-    ]
-  },
-  {
     path: '/groups',
     name: 'Groups',
     component: RoutesAlias.Layout,
     meta: {
       title: 'menus.groups.title',
       icon: '&#xe668;',
-      roles: ['R_SUPER', 'R_ADMIN']
+      roles: ['R_SUPER', 'R_ADMIN', 'SUPERADMIN']
     },
     children: [
       {
@@ -305,7 +241,7 @@ export const asyncRoutes: AppRouteRecord[] = [
         meta: {
           title: 'menus.groups.create',
           keepAlive: true,
-          roles: ['R_SUPER', 'R_ADMIN'],
+          roles: ['R_SUPER', 'R_ADMIN', 'SUPERADMIN'],
           authList: [
             {
               title: '创建',
@@ -321,7 +257,7 @@ export const asyncRoutes: AppRouteRecord[] = [
         meta: {
           title: 'menus.groups.list',
           keepAlive: true,
-          roles: ['R_SUPER', 'R_ADMIN'],
+          roles: ['R_SUPER', 'R_ADMIN', 'SUPERADMIN'],
           authList: [
             {
               title: '查看',

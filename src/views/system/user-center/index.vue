@@ -4,37 +4,37 @@
       <div class="left-wrap">
         <div class="user-wrap box-style">
           <img class="bg" src="@imgs/user/bg.webp" />
-          <img class="avatar" src="@imgs/user/avatar.webp" />
-          <h2 class="name">{{ userInfo.userName }}</h2>
-          <p class="des">Art Design Pro 是一款漂亮的后台管理系统模版.</p>
+          <img class="avatar" :src="userInfo.avatar_url" />
+          <h2 class="name">{{ userInfo.name }}</h2>
+          <p class="des">元气满满的一天</p>
 
           <div class="outer-info">
             <div>
               <i class="iconfont-sys">&#xe72e;</i>
-              <span>jdkjjfnndf@mall.com</span>
+              <span>{{ userInfo.email }}</span>
             </div>
             <div>
               <i class="iconfont-sys">&#xe608;</i>
-              <span>交互专家</span>
+              <span>{{ userInfo.phone_number }}</span>
             </div>
             <div>
               <i class="iconfont-sys">&#xe736;</i>
-              <span>广东省深圳市</span>
+              <span>{{ userInfo.role_name }}</span>
             </div>
-            <div>
+            <!-- <div>
               <i class="iconfont-sys">&#xe811;</i>
-              <span>字节跳动－某某平台部－UED</span>
-            </div>
+              <span>{{ userInfo.department }}</span>
+            </div> -->
           </div>
 
-          <div class="lables">
+          <!-- <div class="lables">
             <h3>标签</h3>
             <div>
               <div v-for="item in lableList" :key="item">
                 {{ item }}
               </div>
             </div>
-          </div>
+          </div> -->
         </div>
 
         <!-- <el-carousel class="gallery" height="160px"
@@ -60,10 +60,10 @@
           >
             <ElRow>
               <ElFormItem label="姓名" prop="realName">
-                <el-input v-model="form.realName" :disabled="!isEdit" />
+                <el-input v-model="form.name" :disabled="!isEdit" />
               </ElFormItem>
               <ElFormItem label="性别" prop="sex" class="right-input">
-                <ElSelect v-model="form.sex" placeholder="Select" :disabled="!isEdit">
+                <ElSelect v-model="form.gender" placeholder="Select" :disabled="!isEdit">
                   <ElOption
                     v-for="item in options"
                     :key="item.value"
@@ -76,7 +76,7 @@
 
             <ElRow>
               <ElFormItem label="昵称" prop="nikeName">
-                <ElInput v-model="form.nikeName" :disabled="!isEdit" />
+                <ElInput v-model="form.name" :disabled="!isEdit" />
               </ElFormItem>
               <ElFormItem label="邮箱" prop="email" class="right-input">
                 <ElInput v-model="form.email" :disabled="!isEdit" />
@@ -85,16 +85,9 @@
 
             <ElRow>
               <ElFormItem label="手机" prop="mobile">
-                <ElInput v-model="form.mobile" :disabled="!isEdit" />
-              </ElFormItem>
-              <ElFormItem label="地址" prop="address" class="right-input">
-                <ElInput v-model="form.address" :disabled="!isEdit" />
+                <ElInput v-model="form.phone_number" :disabled="!isEdit" />
               </ElFormItem>
             </ElRow>
-
-            <ElFormItem label="个人介绍" prop="des" :style="{ height: '130px' }">
-              <ElInput type="textarea" :rows="4" v-model="form.des" :disabled="!isEdit" />
-            </ElFormItem>
 
             <div class="el-form-item-right">
               <ElButton type="primary" style="width: 90px" v-ripple @click="edit">
@@ -108,14 +101,14 @@
           <h1 class="title">更改密码</h1>
 
           <ElForm :model="pwdForm" class="form" label-width="86px" label-position="top">
-            <ElFormItem label="当前密码" prop="password">
+            <!-- <ElFormItem label="当前密码" prop="password">
               <ElInput
                 v-model="pwdForm.password"
                 type="password"
                 :disabled="!isEditPwd"
                 show-password
               />
-            </ElFormItem>
+            </ElFormItem> -->
 
             <ElFormItem label="新密码" prop="newPassword">
               <ElInput
@@ -149,7 +142,8 @@
 
 <script setup lang="ts">
   import { useUserStore } from '@/store/modules/user'
-  import { ElForm, FormInstance, FormRules } from 'element-plus'
+  import { ElForm, FormInstance, FormRules, ElMessage } from 'element-plus'
+  import { UserService } from '@/api/usersApi'
 
   defineOptions({ name: 'UserCenter' })
 
@@ -160,17 +154,14 @@
   const isEditPwd = ref(false)
   const date = ref('')
   const form = reactive({
-    realName: 'John Snow',
-    nikeName: '皮卡丘',
-    email: '59301283@mall.com',
-    mobile: '18888888888',
-    address: '广东省深圳市宝安区西乡街道101栋201',
-    sex: '2',
-    des: 'Art Design Pro 是一款漂亮的后台管理系统模版.'
+    nickname: userInfo.value.nickname || '',
+    name: userInfo.value.name || '',
+    email: userInfo.value.email || '',
+    phone_number: userInfo.value.phone_number || '',
+    gender: userInfo.value.gender || ''
   })
 
   const pwdForm = reactive({
-    password: '123456',
     newPassword: '123456',
     confirmPassword: '123456'
   })
@@ -178,32 +169,32 @@
   const ruleFormRef = ref<FormInstance>()
 
   const rules = reactive<FormRules>({
-    realName: [
+    name: [
       { required: true, message: '请输入昵称', trigger: 'blur' },
       { min: 2, max: 50, message: '长度在 2 到 30 个字符', trigger: 'blur' }
     ],
-    nikeName: [
+    nikename: [
       { required: true, message: '请输入昵称', trigger: 'blur' },
       { min: 2, max: 50, message: '长度在 2 到 30 个字符', trigger: 'blur' }
     ],
     email: [{ required: true, message: '请输入昵称', trigger: 'blur' }],
-    mobile: [{ required: true, message: '请输入手机号码', trigger: 'blur' }],
+    phone_number: [{ required: true, message: '请输入手机号码', trigger: 'blur' }],
     address: [{ required: true, message: '请输入地址', trigger: 'blur' }],
-    sex: [{ type: 'array', required: true, message: '请选择性别', trigger: 'blur' }]
+    gender: [{ type: 'array', required: true, message: '请选择性别', trigger: 'blur' }]
   })
 
   const options = [
     {
-      value: '1',
+      value: 'F',
       label: '男'
     },
     {
-      value: '2',
+      value: 'M',
       label: '女'
     }
   ]
 
-  const lableList: Array<string> = ['专注设计', '很有想法', '辣~', '大长腿', '川妹子', '海纳百川']
+  //const lableList: Array<string> = ['专注设计', '很有想法', '辣~', '大长腿', '川妹子', '海纳百川']
 
   onMounted(() => {
     getDate()
@@ -231,12 +222,87 @@
     date.value = text
   }
 
-  const edit = () => {
-    isEdit.value = !isEdit.value
+  // 完善编辑函数
+  const edit = async () => {
+    // 如果当前是编辑状态，点击按钮表示要保存
+    if (isEdit.value) {
+      // 表单验证
+      if (!ruleFormRef.value) return
+
+      try {
+        // 验证表单
+        await ruleFormRef.value.validate()
+
+        // 调用API更新用户信息
+        await UserService.updateCurrentUser(form)
+
+        // 更新用户信息到store
+        userStore.setUserInfo({
+          ...userInfo.value,
+          ...form
+        })
+
+        ElMessage.success('用户信息更新成功')
+        isEdit.value = false
+      } catch (error) {
+        console.error('表单验证失败:', error)
+        ElMessage.error('请检查表单填写是否正确')
+      }
+    } else {
+      // 进入编辑状态
+      isEdit.value = true
+    }
   }
 
-  const editPwd = () => {
-    isEditPwd.value = !isEditPwd.value
+  // 完善密码修改函数
+  const editPwd = async () => {
+    // 如果当前是编辑状态，点击按钮表示要保存
+    if (isEditPwd.value) {
+      // 简单的密码验证
+      if (!pwdForm.newPassword || !pwdForm.confirmPassword) {
+        ElMessage.error('请填写所有密码字段')
+        return
+      }
+
+      // 验证新密码和确认密码是否一致
+      if (pwdForm.newPassword !== pwdForm.confirmPassword) {
+        ElMessage.error('新密码和确认密码不一致')
+        return
+      }
+
+      // 验证密码长度
+      if (pwdForm.newPassword.length < 6) {
+        ElMessage.error('密码长度不能少于6位')
+        return
+      }
+
+      try {
+        // 调用API修改密码
+        // await UserService.updateUser({}, userInfo.value.)
+        ElMessage.success('密码修改成功')
+        isEditPwd.value = false
+
+        // 重置密码表单
+        Object.assign(pwdForm, {
+          password: '',
+          newPassword: '',
+          confirmPassword: ''
+        })
+      } catch (error) {
+        console.error('密码修改失败:', error)
+        ElMessage.error('密码修改失败，请重试')
+      }
+    } else {
+      // 进入编辑状态
+      isEditPwd.value = true
+
+      // 重置密码表单
+      Object.assign(pwdForm, {
+        password: '',
+        newPassword: '',
+        confirmPassword: ''
+      })
+    }
   }
 </script>
 

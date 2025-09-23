@@ -10,6 +10,7 @@ export interface Activity {
   registration_fee: number // 报名费用
   status: string
   cover_image_url: string // 封面图片url
+  member_count: string // 参与人数
 }
 
 // 分页响应的类型

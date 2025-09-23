@@ -52,7 +52,7 @@
           <h2>发布设置</h2>
           <ElForm label-width="80px">
             <!-- 封面图片上传 -->
-            <ElFormItem label="封面">
+            <ElFormItem label="封面" v-if="formData.article_type === 'NEWS'">
               <div class="el-top upload-container">
                 <ElUpload
                   class="cover-uploader"
@@ -335,7 +335,7 @@
       return false
     }
 
-    if (!formData.value.cover_image_url) {
+    if (!formData.value.cover_image_url && formData.value.article_type === 'NEWS') {
       ElMessage.error(`请上传封面图片`)
       return false
     }

@@ -3,10 +3,12 @@ import { useUserStore } from '@/store/modules/user'
 import { ApiStatus } from './status'
 import { HttpError, handleError, showError } from './error'
 import { $t } from '@/locales'
+import { router } from '@/router'
+import { RoutesAlias } from '@/router/routesAlias'
 
 // 常量定义
 const REQUEST_TIMEOUT = 15000
-//const LOGOUT_DELAY = 1000
+const LOGOUT_DELAY = 1000
 const MAX_RETRIES = 2
 const RETRY_DELAY = 1000
 
@@ -63,7 +65,21 @@ axiosInstance.interceptors.request.use(
 // 响应拦截器：直接返回响应数据
 axiosInstance.interceptors.response.use(
   (response: AxiosResponse) => response.data,
-  (error) => Promise.reject(handleError(error))
+  (error) => {
+    // 检查是否是401未授权错误
+    if (error.response?.status === ApiStatus.unauthorized) {
+      // 延迟执行退出登录操作，确保错误信息能够正确显示
+      setTimeout(() => {
+        useUserStore().logOut()
+        router.push(RoutesAlias.Login)
+      }, LOGOUT_DELAY)
+
+      // 返回一个拒绝的Promise，确保错误能正确传递
+      return Promise.reject(handleError(error))
+    }
+
+    return Promise.reject(handleError(error))
+  }
 )
 
 // 请求函数

@@ -168,6 +168,7 @@
       const params = {
         page: currentpage.value,
         page_size: page_size.value,
+        role: 'USER',
 
         ...searchForm.value
       }

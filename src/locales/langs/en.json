@@ -79,13 +79,7 @@
       }
     }
   },
-  "notice": {
-    "title": "Notice",
-    "btnRead": "Mark as read",
-    "bar": ["Notice", "Message", "Todo"],
-    "text": ["No"],
-    "viewAll": "View all"
-  },
+
   "worktab": {
     "btn": {
       "refresh": "Refresh",
@@ -99,8 +93,8 @@
   },
   "login": {
     "leftView": {
-      "title": "An Admin template focused on user experience",
-      "subTitle": "A sleek and practical interface for a great user experience"
+      "title": "Welcome Back",
+      "subTitle": "Please enter your account and password"
     },
     "title": "Welcome back",
     "subTitle": "Please enter your account and password to login",
@@ -339,12 +333,7 @@
       "list": "Activity List",
       "detail": "Activity Detail"
     },
-    "notice": {
-      "title": "Notice Management",
-      "list": "Notice List",
-      "create": "Create Notice",
-      "detail": "Notice Detail"
-    },
+
     "groups": {
       "title": "Group Messages",
       "create": "Create Group",

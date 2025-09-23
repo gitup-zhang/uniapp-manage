@@ -25,7 +25,7 @@
         </div>
 
         <!-- 快速入口 -->
-        <ArtFastEnter v-if="shouldShowFastEnter && width >= headerBarFastEnterMinWidth" />
+        <!-- <ArtFastEnter v-if="shouldShowFastEnter && width >= headerBarFastEnterMinWidth" /> -->
 
         <!-- 面包屑 -->
         <ArtBreadcrumb
@@ -64,20 +64,7 @@
             <i class="iconfont-sys">{{ isFullscreen ? '&#xe62d;' : '&#xe8ce;' }}</i>
           </div>
         </div>
-        <!-- 通知 -->
-        <div class="btn-box notice-btn" v-if="shouldShowNotification" @click="visibleNotice">
-          <div class="btn notice-button">
-            <i class="iconfont-sys notice-btn">&#xe6c2;</i>
-            <span class="count notice-btn"></span>
-          </div>
-        </div>
-        <!-- 聊天 -->
-        <div class="btn-box chat-btn" v-if="shouldShowChat" @click="openChat">
-          <div class="btn chat-button">
-            <i class="iconfont-sys">&#xe89a;</i>
-            <span class="dot"></span>
-          </div>
-        </div>
+
         <!-- 语言 -->
         <div class="btn-box" v-if="shouldShowLanguage">
           <ElDropdown @command="changeLanguage" popper-class="langDropDownStyle">
@@ -145,8 +132,8 @@
                 <div class="user-head">
                   <img class="cover" src="@imgs/user/avatar.webp" style="float: left" />
                   <div class="user-wrap">
-                    <span class="name">{{ userInfo.userName }}</span>
-                    <span class="email">art.design@gmail.com</span>
+                    <span class="name">{{ userInfo.name }}</span>
+                    <span class="email">{{ userInfo.email }}</span>
                   </div>
                 </div>
                 <ul class="user-menu">
@@ -154,14 +141,14 @@
                     <i class="menu-icon iconfont-sys">&#xe734;</i>
                     <span class="menu-txt">{{ $t('topBar.user.userCenter') }}</span>
                   </li>
-                  <li @click="toDocs()">
+                  <!-- <li @click="toDocs()">
                     <i class="menu-icon iconfont-sys" style="font-size: 15px">&#xe828;</i>
                     <span class="menu-txt">{{ $t('topBar.user.docs') }}</span>
                   </li>
                   <li @click="toGithub()">
                     <i class="menu-icon iconfont-sys">&#xe8d6;</i>
                     <span class="menu-txt">{{ $t('topBar.user.github') }}</span>
-                  </li>
+                  </li> -->
                   <li @click="lockScreen()">
                     <i class="menu-icon iconfont-sys">&#xe817;</i>
                     <span class="menu-txt">{{ $t('topBar.user.lockScreen') }}</span>
@@ -194,7 +181,7 @@
   import { useMenuStore } from '@/store/modules/menu'
   import AppConfig from '@/config'
   import { languageOptions } from '@/locales'
-  import { WEB_LINKS } from '@/utils/constants'
+
   import { mittBus } from '@/utils/sys'
   import { themeAnimation } from '@/utils/theme/animation'
   import { useCommon } from '@/composables/useCommon'
@@ -217,16 +204,14 @@
   const {
     shouldShowMenuButton,
     shouldShowRefreshButton,
-    shouldShowFastEnter,
+
     shouldShowBreadcrumb,
     shouldShowGlobalSearch,
     shouldShowFullscreen,
-    shouldShowNotification,
-    shouldShowChat,
+
     shouldShowLanguage,
     shouldShowSettings,
-    shouldShowThemeToggle,
-    fastEnterMinWidth: headerBarFastEnterMinWidth
+    shouldShowThemeToggle
   } = useHeaderBar()
 
   const { menuOpen, systemThemeColor, showSettingGuide, menuType, isDark, tabStyle } =
@@ -305,16 +290,16 @@
   /**
    * 打开文档页面
    */
-  const toDocs = (): void => {
-    window.open(WEB_LINKS.DOCS)
-  }
+  // const toDocs = (): void => {
+  //   window.open(WEB_LINKS.DOCS)
+  // }
 
   /**
    * 打开 GitHub 页面
    */
-  const toGithub = (): void => {
-    window.open(WEB_LINKS.GITHUB)
-  }
+  // const toGithub = (): void => {
+  //   window.open(WEB_LINKS.GITHUB)
+  // }
 
   /**
    * 跳转到首页
@@ -407,16 +392,16 @@
   /**
    * 切换通知面板显示状态
    */
-  const visibleNotice = (): void => {
-    showNotice.value = !showNotice.value
-  }
+  // const visibleNotice = (): void => {
+  //   showNotice.value = !showNotice.value
+  // }
 
   /**
    * 打开聊天窗口
    */
-  const openChat = (): void => {
-    mittBus.emit('openChat')
-  }
+  // const openChat = (): void => {
+  //   mittBus.emit('openChat')
+  // }
 
   /**
    * 打开锁屏功能

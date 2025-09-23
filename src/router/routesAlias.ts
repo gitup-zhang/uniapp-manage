@@ -38,11 +38,6 @@ export enum RoutesAlias {
   ActivityList = '/activity/list', // 活动列表
   ActivityDetail = '/activity/detail', // 活动详情
 
-  // 公告管理
-  NoticeList = '/notice/list', // 公告列表
-  NoticeCreate = '/notice/create', // 新建公告
-  NoticeDetail = '/notice/detail', // 公告详情
-
   // 群组管理
   GroupCreate = '/groups/create', // 创建群组
   GroupList = '/groups/list', // 群组列表

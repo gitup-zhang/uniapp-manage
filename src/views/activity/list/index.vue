@@ -48,9 +48,9 @@
       <div class="status-tabs">
         <ElTabs v-model="activeTab" @tab-change="handleTabChange" class="compact-tabs">
           <!-- <ElTabPane label="全部活动" name="all" /> -->
-          <ElTabPane label="进行中" name="active" />
-          <ElTabPane label="未开始" name="pending" />
-          <ElTabPane label="已过期" name="expired" />
+          <ElTabPane label="进行中" name="InProgress" />
+          <ElTabPane label="未开始" name="NotBegun" />
+          <ElTabPane label="已过期" name="Completed" />
         </ElTabs>
       </div>
 
@@ -73,7 +73,7 @@
           stripe
         >
           <ElTableColumn type="index" label="序号" width="60" />
-          <ElTableColumn label="ID" width="60" prop="id" />
+
           <ElTableColumn label="活动封面" width="120">
             <template #default="{ row }">
               <ElImage
@@ -92,6 +92,7 @@
               </div>
             </template>
           </ElTableColumn>
+          <ElTableColumn label="报名人数" width="100" prop="member_count" />
           <!-- <ElTableColumn label="活动类型" width="120">
             <template #default="{ row }">
               {{ getActivityTypeText(row.type) }}
@@ -202,7 +203,7 @@
   //const { width } = useWindowSize()
 
   // 当前激活的标签页
-  const activeTab = ref('active')
+  const activeTab = ref('InProgress')
 
   // 选中的行
   const selectedRows = ref<ActivityItem[]>([])
@@ -228,6 +229,9 @@
   // 标签页切换
   const handleTabChange = (tabName: any) => {
     activeTab.value = tabName as string
+    console.log('标签页切换：', activeTab.value)
+    requestParams.event_status = activeTab.value
+    activityStore.getActivityList(requestParams)
   }
 
   // 搜索
