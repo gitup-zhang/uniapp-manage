@@ -150,6 +150,20 @@
                   v-model="formData.detail"
                   :height="'400px'"
                   placeholder="请输入活动详情内容..."
+                  :toolbar-keys="[
+                    'bold',
+                    'italic',
+                    'underline',
+                    '|',
+                    'bulletedList',
+                    'numberedList',
+                    '|',
+                    'insertLink',
+
+                    '|',
+                    'undo',
+                    'redo'
+                  ]"
                 />
               </div>
             </ElFormItem>
@@ -182,7 +196,7 @@
                 multiple
                 filterable
                 allow-create
-                placeholder="请选择或输入所需的个人信息"
+                placeholder="请选择或输入所需的个人信息(默认全部信息)"
                 style="width: 100%"
               >
                 <ElOption v-for="tag in availableTags" :key="tag" :label="tag" :value="tag" />
@@ -251,14 +265,104 @@
       { required: true, message: '请输入活动名称', trigger: 'blur' },
       { min: 2, max: 50, message: '长度在 2 到 50 个字符', trigger: 'blur' }
     ],
-    registration_start_time: [{ required: true, message: '请选择报名开始时间', trigger: 'change' }],
-    registration_end_time: [{ required: true, message: '请选择报名结束时间', trigger: 'change' }],
-    event_start_time: [{ required: true, message: '请选择活动开始时间', trigger: 'change' }],
-    event_end_time: [{ required: true, message: '请选择活动结束时间', trigger: 'change' }],
-    description: [
-      { required: true, message: '请输入活动描述', trigger: 'blur' },
-      { min: 10, max: 200, message: '长度在 10 到 200 个字符', trigger: 'blur' }
+    registration_start_time: [
+      { required: true, message: '请选择报名开始时间', trigger: 'change' },
+      {
+        validator: (rule: any, value: string, callback: any) => {
+          if (value && formData.registration_end_time) {
+            const startTime = new Date(value).getTime()
+            const endTime = new Date(formData.registration_end_time).getTime()
+            if (startTime >= endTime) {
+              callback(new Error('报名开始时间必须早于报名结束时间'))
+            } else {
+              callback()
+            }
+          } else {
+            callback()
+          }
+        },
+        trigger: 'change'
+      }
     ],
+    registration_end_time: [
+      { required: true, message: '请选择报名结束时间', trigger: 'change' },
+      {
+        validator: (rule: any, value: string, callback: any) => {
+          if (value && formData.registration_start_time) {
+            const startTime = new Date(formData.registration_start_time).getTime()
+            const endTime = new Date(value).getTime()
+            if (startTime >= endTime) {
+              callback(new Error('报名结束时间必须晚于报名开始时间'))
+            } else {
+              callback()
+            }
+          } else {
+            callback()
+          }
+        },
+        trigger: 'change'
+      },
+      {
+        validator: (rule: any, value: string, callback: any) => {
+          if (value && formData.event_end_time) {
+            const regEndTime = new Date(value).getTime()
+            const eventEndTime = new Date(formData.event_end_time).getTime()
+            if (regEndTime > eventEndTime) {
+              callback(new Error('报名结束时间不能晚于活动结束时间'))
+            } else {
+              callback()
+            }
+          } else {
+            callback()
+          }
+        },
+        trigger: 'change'
+      }
+    ],
+    event_start_time: [
+      { required: true, message: '请选择活动开始时间', trigger: 'change' },
+      {
+        validator: (rule: any, value: string, callback: any) => {
+          if (value && formData.event_end_time) {
+            const startTime = new Date(value).getTime()
+            const endTime = new Date(formData.event_end_time).getTime()
+            if (startTime >= endTime) {
+              callback(new Error('活动开始时间必须早于活动结束时间'))
+            } else {
+              callback()
+            }
+          } else {
+            callback()
+          }
+        },
+        trigger: 'change'
+      }
+    ],
+    event_end_time: [
+      { required: true, message: '请选择活动结束时间', trigger: 'change' },
+      {
+        validator: (rule: any, value: string, callback: any) => {
+          if (value && formData.event_start_time) {
+            const startTime = new Date(formData.event_start_time).getTime()
+            const endTime = new Date(value).getTime()
+            if (startTime >= endTime) {
+              callback(new Error('活动结束时间必须晚于活动开始时间'))
+            } else {
+              callback()
+            }
+          } else {
+            callback()
+          }
+        },
+        trigger: 'change'
+      }
+    ],
+    cover_image_url: [{ required: true, message: '请上传活动封面', trigger: 'change' }],
+    // image_id_list: [
+    //   { required: true, message: '请上传活动展示图片', trigger: 'change' },
+    //   { type: 'array', min: 1, message: '至少需要上传一张展示图片', trigger: 'change' }
+    // ],
+    detail: [{ required: true, message: '请输入活动详情', trigger: 'blur' }],
     event_address: [
       { required: true, message: '请输入活动地址', trigger: 'blur' },
       { min: 2, max: 100, message: '长度在 2 到 100 个字符', trigger: 'blur' }

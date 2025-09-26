@@ -76,7 +76,7 @@
 
             <ElRow>
               <ElFormItem label="昵称" prop="nikeName">
-                <ElInput v-model="form.name" :disabled="!isEdit" />
+                <ElInput v-model="form.nickname" :disabled="!isEdit" />
               </ElFormItem>
               <ElFormItem label="邮箱" prop="email" class="right-input">
                 <ElInput v-model="form.email" :disabled="!isEdit" />
@@ -90,6 +90,9 @@
             </ElRow>
 
             <div class="el-form-item-right">
+              <ElButton v-if="isEdit" @click="cancelEdit" style="margin-right: 10px">
+                取消
+              </ElButton>
               <ElButton type="primary" style="width: 90px" v-ripple @click="edit">
                 {{ isEdit ? '保存' : '编辑' }}
               </ElButton>
@@ -110,7 +113,7 @@
               />
             </ElFormItem> -->
 
-            <ElFormItem label="新密码" prop="newPassword">
+            <ElFormItem v-show="isEditPwd" label="新密码" prop="newPassword">
               <ElInput
                 v-model="pwdForm.newPassword"
                 type="password"
@@ -119,7 +122,7 @@
               />
             </ElFormItem>
 
-            <ElFormItem label="确认新密码" prop="confirmPassword">
+            <ElFormItem v-show="isEditPwd" label="确认新密码" prop="confirmPassword">
               <ElInput
                 v-model="pwdForm.confirmPassword"
                 type="password"
@@ -129,6 +132,9 @@
             </ElFormItem>
 
             <div class="el-form-item-right">
+              <ElButton v-if="isEditPwd" @click="cancelEditPwd" style="margin-right: 10px">
+                取消
+              </ElButton>
               <ElButton type="primary" style="width: 90px" v-ripple @click="editPwd">
                 {{ isEditPwd ? '保存' : '编辑' }}
               </ElButton>
@@ -158,7 +164,7 @@
     name: userInfo.value.name || '',
     email: userInfo.value.email || '',
     phone_number: userInfo.value.phone_number || '',
-    gender: userInfo.value.gender || ''
+    gender: userInfo.value.gender_code || ''
   })
 
   const pwdForm = reactive({
@@ -254,6 +260,19 @@
     }
   }
 
+  // 取消编辑个人信息
+  const cancelEdit = () => {
+    // 重置表单数据为原始值
+    form.nickname = userInfo.value.nickname || ''
+    form.name = userInfo.value.name || ''
+    form.email = userInfo.value.email || ''
+    form.phone_number = userInfo.value.phone_number || ''
+    form.gender = userInfo.value.gender_code || ''
+
+    // 退出编辑状态
+    isEdit.value = false
+  }
+
   // 完善密码修改函数
   const editPwd = async () => {
     // 如果当前是编辑状态，点击按钮表示要保存
@@ -278,7 +297,12 @@
 
       try {
         // 调用API修改密码
-        // await UserService.updateUser({}, userInfo.value.)
+        await UserService.updateUser(
+          {
+            password: pwdForm.newPassword
+          },
+          userInfo.value.user_id as number
+        )
         ElMessage.success('密码修改成功')
         isEditPwd.value = false
 
@@ -303,6 +327,19 @@
         confirmPassword: ''
       })
     }
+  }
+
+  // 取消密码修改
+  const cancelEditPwd = () => {
+    // 重置密码表单
+    Object.assign(pwdForm, {
+      password: '',
+      newPassword: '',
+      confirmPassword: ''
+    })
+
+    // 退出编辑状态
+    isEditPwd.value = false
   }
 </script>
 

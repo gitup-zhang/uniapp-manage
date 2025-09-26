@@ -68,7 +68,6 @@
           border
           stripe
         >
-          <ElTableColumn type="selection" width="55" />
           <ElTableColumn type="index" label="序号" width="120" />
           <ElTableColumn label="姓名" width="160" prop="name">
             <template #default="{ row }">

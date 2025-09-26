@@ -23,15 +23,14 @@
             />
           </ElFormItem>
           <ElFormItem label="管理员类型">
-            <ElSelect
+            <ElSegmented
               v-model="searchForm.role"
-              placeholder="请选择管理员类型"
-              style="width: 120px"
-              clearable
-            >
-              <ElOption label="超级管理员" value="SUPERADMIN" />
-              <ElOption label="管理员" value="ADMIN" />
-            </ElSelect>
+              :options="[
+                { label: '超级管理员', value: 'SUPERADMIN' },
+                { label: '管理员', value: 'ADMIN' }
+              ]"
+              class="admin-type-segmented"
+            />
           </ElFormItem>
           <ElFormItem>
             <ElButton type="primary" @click="handleSearch">搜索</ElButton>
@@ -67,16 +66,47 @@
             <template #default="{ row }"><ElImage :src="row.avatar" fit="cover" /> </template>
           </ElTableColumn> -->
           <ElTableColumn label="管理员姓名" width="200" prop="name" />
-          <ElTableColumn label="管理员昵称" width="200" prop="nickname" />
+          <ElTableColumn label="角色" width="200" prop="role_name">
+            <template #default="{ row }">
+              <ElTag :type="row.role_name === '超级管理员' ? 'danger' : 'primary'">
+                {{ row.role_name }}
+              </ElTag>
+            </template>
+          </ElTableColumn>
           <ElTableColumn label="手机号" width="200" prop="phone_number" />
           <ElTableColumn label="邮箱" width="200" prop="email" />
+          <ElTableColumn label="状态" width="200" prop="status">
+            <template #default="{ row }">
+              <ElTag :type="row.status === 1 ? 'success' : 'danger'">
+                {{ row.status === 1 ? '启用' : '已禁用' }}
+              </ElTag>
+            </template>
+          </ElTableColumn>
           <ElTableColumn label="操作" min-width="280">
             <template #default="{ row }">
-              <ElButton type="warning" link @click="showDialog('edit', row)">编辑</ElButton>
-              <ElButton type="primary" link @click="showResetPasswordDialog(row)"
-                >修改密码</ElButton
+              <ElButton
+                type="warning"
+                link
+                :disabled="row.status === 2"
+                @click="showDialog('edit', row)"
               >
-              <ElButton type="danger" link @click="deleteAdmin(row)">禁用</ElButton>
+                编辑
+              </ElButton>
+              <ElButton
+                type="primary"
+                link
+                :disabled="row.status === 2"
+                @click="showResetPasswordDialog(row)"
+              >
+                修改密码
+              </ElButton>
+              <ElButton
+                :type="row.status === 1 ? 'danger' : 'success'"
+                link
+                @click="toggleAdminStatus(row)"
+              >
+                {{ row.status === 1 ? '禁用' : '启用' }}
+              </ElButton>
             </template>
           </ElTableColumn>
         </ElTable>
@@ -122,9 +152,8 @@
     ElForm,
     ElFormItem,
     ElInput,
-    ElSelect,
-    ElOption,
     ElCard,
+    ElSegmented,
     type FormInstance
   } from 'element-plus'
   import { onMounted } from 'vue'
@@ -135,16 +164,18 @@
   import AdminDialog from './modules/admin-dialog.vue'
   import ResetPasswordDialog from './modules/reset-password-dialog.vue'
   import { useAdminStore } from '@/store/modules/admin'
+  import { UserService } from '@/api/usersApi'
+  import { UseInfo } from '@/api/modules/user'
 
   defineOptions({ name: 'Admin' })
 
   const adminStore = useAdminStore()
 
-  type AdminListItem = Api.User.UserListItem & {
-    adminLevel?: string
-    lastLoginTime?: string
-    permissions?: string[]
-  }
+  // type AdminListItem = Api.User.UserListItem & {
+  //   adminLevel?: string
+  //   lastLoginTime?: string
+  //   permissions?: string[]
+  // }
   //const { getUserList } = UserService
 
   // 搜索表单引用
@@ -165,14 +196,14 @@
   // 弹窗相关
   const dialogType = ref<Form.DialogType>('add')
   const dialogVisible = ref(false)
-  const currentAdminData = ref<Partial<AdminListItem>>({})
+  const currentAdminData = ref<Partial<UseInfo>>({})
 
   // 修改密码弹窗相关
   const resetPasswordVisible = ref(false)
-  const currentResetAdmin = ref<Partial<AdminListItem>>({})
+  const currentResetAdmin = ref<Partial<UseInfo>>({})
 
   // 选中行
-  const selectedRows = ref<AdminListItem[]>([])
+  const selectedRows = ref<UseInfo[]>([])
 
   // 初始化数据
   onMounted(async () => {
@@ -225,8 +256,9 @@
     searchFormRef.value?.resetFields()
     Object.assign(searchForm, {
       name: '',
-      adminType: ''
+      role: 'SUPERADMIN'
     })
+    getUserList()
   }
   const refreshAll = () => {
     getUserList()
@@ -235,7 +267,7 @@
   /**
    * 显示修改密码弹窗
    */
-  const showResetPasswordDialog = (row: AdminListItem): void => {
+  const showResetPasswordDialog = (row: UseInfo): void => {
     console.log('修改密码:', row)
     currentResetAdmin.value = row
     resetPasswordVisible.value = true
@@ -247,7 +279,7 @@
   const handleResetPassword = async () => {
     try {
       // 这里应该调用修改密码的API
-      await new Promise((resolve) => setTimeout(resolve, 1000)) // 模拟API调用
+      //await new Promise((resolve) => setTimeout(resolve, 1000)) // 模拟API调用
 
       ElMessage.success('密码修改成功')
       resetPasswordVisible.value = false
@@ -261,7 +293,7 @@
   /**
    * 显示管理员弹窗
    */
-  const showDialog = (type: Form.DialogType, row?: AdminListItem): void => {
+  const showDialog = (type: Form.DialogType, row?: UseInfo): void => {
     console.log('打开弹窗:', { type, row })
     dialogType.value = type
     currentAdminData.value = row || {}
@@ -271,18 +303,37 @@
   }
 
   /**
-   * 删除管理员
+   * 切换管理员状态
    */
-  const deleteAdmin = (row: AdminListItem): void => {
-    console.log('禁用管理员:', row)
-    ElMessageBox.confirm(`确定要禁用该管理员吗？`, '禁用管理员', {
-      confirmButtonText: '确定',
-      cancelButtonText: '取消',
-      type: 'error'
-    }).then(() => {
-      ElMessage.success('禁用成功')
+  const toggleAdminStatus = async (row: UseInfo): Promise<void> => {
+    const status = Number(row.status)
+    const action = status === 1 ? '禁用' : '启用'
+
+    try {
+      await ElMessageBox.confirm(`确定要${action}该管理员吗？`, `${action}管理员`, {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: status === 1 ? 'error' : 'warning'
+      })
+
+      // 调用 API
+      if (status === 1) {
+        await UserService.disableUser(row.user_id, { operation: 'DISABLE' })
+      } else {
+        await UserService.disableUser(row.user_id, { operation: 'ENABLE' })
+      }
+
+      ElMessage.success(`${action}成功`)
       refreshAll()
-    })
+    } catch (error: any) {
+      // 用户点击取消 / 或者请求报错都会进入这里
+      if (error === 'cancel') {
+        ElMessage.info('已取消操作')
+      } else {
+        console.error('切换管理员状态失败:', error)
+        ElMessage.error('切换管理员状态失败')
+      }
+    }
   }
 
   /**
@@ -301,7 +352,7 @@
   /**
    * 处理表格行选择变化
    */
-  const handleSelectionChange = (selection: AdminListItem[]): void => {
+  const handleSelectionChange = (selection: UseInfo[]): void => {
     selectedRows.value = selection
     console.log('选中行数据:', selectedRows.value)
   }
@@ -380,6 +431,32 @@
           font-weight: 500;
           color: var(--art-text-gray-800);
         }
+      }
+    }
+
+    :deep(.admin-type-segmented) {
+      width: 240px;
+      .el-segmented {
+        background: var(--el-fill-color-light);
+        border: 1px solid var(--el-border-color-light);
+        border-radius: 4px;
+        padding: 4px;
+      }
+      .el-segmented__item {
+        transition: all 0.3s ease;
+        border-radius: 2px;
+        &.is-selected {
+          color: var(--el-color-white);
+          font-weight: 500;
+          background: var(--el-color-primary);
+        }
+      }
+    }
+
+    .search-form {
+      .el-form-item {
+        margin-right: 24px;
+        margin-bottom: 0;
       }
     }
   }

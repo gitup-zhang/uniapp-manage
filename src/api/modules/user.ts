@@ -13,6 +13,8 @@ export interface UseInfo {
   industry: string // 行业代码
   industry_name: string // 行业名称
   role_name: string // 用户角色
+  status: number // 状态
+  user_status: string // 用户状态
 }
 
 // 返回的分页数据
@@ -24,10 +26,12 @@ export interface UseListResponse {
 }
 // 用户数据,用户登录账号
 export interface UserData {
+  user_id?: number
   nickname: string // 昵称
   avatar_url: string // 头像url
   name: string // 姓名
   gender: string // 性别
+  gender_code?: string // 性别代码
   phone_number: string // 手机号
   email: string // 邮箱地址
   unit: string // 所在单位

@@ -20,10 +20,12 @@ export const useUserStore = defineStore(
     const isLock = ref(false)
     const lockPassword = ref('')
     const info = ref<UserData>({
+      user_id: 0,
       nickname: '',
       avatar_url: '',
       name: '',
       gender: '',
+      gender_code: '',
       phone_number: '',
       email: '',
       unit: '',
@@ -115,10 +117,12 @@ export const useUserStore = defineStore(
     // 信息清空
     function createEmptyUser(): UserData {
       return {
+        user_id: 0,
         nickname: '',
         avatar_url: '',
         name: '',
         gender: '',
+        gender_code: '',
         phone_number: '',
         email: '',
         unit: '',

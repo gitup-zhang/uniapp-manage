@@ -143,20 +143,13 @@
         <div class="detail-section">
           <div class="section-header">
             <h3>参与者列表</h3>
-            <ElButton size="small" @click="handleExportParticipants"> 导出参与者 </ElButton>
           </div>
           <ElTable :data="activityStore.ActivityEnrollList" style="width: 100%">
             <ElTableColumn prop="name" label="姓名" width="120" />
             <ElTableColumn prop="phone_number" label="手机号" width="140" />
             <ElTableColumn prop="email" label="邮箱" width="200" />
-
-            <ElTableColumn label="操作" width="100">
-              <template #default="{ row }">
-                <ElButton size="small" type="text" @click="handleViewParticipant(row)">
-                  详情
-                </ElButton>
-              </template>
-            </ElTableColumn>
+            <ElTableColumn prop="unit" label="单位" width="160" />
+            <ElTableColumn prop="industry" label="行业" width="160" />
           </ElTable>
 
           <!-- 分页组件 -->
@@ -172,6 +165,29 @@
         </div>
       </div>
     </ElCard>
+
+    <!-- 参与者详情弹框 -->
+    <ElDialog v-model="dialogVisible" title="参与者详情" width="500px" :before-close="handleClose">
+      <ElForm :model="currentParticipant" label-width="80px">
+        <ElFormItem label="姓名：">
+          <span>{{ currentParticipant.name || '未知' }}</span>
+        </ElFormItem>
+        <ElFormItem label="手机号：">
+          <span>{{ currentParticipant.phone_number || '未知' }}</span>
+        </ElFormItem>
+        <ElFormItem label="邮箱：">
+          <span>{{ currentParticipant.email || '未知' }}</span>
+        </ElFormItem>
+        <ElFormItem label="报名时间：">
+          <span>{{ formatTime(currentParticipant.created_at) || '未知' }}</span>
+        </ElFormItem>
+      </ElForm>
+      <template #footer>
+        <span class="dialog-footer">
+          <ElButton @click="dialogVisible = false">关闭</ElButton>
+        </span>
+      </template>
+    </ElDialog>
   </div>
 </template>
 
@@ -208,15 +224,19 @@
   interface Participant {
     id: number
     name: string
-    phone: string
+    phone_number: string
     email: string
-    joinTime: string
-    source: string
+    created_at: string
+    // ... 其他属性
   }
 
   const route = useRoute()
   const router = useRouter()
   const loading = ref(true)
+
+  // 弹框相关
+  const dialogVisible = ref(false)
+  const currentParticipant = ref<Participant>({} as Participant)
 
   // 分页相关数据
   const pageParams = reactive({
@@ -249,65 +269,6 @@
   // 参与者列表
   const participantsList = ref<Participant[]>([])
 
-  // 活动状态配置
-  // const ACTIVITY_STATUS_CONFIG = {
-  //   pending: { type: 'warning' as const, text: '未开始' },
-  //   active: { type: 'success' as const, text: '进行中' },
-  //   ended: { type: 'info' as const, text: '已结束' },
-  //   expired: { type: 'danger' as const, text: '已过期' }
-  // } as const
-
-  // 活动类型配置
-  // const ACTIVITY_TYPE_CONFIG = {
-  //   marketing: '营销活动',
-  //   brand: '品牌活动',
-  //   promotion: '促销活动',
-  //   user: '用户活动'
-  // } as const
-
-  /**
-   * 获取活动状态配置
-   */
-  // const getActivityStatusConfig = (status: string) => {
-  //   return (
-  //     ACTIVITY_STATUS_CONFIG[status as keyof typeof ACTIVITY_STATUS_CONFIG] || {
-  //       type: 'info' as const,
-  //       text: '未知'
-  //     }
-  //   )
-  // }
-
-  /**
-   * 获取活动类型文本
-   */
-  // const getActivityTypeText = (type: string) => {
-  //   return ACTIVITY_TYPE_CONFIG[type as keyof typeof ACTIVITY_TYPE_CONFIG] || '未知'
-  // }
-
-  // 计算参与率
-  // const participationRate = computed(() => {
-  //   if (activityData.value.maxParticipants <= 0) {
-  //     return '--'
-  //   }
-  //   return `${((activityData.value.participants / activityData.value.maxParticipants) * 100).toFixed(1)}%`
-  // })
-
-  // 计算剩余天数
-  // const remainingDays = computed(() => {
-  //   const endDate = new Date(activityData.value.endTime)
-  //   const today = new Date()
-  //   const timeDiff = endDate.getTime() - today.getTime()
-  //   const daysDiff = Math.ceil(timeDiff / (1000 * 3600 * 24))
-
-  //   if (daysDiff < 0) {
-  //     return '已过期'
-  //   } else if (daysDiff === 0) {
-  //     return '今天结束'
-  //   } else {
-  //     return `${daysDiff}天`
-  //   }
-  // })
-
   // 获取活动详情
   const fetchActivityDetail = async (id: number) => {
     try {
@@ -326,10 +287,9 @@
       participantsList.value = Array.from({ length: 20 }, (_, index) => ({
         id: index + 1,
         name: `参与者${index + 1}`,
-        phone: `138****${String(Math.floor(Math.random() * 10000)).padStart(4, '0')}`,
+        phone_number: `138****${String(Math.floor(Math.random() * 10000)).padStart(4, '0')}`,
         email: `user${index + 1}@example.com`,
-        joinTime: new Date(Date.now() - Math.random() * 30 * 24 * 60 * 60 * 1000).toLocaleString(),
-        source: ['微信', '官网', 'APP', '朋友圈'][Math.floor(Math.random() * 4)]
+        created_at: new Date(Date.now() - Math.random() * 30 * 24 * 60 * 60 * 1000).toISOString()
       }))
     } catch (error) {
       ElMessage.error('获取活动详情失败')
@@ -370,47 +330,13 @@
     router.push('/activity/list')
   }
 
-  // 编辑活动
-  // const handleEdit = () => {
-  //   router.push(`/activity/create?id=${activityData.value.id}&mode=edit`)
-  // }
-
-  // 结束活动
-  // const handleEnd = () => {
-  //   ElMessageBox.confirm('确定要结束此活动吗？结束后将无法恢复。', '结束活动', {
-  //     confirmButtonText: '确定',
-  //     cancelButtonText: '取消',
-  //     type: 'warning'
-  //   }).then(() => {
-  //     //activityData.value.status = 'ended'
-  //     ElMessage.success('活动已结束')
-  //   })
-  // }
-
-  // 删除活动
-  // const handleDelete = () => {
-  //   ElMessageBox.confirm(
-  //     `确定要删除活动"${activityData.value.title}"吗？此操作不可恢复。`,
-  //     '删除活动',
-  //     {
-  //       confirmButtonText: '确定',
-  //       cancelButtonText: '取消',
-  //       type: 'error'
-  //     }
-  //   ).then(() => {
-  //     ElMessage.success('删除成功')
-  //     router.push('/activity/list')
-  //   })
-  // }
-
   // 导出参与者
-  const handleExportParticipants = () => {
-    ElMessage.success('参与者列表导出成功')
-  }
 
   // 查看参与者详情
-  const handleViewParticipant = (participant: Participant) => {
-    ElMessage.info(`查看参与者: ${participant.name}`)
+
+  // 关闭弹框
+  const handleClose = () => {
+    dialogVisible.value = false
   }
 
   // 初始化

@@ -1,4 +1,3 @@
-<!-- 活动列表 -->
 <template>
   <div class="activity-list-page">
     <!-- 搜索栏 -->
@@ -12,33 +11,12 @@
             style="width: 180px"
           />
         </ElFormItem>
-        <ElFormItem label="活动类型" class="form-item">
-          <ElSelect
-            v-model="searchForm.type"
-            placeholder="请选择活动类型"
-            clearable
-            style="width: 130px"
-          >
-            <ElOption label="营销活动" value="marketing" />
-            <ElOption label="品牌活动" value="brand" />
-            <ElOption label="促销活动" value="promotion" />
-            <ElOption label="用户活动" value="user" />
-          </ElSelect>
-        </ElFormItem>
-        <ElFormItem label="创建时间" class="form-item">
-          <ElDatePicker
-            v-model="searchForm.dateRange"
-            type="daterange"
-            range-separator="至"
-            start-placeholder="开始日期"
-            end-placeholder="结束日期"
-            style="width: 220px"
-            size="default"
-          />
-        </ElFormItem>
+
         <ElFormItem class="form-item">
           <ElButton type="primary" @click="handleSearch" size="default"> 搜索 </ElButton>
           <ElButton @click="handleReset" size="default"> 重置 </ElButton>
+          <ElButton type="primary" @click="handleCreate" size="default"> 新建活动 </ElButton>
+          <ElButton :icon="Refresh" @click="refreshData" size="default"> 刷新 </ElButton>
         </ElFormItem>
       </ElForm>
     </ElCard>
@@ -55,14 +33,7 @@
       </div>
 
       <!-- 操作栏 -->
-      <div class="table-header">
-        <div class="header-left">
-          <ElButton type="primary" @click="handleCreate"> 新建活动 </ElButton>
-        </div>
-        <!-- <div class="header-right">
-          <ElButton :icon="Refresh" @click="refreshData">刷新</ElButton>
-        </div> -->
-      </div>
+      <div class="table-header"></div>
 
       <!-- 表格 -->
       <div class="table-wrapper">
@@ -161,7 +132,7 @@
 
 <script setup lang="ts">
   import { ElMessageBox, ElMessage, ElImage, ElTable, ElTableColumn, ElButton } from 'element-plus'
-  // import { Refresh } from '@element-plus/icons-vue'
+  import { Refresh } from '@element-plus/icons-vue'
   // import { useTable } from '@/composables/useTable'
   import { useActivityStore } from '@/store/modules/activity'
   import { ref, onMounted } from 'vue'
@@ -172,6 +143,7 @@
 
   // 请求参数
   const requestParams = {
+    event_title: '',
     page: 1,
     page_size: 10,
     event_status: 'InProgress'
@@ -210,9 +182,7 @@
 
   // 搜索表单
   const searchForm = reactive({
-    name: '',
-    type: '',
-    dateRange: [] as string[]
+    name: ''
   })
 
   // 钩子函数
@@ -235,20 +205,30 @@
   }
 
   // 搜索
-  const handleSearch = () => {}
+  const handleSearch = () => {
+    requestParams.event_title = searchForm.name
+    requestParams.page = 1
+    activityStore.getActivityList(requestParams)
+  }
 
   // 重置搜索
   const handleReset = () => {
     Object.assign(searchForm, {
-      name: '',
-      type: '',
-      dateRange: []
+      name: ''
     })
+    requestParams.event_title = ''
+    requestParams.page = 1
+    activityStore.getActivityList(requestParams)
   }
 
   // 新建活动
   const handleCreate = () => {
     router.push('/activity/create')
+  }
+
+  // 刷新数据
+  const refreshData = () => {
+    activityStore.getActivityList(requestParams)
   }
 
   // 查看活动
@@ -280,22 +260,6 @@
       ElMessage.info('已取消删除')
     }
   }
-
-  // 批量删除
-  // const handleBatchDelete = () => {
-  //   ElMessageBox.confirm(
-  //     `确定要删除选中的 ${selectedRows.value.length} 个活动吗？此操作不可恢复。`,
-  //     '批量删除',
-  //     {
-  //       confirmButtonText: '确定',
-  //       cancelButtonText: '取消',
-  //       type: 'warning'
-  //     }
-  //   ).then(() => {
-  //     ElMessage.success('批量删除成功')
-  //     selectedRows.value = []
-  //   })
-  // }
 
   // 处理表格行选择变化
   const handleSelectionChange = (selection: ActivityItem[]) => {

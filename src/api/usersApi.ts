@@ -78,9 +78,10 @@ export class UserService {
     })
   }
   // 禁用管理员
-  static disableUser = (id: number) => {
+  static disableUser = (id: number, params: any) => {
     return request.put<any>({
-      url: `/api/user/disable/${id}`
+      url: `/api/user/updateStatus/${id}`,
+      params
     })
   }
 

@@ -32,6 +32,7 @@
 
 <script setup lang="ts">
   import type { FormInstance, FormRules } from 'element-plus'
+  import { UserService } from '@/api/usersApi'
 
   interface Props {
     visible: boolean
@@ -109,19 +110,19 @@
   // 提交表单
   const handleSubmit = async () => {
     if (!formRef.value) return
-
-    await formRef.value.validate((valid) => {
-      if (valid) {
-        loading.value = true
-        emit('submit', formData.newPassword)
-
-        // 延迟重置加载状态，因为父组件会处理关闭对话框
-        setTimeout(() => {
-          loading.value = false
-          resetForm()
-        }, 1000)
-      }
-    })
+    try {
+      await formRef.value.validate()
+      loading.value = true
+      await UserService.updateUser({ password: formData.newPassword }, props.adminData.user_id)
+      loading.value = false
+      emit('submit', formData.newPassword)
+      dialogVisible.value = false
+    } catch (error) {
+      console.log(error)
+      loading.value = false
+    } finally {
+      loading.value = false
+    }
   }
 </script>
 
