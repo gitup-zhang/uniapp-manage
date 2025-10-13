@@ -23,7 +23,8 @@ export const useArticlesStore = defineStore('article', () => {
     article_type_code: 'POLICY',
     article_type: '',
     cover_image_url: '',
-    brief_content: ''
+    brief_content: '',
+    is_selection: 1
   })
   // 获取政策和新闻
   const getArticles = async (param: any) => {

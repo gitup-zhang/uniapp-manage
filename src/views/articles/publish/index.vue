@@ -46,7 +46,29 @@
         </div>
 
         <!-- 富文本编辑器 -->
-        <ArtWangEditor class="el-top" v-model="formData.article_content" />
+        <ArtWangEditor
+          class="el-top"
+          v-model="formData.article_content"
+          :toolbar-keys="[
+            'bold',
+            'italic',
+            'underline',
+            'color',
+            'bgColor',
+            'bulletedList',
+            'numberedList',
+            'divider',
+            'insertLink',
+            'uploadImage',
+
+            'insertTable',
+            'codeBlock',
+            'undo',
+            'redo'
+          ]"
+          placeholder="请输入文章内容..."
+          height="600px"
+        />
 
         <div class="form-wrap">
           <h2>发布设置</h2>
@@ -136,6 +158,7 @@
   import { useCommon } from '@/composables/useCommon'
   import { useArticlesStore } from '@/store/modules/article'
   import { imageService } from '@/api/image'
+  import { RoutesAlias } from '@/router/routesAlias'
   import { onMounted, watch } from 'vue'
 
   defineOptions({ name: 'ArticlePublish' })
@@ -152,7 +175,7 @@
   // 传递 token
   const uploadHeaders = { Authorization: accessToken }
 
-  let pageMode: PageModeEnum = PageModeEnum.Add // 页面类型 新增 ｜ 编辑
+  let pageMode = PageModeEnum.Add as PageModeEnum // 页面类型 新增 ｜ 编辑
 
   // 统一的表单数据
   const formData = ref({
@@ -195,7 +218,7 @@
       article_type: '', // 类型代码
       brief_content: '', // 内容简介
       article_content: '', // 内容
-      is_selection: 2, // 是否精选，1-精选，2-非精选，默认=2
+      is_selection: 1, // 是否精选，1-精选，2-非精选，默认=2
       field_type: '', // 领域类型代码
       cover_image_url: '', // 封面url
       article_source: '', // 文章来源
@@ -243,6 +266,7 @@
       formData.value.cover_image_url = Article.ArticleDetail.cover_image_url
       formData.value.brief_content = Article.ArticleDetail.brief_content
       formData.value.field_type = Article.ArticleDetail.field_type
+      formData.value.is_selection = Article.ArticleDetail.is_selection as number
     } catch (e) {
       console.log('获取文章详情失败', e)
     }
@@ -344,8 +368,22 @@
   }
 
   // 构建参数
+  // const buildParams = () => {
+  //   return {
+  //     article_title: formData.value.article_title,
+  //     article_type: formData.value.article_type,
+  //     brief_content: formData.value.brief_content,
+  //     article_content: delCodeTrim(formData.value.article_content),
+  //     is_selection: formData.value.is_selection,
+  //     field_type: formData.value.field_type,
+  //     cover_image_url: formData.value.cover_image_url,
+  //     article_source: formData.value.article_source,
+  //     image_id_list: formData.value.image_id_list,
+  //     create_time: createDate.value
+  //   }
+  // }
   const buildParams = () => {
-    return {
+    const params = {
       article_title: formData.value.article_title,
       article_type: formData.value.article_type,
       brief_content: formData.value.brief_content,
@@ -357,6 +395,11 @@
       image_id_list: formData.value.image_id_list,
       create_time: createDate.value
     }
+
+    // 过滤掉 null、undefined、空字符串 的键值
+    return Object.fromEntries(
+      Object.entries(params).filter(([_, v]) => v !== null && v !== undefined && v !== '')
+    )
   }
 
   // 添加文章
@@ -453,9 +496,7 @@
 
   // 返回上一页
   const goBack = () => {
-    setTimeout(() => {
-      router.go(-1)
-    }, 800)
+    router.push({ path: RoutesAlias.ArticleList })
   }
 
   // 添加上传前的校验

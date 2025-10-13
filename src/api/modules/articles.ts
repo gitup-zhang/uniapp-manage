@@ -107,6 +107,7 @@ export interface Article {
   brief_content: string // 文章摘要
   cover_image_url: string
   images?: ArticleImage[]
+  is_selection?: number
 }
 
 // 接口响应

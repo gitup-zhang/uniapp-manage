@@ -30,9 +30,9 @@
           <ElDescriptionsItem label="关联活动">
             {{ groupDetail.event_title || '无' }}
           </ElDescriptionsItem>
-          <ElDescriptionsItem label="包含全体用户">
-            <ElTag :type="groupDetail.include_all_user === 'Y' ? 'success' : 'info'">
-              {{ groupDetail.include_all_user === 'Y' ? '是' : '否' }}
+          <ElDescriptionsItem label="群组类型">
+            <ElTag :type="groupDetail.include_all_user === 'Y' ? 'success' : 'primary'">
+              {{ groupDetail.include_all_user === 'Y' ? '系统群组' : '消息群组' }}
             </ElTag>
           </ElDescriptionsItem>
           <ElDescriptionsItem label="创建时间" :span="2">
@@ -69,7 +69,7 @@
       </template>
 
       <!-- 成员搜索 -->
-      <div class="member-search">
+      <!-- <div class="member-search">
         <ElForm :model="memberSearchForm" inline>
           <ElFormItem label="成员姓名">
             <ElInput
@@ -90,7 +90,7 @@
             </ElButton>
           </ElFormItem>
         </ElForm>
-      </div>
+      </div> -->
 
       <!-- 成员表格 -->
       <ElTable
@@ -397,17 +397,17 @@
   }
 
   // 成员搜索
-  const handleMemberSearch = () => {
-    memberPagination.currentPage = 1
-    loadGroupMembers()
-  }
+  // const handleMemberSearch = () => {
+  //   memberPagination.currentPage = 1
+  //   loadGroupMembers()
+  // }
 
   // 重置成员搜索
-  const handleMemberReset = () => {
-    memberSearchForm.name = ''
-    memberPagination.currentPage = 1
-    loadGroupMembers()
-  }
+  // const handleMemberReset = () => {
+  //   memberSearchForm.name = ''
+  //   memberPagination.currentPage = 1
+  //   loadGroupMembers()
+  // }
 
   // 成员分页变化
   const handleMemberCurrentChange = (page: number) => {

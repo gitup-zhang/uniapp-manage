@@ -2,8 +2,8 @@
 
 // 页面类型
 export enum PageModeEnum {
-  Add, // 新增
-  Edit // 编辑
+  Add = 0, // 新增
+  Edit = 1 // 编辑
 }
 
 // 表格大小

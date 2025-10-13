@@ -29,7 +29,12 @@
           />
         </ElFormItem>
 
-        <ElFormItem label="是否包含全部成员" prop="include_all_user" required>
+        <ElFormItem
+          label="成员数量(全部成员是系统群组)"
+          label-width="auto"
+          prop="include_all_user"
+          required
+        >
           <ElRadioGroup v-model="form.include_all_user">
             <ElRadio value="Y">包含全部成员</ElRadio>
             <ElRadio value="N">选择部分成员</ElRadio>

@@ -31,7 +31,8 @@
       </ElCol>
 
       <ElCol :span="6" style="display: flex; justify-content: flex-end">
-        <ElButton @click="toAddArticle">新增文章</ElButton>
+        <ElButton @click="refreshArticleList">刷新</ElButton>
+        <ElButton @click="toAddArticle" style="margin-left: 10px">新增文章</ElButton>
       </ElCol>
     </ElRow>
 
@@ -121,6 +122,7 @@
                 <div class="bottom">
                   <h2>{{ item.article_title }}</h2>
                   <div class="time-info">
+                    <span>{{ item.field_name }}</span>
                     <i class="iconfont-sys">&#xe6f7;</i>
                     <span>{{ useDateFormat(item.release_time, 'YYYY-MM-DD') }}</span>
                   </div>
@@ -236,6 +238,7 @@
                         <h3 class="article-title">{{ item.article_title }}</h3>
                         <div class="meta-info">
                           <span class="type-badge">{{ item.article_type }}</span>
+                          <span class="type-badge">{{ item.field_name }}</span>
                           <div class="time-badge">
                             <i class="iconfont-sys">&#xe6f7;</i>
                             <span>{{ useDateFormat(item.release_time, 'YYYY-MM-DD') }}</span>
@@ -432,6 +435,11 @@
     router.push({
       path: RoutesAlias.ArticlePublish
     })
+  }
+
+  // 刷新文章列表
+  const refreshArticleList = () => {
+    articlestore.getArticles(Params)
   }
 
   // 删除文章
@@ -698,6 +706,17 @@
                 font-size: 13px;
                 color: var(--art-gray-600);
               }
+
+              // 为field_name添加样式
+              span:first-child {
+                background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+                color: white;
+                padding: 2px 8px;
+                border-radius: 12px;
+                font-size: 12px;
+                font-weight: 500;
+                margin-right: 8px;
+              }
             }
 
             .action-buttons {
@@ -901,6 +920,13 @@
                       border-radius: 12px;
                       text-transform: uppercase;
                       letter-spacing: 0.5px;
+                    }
+
+                    // 为field_name添加特殊样式
+                    .type-badge:nth-child(2) {
+                      background: linear-gradient(135deg, #8b5cf6 0%, #ec4899 100%);
+                      color: white;
+                      box-shadow: 0 2px 6px rgba(139, 92, 246, 0.3);
                     }
 
                     .time-badge {

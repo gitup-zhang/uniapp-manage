@@ -56,7 +56,8 @@
         style="width: 100%"
         empty-text="暂无数据"
       >
-        <ElTableColumn prop="id" label="ID" width="80" align="center" />
+        <ElTableColumn type="index" label="序号" width="60" align="center" />
+
         <ElTableColumn prop="group_name" label="群组名称" width="150">
           <template #default="{ row }">
             <div class="group-info">
@@ -80,7 +81,7 @@
           </template>
         </ElTableColumn>
         <ElTableColumn prop="desc" label="群组描述" width="300" show-overflow-tooltip />
-        <ElTableColumn prop="event_title" label="对应群组" width="180" align="center" />
+        <ElTableColumn prop="event_title" label="关联活动" width="180" align="center" />
         <ElTableColumn prop="status" label="是否已删除" width="100" align="center">
           <template #default="{ row }">
             <ElTag :type="statusMap[row.is_deleted as 'Y' | 'N']" size="small">
@@ -88,21 +89,48 @@
             </ElTag>
           </template>
         </ElTableColumn>
+        <ElTableColumn prop="include_all_user" label="群组类型" width="100" align="center">
+          <template #default="{ row }">
+            <ElTag :type="row.include_all_user === 'Y' ? 'success' : 'primary'" size="small">
+              {{ row.include_all_user === 'Y' ? '系统群组' : '消息群组' }}
+            </ElTag>
+          </template>
+        </ElTableColumn>
         <ElTableColumn label="操作" min-width="260" align="center" fixed="right">
           <template #default="{ row }">
-            <ElButton type="primary" size="small" @click="handleView(row)">
+            <ElButton
+              type="primary"
+              size="small"
+              @click="handleView(row)"
+              :disabled="row.is_deleted === 'Y'"
+            >
               <ElIcon><View /></ElIcon>
               查看
             </ElButton>
-            <ElButton type="success" size="small" @click="handleMessage(row)">
+            <ElButton
+              type="success"
+              size="small"
+              @click="handleMessage(row)"
+              :disabled="row.is_deleted === 'Y'"
+            >
               <ElIcon><ChatDotRound /></ElIcon>
               发送消息
             </ElButton>
-            <ElButton type="warning" size="small" @click="handleEdit(row)">
+            <ElButton
+              type="warning"
+              size="small"
+              @click="handleEdit(row)"
+              :disabled="row.is_deleted === 'Y'"
+            >
               <ElIcon><Edit /></ElIcon>
               编辑
             </ElButton>
-            <ElButton type="danger" size="small" @click="handleDelete(row)">
+            <ElButton
+              type="danger"
+              size="small"
+              @click="handleDelete(row)"
+              :disabled="row.is_deleted === 'Y'"
+            >
               <ElIcon><Delete /></ElIcon>
               删除
             </ElButton>
