@@ -18,151 +18,170 @@
       </template>
 
       <div class="activity-detail-content">
-        <!-- 基本信息 -->
-        <div class="detail-section">
-          <div class="section-header">
-            <h3>基本信息</h3>
-            <!-- <ElTag :type="getActivityStatusConfig(activityData.status).type" size="large">
-              {{ getActivityStatusConfig(activityData.status).text }}
-            </ElTag> -->
-          </div>
+        <!-- Tab栏 -->
+        <ElTabs v-model="activeTab" class="detail-tabs">
+          <!-- 基本信息Tab -->
+          <ElTabPane label="基本信息" name="basic">
+            <div class="detail-section">
+              <ElRow :gutter="24">
+                <ElCol :span="12">
+                  <div class="detail-item">
+                    <span class="item-label">活动名称：</span>
+                    <span class="item-value">{{ activityStore.ActivityDetail.title }}</span>
+                  </div>
+                </ElCol>
+                <ElCol :span="12">
+                  <div class="detail-item">
+                    <span class="item-label">活动费用：</span>
+                    <span class="item-value">{{
+                      activityStore.ActivityDetail.registration_fee
+                    }}</span>
+                  </div>
+                </ElCol>
+                <!-- <ElCol :span="12">
+                  <div class="detail-item">
+                    <span class="item-label">活动类型：</span>
+                    <span class="item-value">{{ getActivityTypeText(activityData.type) }}</span>
+                  </div>
+                </ElCol> -->
+                <ElCol :span="12">
+                  <div class="detail-item">
+                    <span class="item-label">报名开始时间：</span>
+                    <span class="item-value">{{
+                      formatTime(activityStore.ActivityDetail.registration_start_time)
+                    }}</span>
+                  </div>
+                </ElCol>
+                <ElCol :span="12">
+                  <div class="detail-item">
+                    <span class="item-label">报名结束时间：</span>
+                    <span class="item-value">{{
+                      formatTime(activityStore.ActivityDetail.registration_end_time)
+                    }}</span>
+                  </div>
+                </ElCol>
+                <ElCol :span="12">
+                  <div class="detail-item">
+                    <span class="item-label">活动开始时间：</span>
+                    <span class="item-value">{{
+                      formatTime(activityStore.ActivityDetail.event_start_time)
+                    }}</span>
+                  </div>
+                </ElCol>
+                <ElCol :span="12">
+                  <div class="detail-item">
+                    <span class="item-label">活动结束时间：</span>
+                    <span class="item-value">{{
+                      formatTime(activityStore.ActivityDetail.event_end_time)
+                    }}</span>
+                  </div>
+                </ElCol>
+                <ElCol :span="12">
+                  <div class="detail-item">
+                    <span class="item-label">创建者：</span>
+                    <span class="item-value">管理员</span>
+                  </div>
+                </ElCol>
+                <ElCol :span="24">
+                  <div class="detail-item">
+                    <span class="item-label">地址：</span>
+                    <span class="item-value">{{ activityStore.ActivityDetail.event_address }}</span>
+                  </div>
+                </ElCol>
+                <ElCol :span="24">
+                  <div class="detail-item">
+                    <span class="item-label">填写信息字段：</span>
 
-          <ElRow :gutter="24">
-            <ElCol :span="12">
-              <div class="detail-item">
-                <span class="item-label">活动名称：</span>
-                <span class="item-value">{{ activityStore.ActivityDetail.title }}</span>
-              </div>
-            </ElCol>
-            <ElCol :span="12">
-              <div class="detail-item">
-                <span class="item-label">活动费用：</span>
-                <span class="item-value">{{ activityStore.ActivityDetail.registration_fee }}</span>
-              </div>
-            </ElCol>
-            <!-- <ElCol :span="12">
-              <div class="detail-item">
-                <span class="item-label">活动类型：</span>
-                <span class="item-value">{{ getActivityTypeText(activityData.type) }}</span>
-              </div>
-            </ElCol> -->
-            <ElCol :span="12">
-              <div class="detail-item">
-                <span class="item-label">报名开始时间：</span>
-                <span class="item-value">{{
-                  formatTime(activityStore.ActivityDetail.registration_start_time)
-                }}</span>
-              </div>
-            </ElCol>
-            <ElCol :span="12">
-              <div class="detail-item">
-                <span class="item-label">报名结束时间：</span>
-                <span class="item-value">{{
-                  formatTime(activityStore.ActivityDetail.registration_end_time)
-                }}</span>
-              </div>
-            </ElCol>
-            <ElCol :span="12">
-              <div class="detail-item">
-                <span class="item-label">活动开始时间：</span>
-                <span class="item-value">{{
-                  formatTime(activityStore.ActivityDetail.event_start_time)
-                }}</span>
-              </div>
-            </ElCol>
-            <ElCol :span="12">
-              <div class="detail-item">
-                <span class="item-label">活动结束时间：</span>
-                <span class="item-value">{{
-                  formatTime(activityStore.ActivityDetail.event_end_time)
-                }}</span>
-              </div>
-            </ElCol>
-            <ElCol :span="12">
-              <div class="detail-item">
-                <span class="item-label">创建者：</span>
-                <span class="item-value">管理员</span>
-              </div>
-            </ElCol>
-            <ElCol :span="24">
-              <div class="detail-item">
-                <span class="item-label">地址：</span>
-                <span class="item-value">{{ activityStore.ActivityDetail.event_address }}</span>
-              </div>
-            </ElCol>
-          </ElRow>
-        </div>
+                    <el-tag
+                      type="primary"
+                      v-for="index in activityStore.ActivityDetail.user_info"
+                      :key="index.id"
+                      >{{ index.name }}</el-tag
+                    >
+                  </div>
+                </ElCol>
+              </ElRow>
 
-        <!-- 活动封面 -->
-        <div class="detail-section">
-          <div class="section-header">
-            <h3>活动封面</h3>
-          </div>
-          <div class="cover-container">
-            <ElImage
-              :src="activityStore.ActivityDetail.cover_image_url"
-              :preview-src-list="[activityStore.ActivityDetail.cover_image_url]"
-              fit="cover"
-              class="activity-cover"
-            />
-          </div>
-        </div>
+              <!-- 活动详情 -->
+              <div class="detail-section">
+                <div class="section-header">
+                  <h3>活动详情</h3>
+                </div>
+                <div class="content-container" v-html="activityStore.ActivityDetail.detail"></div>
+              </div>
+            </div>
+          </ElTabPane>
 
-        <!-- 活动展示图片 -->
-        <div
-          class="detail-section"
-          v-if="
-            activityStore.ActivityDetail.images && activityStore.ActivityDetail.images.length > 0
-          "
-        >
-          <div class="section-header">
-            <h3>活动展示图片</h3>
-          </div>
-          <div class="display-images-container">
-            <ElImage
-              v-for="image in activityStore.ActivityDetail.images"
-              :key="image.image_id"
-              :src="image.url"
-              :preview-src-list="[image.url]"
-              :initial-index="image.image_id"
-              fit="cover"
-              class="display-image"
-            />
-          </div>
-        </div>
+          <!-- 图片Tab -->
+          <ElTabPane label="图片" name="images">
+            <div class="detail-section">
+              <!-- 活动封面 -->
+              <div class="section-header">
+                <h3>活动封面</h3>
+              </div>
+              <div class="cover-container">
+                <ElImage
+                  :src="activityStore.ActivityDetail.cover_image_url"
+                  :preview-src-list="[activityStore.ActivityDetail.cover_image_url]"
+                  fit="cover"
+                  class="activity-cover"
+                  :style="{ maxWidth: '300px', maxHeight: '200px' }"
+                />
+              </div>
+            </div>
 
-        <!-- 活动详情 -->
-        <div class="detail-section">
-          <div class="section-header">
-            <h3>活动详情</h3>
-          </div>
-          <div class="content-container" v-html="activityStore.ActivityDetail.detail"></div>
-        </div>
+            <!-- 活动展示图片 -->
+            <div
+              class="detail-section"
+              v-if="
+                activityStore.ActivityDetail.images &&
+                activityStore.ActivityDetail.images.length > 0
+              "
+            >
+              <div class="section-header">
+                <h3>活动展示图片</h3>
+              </div>
+              <div class="display-images-container">
+                <ElImage
+                  v-for="image in activityStore.ActivityDetail.images"
+                  :key="image.image_id"
+                  :src="image.url"
+                  :preview-src-list="[image.url]"
+                  :initial-index="image.image_id"
+                  fit="cover"
+                  class="display-image"
+                  :style="{ maxWidth: '200px', maxHeight: '150px' }"
+                />
+              </div>
+            </div>
+          </ElTabPane>
 
-        <!-- 参与者列表 -->
-        <div class="detail-section">
-          <div class="section-header">
-            <h3>参与者列表</h3>
-          </div>
-          <ElTable :data="activityStore.ActivityEnrollList" style="width: 100%">
-            <ElTableColumn prop="name" label="姓名" width="120" />
-            <ElTableColumn prop="phone_number" label="手机号" width="140" />
-            <ElTableColumn prop="email" label="邮箱" width="200" />
-            <ElTableColumn prop="unit" label="单位" width="160" />
-            <ElTableColumn prop="industry" label="行业" width="160" />
-          </ElTable>
+          <!-- 参与者列表Tab -->
+          <ElTabPane label="参与者列表" name="participants">
+            <div class="detail-section">
+              <ElTable :data="activityStore.ActivityEnrollList" style="width: 100%">
+                <ElTableColumn prop="name" label="姓名" width="120" />
+                <ElTableColumn prop="phone_number" label="手机号" width="140" />
+                <ElTableColumn prop="email" label="邮箱" width="200" />
+                <ElTableColumn prop="unit" label="单位" width="160" />
+                <ElTableColumn prop="industry" label="行业" width="160" />
+                <ElTableColumn prop="position" label="职位" width="160" />
+                <ElTableColumn prop="department" label="部门" width="160" />
+              </ElTable>
 
-          <!-- 分页组件 -->
-          <div class="pagination-container">
-            <ElPagination
-              v-model:current-page="pageParams.page"
-              v-model:page-size="pageParams.pageSize"
-              :total="pageParams.total"
-              layout="total,prev, pager, next, jumper"
-              @current-change="handlePageChange"
-            />
-          </div>
-        </div>
+              <!-- 分页组件 -->
+              <div class="pagination-container">
+                <ElPagination
+                  v-model:current-page="pageParams.page"
+                  v-model:page-size="pageParams.pageSize"
+                  :total="pageParams.total"
+                  layout="total,prev, pager, next, jumper"
+                  @current-change="handlePageChange"
+                />
+              </div>
+            </div>
+          </ElTabPane>
+        </ElTabs>
       </div>
     </ElCard>
 
@@ -200,6 +219,7 @@
   defineOptions({ name: 'ActivityDetail' })
 
   const activityStore = useActivityStore()
+  const activeTab = ref('basic') // 默认激活基本信息tab
 
   interface ActivityDetailData {
     id: number
@@ -368,6 +388,12 @@
     }
 
     .activity-detail-content {
+      .detail-tabs {
+        :deep(.el-tabs__header) {
+          margin-bottom: 20px;
+        }
+      }
+
       .detail-section {
         margin-bottom: 32px;
 
@@ -405,8 +431,8 @@
 
         .cover-container {
           .activity-cover {
-            max-width: 400px;
-            max-height: 300px;
+            max-width: 300px;
+            max-height: 200px;
             border-radius: 8px;
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
           }
@@ -414,13 +440,14 @@
 
         .display-images-container {
           display: grid;
-          grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+          grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
           gap: 16px;
           margin-top: 8px;
 
           .display-image {
             width: 100%;
-            height: 150px;
+            max-width: 150px;
+            max-height: 120px;
             border-radius: 8px;
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
             cursor: pointer;

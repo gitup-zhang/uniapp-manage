@@ -174,7 +174,6 @@
               <ElInput v-model="formData.event_address" placeholder="请输入活动地址" />
             </ElFormItem>
           </ElCol>
-
           <ElCol :span="24">
             <ElFormItem label="所需费用" prop="registration_fee">
               <ElInputNumber
@@ -189,17 +188,22 @@
             </ElFormItem>
           </ElCol>
 
-          <ElCol :span="24">
-            <ElFormItem label="个人信息" prop="tags">
+          <ElCol :span="24" v-if="!isEditMode">
+            <ElFormItem label="个人信息" prop="user_info_id_list">
               <ElSelect
-                v-model="formData.tags"
+                v-model="formData.user_info_id_list"
                 multiple
                 filterable
                 allow-create
-                placeholder="请选择或输入所需的个人信息(默认全部信息)"
+                placeholder="不选默认全部信息(后期不可更改,请谨慎选择)"
                 style="width: 100%"
               >
-                <ElOption v-for="tag in availableTags" :key="tag" :label="tag" :value="tag" />
+                <ElOption
+                  v-for="tag in activityStore.ActivityFields"
+                  :key="tag.id"
+                  :label="tag.name"
+                  :value="tag.id"
+                />
               </ElSelect>
             </ElFormItem>
           </ElCol>
@@ -253,11 +257,11 @@
     detail: '',
     event_address: '',
     registration_fee: 0,
-    tags: [] as string[]
+    user_info_id_list: [] as string[]
   })
 
   // 可用标签
-  const availableTags = ref(['手机号', '邮箱', '行业', '职业', '部门', '单位', '姓名'])
+  //const availableTags = ref(['手机号', '邮箱', '行业', '职业', '部门', '单位', '姓名'])
 
   // 表单验证规则
   const rules: FormRules = {
@@ -499,7 +503,7 @@
     formData.detail = ''
     formData.event_address = ''
     formData.registration_fee = 0
-    formData.tags = []
+    formData.user_info_id_list = []
   }
 
   // 提交表单
@@ -537,6 +541,7 @@
   // 初始化页面数据
   const initPageData = async () => {
     resetFormData()
+    await activityStore.getActivityFields()
     const { id, mode } = route.query
 
     if (mode === 'edit' && id) {
@@ -560,7 +565,7 @@
           event_address: activityDetail.event_address || '',
           registration_fee: activityDetail.registration_fee || 0,
           cover_image_url: activityDetail.cover_image_url || '',
-          tags: [] // 如果后端返回tags数据，这里需要相应调整
+          user_info_id_list: [] // 如果后端返回tags数据，这里需要相应调整
         })
 
         // 处理图片数据

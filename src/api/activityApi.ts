@@ -1,5 +1,10 @@
 import request from '@/utils/http'
-import { ActivityListResponse, EventDetailApi, UserListResponse } from '@/api/modules/activity'
+import {
+  ActivityListResponse,
+  EventDetailApi,
+  UserListResponse,
+  ApiResponse
+} from '@/api/modules/activity'
 
 export class ActivityService {
   // 获取活动列表
@@ -13,6 +18,13 @@ export class ActivityService {
   static createActivity(params: any) {
     return request.post({
       url: '/api/event/create',
+      params
+    })
+  }
+  // 获取报名字段
+  static getActivityFields(params: any) {
+    return request.get<ApiResponse>({
+      url: '/api/event/userInfo',
       params
     })
   }

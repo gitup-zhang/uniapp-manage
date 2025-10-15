@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
 import { ActivityService } from '@/api/activityApi'
-import { Activity, EventDetail, UserInfo } from '@/api/modules/activity'
+import { Activity, EventDetail, UserInfo, EventInfo } from '@/api/modules/activity'
 
 export const useActivityStore = defineStore('activity', () => {
   // 数据
@@ -18,10 +18,13 @@ export const useActivityStore = defineStore('activity', () => {
     event_address: '',
     registration_fee: 0,
     cover_image_url: '',
-    images: []
+    images: [],
+    user_info: []
   })
   const ActivityEnrollList = ref<UserInfo[]>([])
   const ActivityEnrollTotal = ref(0)
+  // 活动报名填写的信息字段
+  const ActivityFields = ref<EventInfo[]>([])
 
   const getActivityList = async (params: any) => {
     try {
@@ -46,6 +49,14 @@ export const useActivityStore = defineStore('activity', () => {
       console.log(e)
     }
   }
+  const getActivityFields = async () => {
+    try {
+      const res = await ActivityService.getActivityFields({ is_deleted: 'N' })
+      ActivityFields.value = res.data
+    } catch (e) {
+      console.log(e)
+    }
+  }
   return {
     ActivityListing,
     ActivityTotal,
@@ -53,6 +64,8 @@ export const useActivityStore = defineStore('activity', () => {
     getActivityDetail,
     ActivityDetail,
     ActivityEnrollList,
-    ActivityEnrollTotal
+    ActivityEnrollTotal,
+    getActivityFields,
+    ActivityFields
   }
 })

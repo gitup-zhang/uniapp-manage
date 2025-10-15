@@ -51,7 +51,6 @@
                 :src="row.cover_image_url"
                 style="width: 80px; height: 60px; border-radius: 4px"
                 fit="cover"
-                :preview-src-list="[row.cover_image_url]"
               />
             </template>
           </ElTableColumn>

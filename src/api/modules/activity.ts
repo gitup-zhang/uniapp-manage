@@ -41,7 +41,9 @@ export interface EventDetail {
   event_address: string // 活动地点
   registration_fee: number // 报名费用
   cover_image_url: string // 封面图片URL
-  images: EventImage[] // 关联图片列表
+  images: EventImage[]
+  user_info: EventInfo[]
+  // 关联图片列表
 }
 export interface EventDetailApi {
   data: EventDetail
@@ -68,4 +70,18 @@ export interface UserListResponse {
   page: number // 当前页码
   page_size: number // 每页大小
   total: number // 总条数
+}
+
+// 单个数据项的接口
+export interface EventInfo {
+  id: number
+  code: string
+  name: string
+  is_deleted: 'Y' | 'N' // 仅允许 'Y' 或 'N'
+  is_deleted_desc: string // 状态描述
+}
+
+// 接口返回的整体结构
+export interface ApiResponse {
+  data: EventInfo[]
 }

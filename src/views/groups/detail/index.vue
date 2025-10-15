@@ -8,8 +8,7 @@
       </ElButton>
     </div>
 
-    <!-- 群组基本信息 -->
-    <ElCard class="group-info-card" shadow="never">
+    <ElCard class="group-detail-card" shadow="never">
       <template #header>
         <div class="card-header">
           <h3>群组详情</h3>
@@ -24,128 +23,117 @@
       </div>
 
       <div v-else-if="groupDetail" class="group-detail-content">
-        <ElDescriptions :column="2" size="large" border>
-          <ElDescriptionsItem label="群组ID">{{ groupDetail.id }}</ElDescriptionsItem>
-          <ElDescriptionsItem label="群组名称">{{ groupDetail.group_name }}</ElDescriptionsItem>
-          <ElDescriptionsItem label="关联活动">
-            {{ groupDetail.event_title || '无' }}
-          </ElDescriptionsItem>
-          <ElDescriptionsItem label="群组类型">
-            <ElTag :type="groupDetail.include_all_user === 'Y' ? 'success' : 'primary'">
-              {{ groupDetail.include_all_user === 'Y' ? '系统群组' : '消息群组' }}
-            </ElTag>
-          </ElDescriptionsItem>
-          <ElDescriptionsItem label="创建时间" :span="2">
-            {{ formatDate(groupDetail.created_at) }}
-          </ElDescriptionsItem>
-          <ElDescriptionsItem label="群组描述" :span="2">
-            <div class="group-desc">
-              {{ groupDetail.desc || '暂无描述' }}
+        <!-- Tab栏 -->
+        <ElTabs v-model="activeTab" class="detail-tabs">
+          <!-- 群组信息Tab -->
+          <ElTabPane label="群组信息" name="info">
+            <div class="tab-content">
+              <ElDescriptions :column="2" size="large" border>
+                <ElDescriptionsItem label="群组ID">{{ groupDetail.id }}</ElDescriptionsItem>
+                <ElDescriptionsItem label="群组名称">{{
+                  groupDetail.group_name
+                }}</ElDescriptionsItem>
+                <ElDescriptionsItem label="关联活动">
+                  {{ groupDetail.event_title || '无' }}
+                </ElDescriptionsItem>
+                <ElDescriptionsItem label="群组类型">
+                  <ElTag :type="groupDetail.include_all_user === 'Y' ? 'success' : 'primary'">
+                    {{ groupDetail.include_all_user === 'Y' ? '系统群组' : '消息群组' }}
+                  </ElTag>
+                </ElDescriptionsItem>
+                <ElDescriptionsItem label="创建时间" :span="2">
+                  {{ formatDate(groupDetail.created_at) }}
+                </ElDescriptionsItem>
+                <ElDescriptionsItem label="群组描述" :span="2">
+                  <div class="group-desc">
+                    {{ groupDetail.desc || '暂无描述' }}
+                  </div>
+                </ElDescriptionsItem>
+              </ElDescriptions>
+
+              <!-- 数据来源提示 -->
+              <div v-if="isDataFromList" class="data-source-tip">
+                <ElTag type="success">
+                  <ElIcon><InfoFilled /></ElIcon>
+                  群组信息来自列表页面传递，加载更快
+                </ElTag>
+              </div>
             </div>
-          </ElDescriptionsItem>
-        </ElDescriptions>
+          </ElTabPane>
+
+          <!-- 群组成员Tab -->
+          <ElTabPane label="群组成员" name="members">
+            <div class="tab-content">
+              <!-- 成员操作栏 -->
+              <div class="member-actions-bar">
+                <ElButton type="primary" @click="showAddUserDialog">
+                  <ElIcon><Plus /></ElIcon>
+                  添加用户
+                </ElButton>
+                <div class="member-count">
+                  <ElTag>共 {{ groupStore.groupMemberTotal }} 名成员</ElTag>
+                </div>
+              </div>
+
+              <!-- 成员表格 -->
+              <ElTable
+                :data="groupStore.groupMembers"
+                :loading="membersLoading"
+                stripe
+                border
+                style="width: 100%"
+                empty-text="暂无成员数据"
+              >
+                <ElTableColumn type="index" label="序号" width="80" align="center" />
+                <ElTableColumn prop="name" label="姓名" width="120">
+                  <template #default="{ row }">
+                    <div class="member-name">
+                      <span>{{ row.name || '未知' }}</span>
+                    </div>
+                  </template>
+                </ElTableColumn>
+
+                <ElTableColumn prop="unit" label="单位" width="200" show-overflow-tooltip />
+                <ElTableColumn prop="department" label="部门" width="200" show-overflow-tooltip />
+                <ElTableColumn prop="position" label="职位" width="200" show-overflow-tooltip />
+                <ElTableColumn
+                  prop="industry_name"
+                  label="行业"
+                  width="200"
+                  show-overflow-tooltip
+                />
+                <ElTableColumn label="操作" width="120" align="center" fixed="right">
+                  <template #default="{ row }">
+                    <ElButton
+                      type="danger"
+                      link
+                      @click="handleDeleteMember(row)"
+                      :loading="deletingMemberId === row.user_id"
+                    >
+                      <ElIcon><Delete /></ElIcon>
+                      删除
+                    </ElButton>
+                  </template>
+                </ElTableColumn>
+              </ElTable>
+
+              <!-- 分页 -->
+              <div class="pagination-wrapper">
+                <ElPagination
+                  v-model:current-page="memberPagination.currentPage"
+                  v-model:page-size="memberPagination.pageSize"
+                  :total="groupStore.groupMemberTotal"
+                  layout="total, prev, pager, next, jumper"
+                  @current-change="handleMemberCurrentChange"
+                />
+              </div>
+            </div>
+          </ElTabPane>
+        </ElTabs>
       </div>
 
       <div v-else class="error-container">
         <ElEmpty description="加载群组信息失败" />
-      </div>
-    </ElCard>
-
-    <!-- 群组成员列表 -->
-    <ElCard class="members-card">
-      <template #header>
-        <div class="card-header">
-          <h3>群组成员</h3>
-          <div class="member-actions">
-            <ElButton type="primary" @click="showAddUserDialog">
-              <ElIcon><Plus /></ElIcon>
-              添加用户
-            </ElButton>
-            <div class="member-count">
-              <ElTag>共 {{ groupStore.groupMemberTotal }} 名成员</ElTag>
-            </div>
-          </div>
-        </div>
-      </template>
-
-      <!-- 成员搜索 -->
-      <!-- <div class="member-search">
-        <ElForm :model="memberSearchForm" inline>
-          <ElFormItem label="成员姓名">
-            <ElInput
-              v-model="memberSearchForm.name"
-              placeholder="请输入成员姓名"
-              clearable
-              style="width: 200px"
-            />
-          </ElFormItem>
-          <ElFormItem>
-            <ElButton type="primary" @click="handleMemberSearch" :loading="membersLoading">
-              <ElIcon><Search /></ElIcon>
-              搜索
-            </ElButton>
-            <ElButton @click="handleMemberReset">
-              <ElIcon><Refresh /></ElIcon>
-              重置
-            </ElButton>
-          </ElFormItem>
-        </ElForm>
-      </div> -->
-
-      <!-- 成员表格 -->
-      <ElTable
-        :data="groupStore.groupMembers"
-        :loading="membersLoading"
-        stripe
-        border
-        style="width: 100%"
-        empty-text="暂无成员数据"
-      >
-        <ElTableColumn type="index" label="序号" width="80" align="center" />
-        <ElTableColumn prop="name" label="姓名" width="120">
-          <template #default="{ row }">
-            <div class="member-name">
-              <span>{{ row.name || '未知' }}</span>
-            </div>
-          </template>
-        </ElTableColumn>
-
-        <!-- <ElTableColumn prop="email" label="邮箱" width="200" show-overflow-tooltip />
-        <ElTableColumn prop="phone_number" label="手机号" width="200" /> -->
-
-        <ElTableColumn prop="unit" label="单位" width="200" show-overflow-tooltip />
-        <ElTableColumn prop="department" label="部门" width="200" show-overflow-tooltip />
-        <ElTableColumn prop="position" label="职位" width="200" show-overflow-tooltip />
-        <ElTableColumn prop="industry_name" label="行业" width="200" show-overflow-tooltip />
-        <!-- <ElTableColumn prop="joined_at" label="加入时间" width="160" align="center">
-          <template #default="{ row }">
-            <span>{{ formatDate(row.joined_at) }}</span>
-          </template>
-        </ElTableColumn> -->
-        <ElTableColumn label="操作" width="120" align="center" fixed="right">
-          <template #default="{ row }">
-            <ElButton
-              type="danger"
-              link
-              @click="handleDeleteMember(row)"
-              :loading="deletingMemberId === row.user_id"
-            >
-              <ElIcon><Delete /></ElIcon>
-              删除
-            </ElButton>
-          </template>
-        </ElTableColumn>
-      </ElTable>
-
-      <!-- 分页 -->
-      <div class="pagination-wrapper">
-        <ElPagination
-          v-model:current-page="memberPagination.currentPage"
-          v-model:page-size="memberPagination.pageSize"
-          :total="groupStore.groupMemberTotal"
-          layout="total, prev, pager, next, jumper"
-          @current-change="handleMemberCurrentChange"
-        />
       </div>
     </ElCard>
 
@@ -191,7 +179,6 @@
         @selection-change="handleUserSelectionChange"
       >
         <ElTableColumn type="selection" width="55" />
-        <!-- <ElTableColumn prop="user_id" label="用户ID" width="80" align="center" /> -->
         <ElTableColumn prop="name" label="姓名" width="120">
           <template #default="{ row }">
             <div class="member-name">
@@ -199,11 +186,6 @@
             </div>
           </template>
         </ElTableColumn>
-        <!-- <ElTableColumn prop="nickname" label="昵称" width="120">
-          <template #default="{ row }">
-            <span>{{ row.nickname || '未设置' }}</span>
-          </template>
-        </ElTableColumn> -->
         <ElTableColumn prop="email" label="邮箱" width="200" show-overflow-tooltip />
         <ElTableColumn prop="phone_number" label="手机号" width="130" />
         <ElTableColumn prop="gender" label="性别" width="80" align="center" />
@@ -211,13 +193,6 @@
         <ElTableColumn prop="department" label="部门" width="120" show-overflow-tooltip />
         <ElTableColumn prop="position" label="职位" width="120" show-overflow-tooltip />
         <ElTableColumn prop="industry_name" label="行业" width="120" show-overflow-tooltip />
-        <!-- <ElTableColumn prop="role_name" label="角色" width="100" align="center">
-          <template #default="{ row }">
-            <ElTag size="small" :type="getRoleTagType(row.role_name)">
-              {{ row.role_name || '普通用户' }}
-            </ElTag>
-          </template>
-        </ElTableColumn> -->
       </ElTable>
 
       <!-- 用户分页 -->
@@ -245,9 +220,8 @@
   import { ref, reactive, onMounted } from 'vue'
   import { useRoute, useRouter } from 'vue-router'
   import { ElMessage, ElMessageBox } from 'element-plus'
-  import { ArrowLeft, Search, Refresh, Plus, Delete } from '@element-plus/icons-vue'
+  import { ArrowLeft, Search, Refresh, Plus, Delete, InfoFilled } from '@element-plus/icons-vue'
   import { groupService } from '@/api/groupApi'
-  //import { UserService } from '@/api/usersApi'
   import type { GroupItem, GroupMember } from '@/api/modules/group'
   import type { UseInfo } from '@/api/modules/user'
   import { useGroupStore } from '@/store/modules/group'
@@ -258,6 +232,9 @@
   const router = useRouter()
   const groupStore = useGroupStore()
 
+  // Tab控制
+  const activeTab = ref('info') // 默认激活群组信息tab
+
   // 响应式数据
   const loading = ref(false)
   const membersLoading = ref(false)
@@ -265,8 +242,6 @@
   const addingUsers = ref(false)
   const deletingMemberId = ref<number | null>(null) // 正在删除的成员ID
   const groupDetail = ref<GroupItem | null>(null)
-  //const membersList = ref<GroupMember[]>([])
-  const userList = ref<UseInfo[]>([])
   const isDataFromList = ref(false) // 标记数据是否来自列表页面
 
   // 对话框控制
@@ -330,17 +305,6 @@
     }
   }
 
-  // 获取角色标签类型
-  // const getRoleTagType = (role?: string) => {
-  //   const roleMap: Record<string, 'primary' | 'success' | 'warning' | 'danger' | 'info'> = {
-  //     管理员: 'danger',
-  //     超级管理员: 'danger',
-  //     普通用户: 'info',
-  //     高级用户: 'success'
-  //   }
-  //   return roleMap[role || ''] || 'info'
-  // }
-
   // 加载群组详情
   const loadGroupDetail = async () => {
     // 优先从sessionStorage获取群组信息
@@ -385,9 +349,6 @@
         ...(memberSearchForm.name && { name: memberSearchForm.name })
       }
       await groupStore.getGroupMembers(groupId, params)
-      // const response = await groupService.getGroupMembers(groupId, params)
-      // membersList.value = response.data || []
-      // memberPagination.total = response.total || 0
     } catch (error) {
       console.error('加载群组成员失败:', error)
       ElMessage.error('加载群组成员失败，请重试')
@@ -395,19 +356,6 @@
       membersLoading.value = false
     }
   }
-
-  // 成员搜索
-  // const handleMemberSearch = () => {
-  //   memberPagination.currentPage = 1
-  //   loadGroupMembers()
-  // }
-
-  // 重置成员搜索
-  // const handleMemberReset = () => {
-  //   memberSearchForm.name = ''
-  //   memberPagination.currentPage = 1
-  //   loadGroupMembers()
-  // }
 
   // 成员分页变化
   const handleMemberCurrentChange = (page: number) => {
@@ -496,7 +444,6 @@
   // 关闭添加用户对话框
   const handleAddUserDialogClose = () => {
     // 重置用户列表和搜索条件
-    userList.value = []
     userSearchForm.name = ''
     userPagination.currentPage = 1
     selectedUsers.value = []
@@ -550,9 +497,7 @@
       margin-bottom: 20px;
     }
 
-    .group-info-card,
-    .members-card {
-      margin-bottom: 20px;
+    .group-detail-card {
       border-radius: 8px;
 
       .card-header {
@@ -566,17 +511,6 @@
           font-weight: 600;
           color: var(--el-text-color-primary);
         }
-
-        .member-actions {
-          display: flex;
-          align-items: center;
-          gap: 16px;
-        }
-
-        .member-count {
-          display: flex;
-          align-items: center;
-        }
       }
 
       .loading-container,
@@ -586,43 +520,66 @@
       }
 
       .group-detail-content {
-        .group-desc {
-          line-height: 1.6;
-          color: var(--el-text-color-regular);
-          white-space: pre-wrap;
-          word-break: break-word;
-        }
+        .detail-tabs {
+          :deep(.el-tabs__header) {
+            margin-bottom: 20px;
+          }
 
-        .data-source-tip {
-          margin-top: 16px;
-          padding-top: 16px;
-          border-top: 1px solid var(--el-border-color-lighter);
-          text-align: center;
+          .tab-content {
+            min-height: 300px;
 
-          .el-tag {
-            .el-icon {
-              margin-right: 4px;
+            .member-actions-bar {
+              display: flex;
+              justify-content: space-between;
+              align-items: center;
+              margin-bottom: 20px;
+              padding-bottom: 16px;
+              border-bottom: 1px solid var(--el-border-color-lighter);
+            }
+
+            .member-count {
+              display: flex;
+              align-items: center;
+            }
+
+            .group-desc {
+              line-height: 1.6;
+              color: var(--el-text-color-regular);
+              white-space: pre-wrap;
+              word-break: break-word;
+            }
+
+            .data-source-tip {
+              margin-top: 16px;
+              padding-top: 16px;
+              border-top: 1px solid var(--el-border-color-lighter);
+              text-align: center;
+
+              .el-tag {
+                .el-icon {
+                  margin-right: 4px;
+                }
+              }
+            }
+
+            .user-search {
+              margin-bottom: 20px;
+              padding: 16px;
+              background: var(--el-bg-color-page);
+              border-radius: 6px;
+            }
+
+            .member-name {
+              font-weight: 500;
+            }
+
+            .pagination-wrapper {
+              margin-top: 20px;
+              display: flex;
+              justify-content: center;
             }
           }
         }
-      }
-
-      .member-search,
-      .user-search {
-        margin-bottom: 20px;
-        padding: 16px;
-        background: var(--el-bg-color-page);
-        border-radius: 6px;
-      }
-
-      .member-name {
-        font-weight: 500;
-      }
-
-      .pagination-wrapper {
-        margin-top: 20px;
-        display: flex;
-        justify-content: center;
       }
     }
 
