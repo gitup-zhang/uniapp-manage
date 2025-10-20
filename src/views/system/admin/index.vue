@@ -1,7 +1,3 @@
-<!-- 管理员管理 -->
-<!-- art-full-height 自动计算出页面剩余高度 -->
-<!-- art-table-card 一个符合系统样式的 class，同时自动撑满剩余高度 -->
-<!-- 如果你想使用 template 语法，请移步功能示例下面的高级表格示例 -->
 <template>
   <div class="admin-page art-full-height">
     <!-- 搜索栏 -->
@@ -44,7 +40,7 @@
       <!-- 操作栏 -->
       <div class="table-header">
         <div class="header-left">
-          <ElButton @click="showDialog('add')">新增管理员</ElButton>
+          <!-- <ElButton @click="showDialog('add')">新增管理员</ElButton> -->
         </div>
         <div class="header-right">
           <ElButton :icon="Refresh" @click="refreshAll">刷新</ElButton>
@@ -84,6 +80,7 @@
           </ElTableColumn>
           <ElTableColumn label="操作" min-width="280">
             <template #default="{ row }">
+              <!--
               <ElButton
                 type="warning"
                 link
@@ -100,6 +97,7 @@
               >
                 修改密码
               </ElButton>
+              -->
               <ElButton
                 :type="row.status === 1 ? 'danger' : 'success'"
                 link
@@ -124,19 +122,23 @@
       </div>
 
       <!-- 管理员弹窗 -->
+      <!--
       <AdminDialog
         v-model:visible="dialogVisible"
         :type="dialogType"
         :admin-data="currentAdminData"
         @submit="handleDialogSubmit"
       />
+      -->
 
       <!-- 修改密码弹窗 -->
+      <!--
       <ResetPasswordDialog
         v-model:visible="resetPasswordVisible"
         :admin-data="currentResetAdmin"
         @submit="handleResetPassword"
       />
+      -->
     </ElCard>
   </div>
 </template>
@@ -161,8 +163,8 @@
   //import { useTable } from '@/composables/useTable'
   //import { UserService } from '@/api/usersApi'
 
-  import AdminDialog from './modules/admin-dialog.vue'
-  import ResetPasswordDialog from './modules/reset-password-dialog.vue'
+  // import AdminDialog from './modules/admin-dialog.vue'
+  // import ResetPasswordDialog from './modules/reset-password-dialog.vue'
   import { useAdminStore } from '@/store/modules/admin'
   import { UserService } from '@/api/usersApi'
   import { UseInfo } from '@/api/modules/user'
@@ -194,13 +196,13 @@
   const page_size = ref(8)
 
   // 弹窗相关
-  const dialogType = ref<Form.DialogType>('add')
-  const dialogVisible = ref(false)
-  const currentAdminData = ref<Partial<UseInfo>>({})
+  // const dialogType = ref<Form.DialogType>('add')
+  // const dialogVisible = ref(false)
+  // const currentAdminData = ref<Partial<UseInfo>>({})
 
-  // 修改密码弹窗相关
-  const resetPasswordVisible = ref(false)
-  const currentResetAdmin = ref<Partial<UseInfo>>({})
+  // // 修改密码弹窗相关
+  // const resetPasswordVisible = ref(false)
+  // const currentResetAdmin = ref<Partial<UseInfo>>({})
 
   // 选中行
   const selectedRows = ref<UseInfo[]>([])
@@ -267,40 +269,40 @@
   /**
    * 显示修改密码弹窗
    */
-  const showResetPasswordDialog = (row: UseInfo): void => {
-    console.log('修改密码:', row)
-    currentResetAdmin.value = row
-    resetPasswordVisible.value = true
-  }
+  // const showResetPasswordDialog = (row: UseInfo): void => {
+  //   console.log('修改密码:', row)
+  //   currentResetAdmin.value = row
+  //   resetPasswordVisible.value = true
+  // }
 
   /**
    * 处理密码重置
    */
-  const handleResetPassword = async () => {
-    try {
-      // 这里应该调用修改密码的API
-      //await new Promise((resolve) => setTimeout(resolve, 1000)) // 模拟API调用
+  // const handleResetPassword = async () => {
+  //   try {
+  //     // 这里应该调用修改密码的API
+  //     //await new Promise((resolve) => setTimeout(resolve, 1000)) // 模拟API调用
 
-      ElMessage.success('密码修改成功')
-      resetPasswordVisible.value = false
-      currentResetAdmin.value = {}
-    } catch (error) {
-      console.error('密码修改失败:', error)
-      ElMessage.error('密码修改失败')
-    }
-  }
+  //     ElMessage.success('密码修改成功')
+  //     resetPasswordVisible.value = false
+  //     currentResetAdmin.value = {}
+  //   } catch (error) {
+  //     console.error('密码修改失败:', error)
+  //     ElMessage.error('密码修改失败')
+  //   }
+  // }
 
   /**
    * 显示管理员弹窗
    */
-  const showDialog = (type: Form.DialogType, row?: UseInfo): void => {
-    console.log('打开弹窗:', { type, row })
-    dialogType.value = type
-    currentAdminData.value = row || {}
-    nextTick(() => {
-      dialogVisible.value = true
-    })
-  }
+  // const showDialog = (type: Form.DialogType, row?: UseInfo): void => {
+  //   console.log('打开弹窗:', { type, row })
+  //   dialogType.value = type
+  //   currentAdminData.value = row || {}
+  //   nextTick(() => {
+  //     dialogVisible.value = true
+  //   })
+  // }
 
   /**
    * 切换管理员状态
@@ -339,15 +341,15 @@
   /**
    * 处理弹窗提交事件
    */
-  const handleDialogSubmit = async () => {
-    try {
-      dialogVisible.value = false
-      currentAdminData.value = {}
-      refreshAll()
-    } catch (error) {
-      console.error('提交失败:', error)
-    }
-  }
+  // const handleDialogSubmit = async () => {
+  //   try {
+  //     dialogVisible.value = false
+  //     currentAdminData.value = {}
+  //     refreshAll()
+  //   } catch (error) {
+  //     console.error('提交失败:', error)
+  //   }
+  // }
 
   /**
    * 处理表格行选择变化
