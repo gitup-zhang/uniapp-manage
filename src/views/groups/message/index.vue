@@ -376,14 +376,22 @@
           width: 80px;
         }
       }
+
+      :deep(.vhtml-content) {
+        max-width: 100%;
+        word-wrap: break-word;
+        word-break: break-word;
+        overflow-wrap: break-word;
+
+        img {
+          width: 50%;
+          max-width: 100%; /* 避免超出容器 */
+          height: auto; /* 保持比例缩放 */
+          display: block; /* 避免 inline 元素带来的间隙 */
+          margin: 0 auto; /* 居中显示 */
+          object-fit: contain; /* 或者用 cover，根据需要 */
+        }
+      }
     }
-  }
-  :deep(.vhtml-content img) {
-    width: 50%;
-    max-width: 100%; /* 避免超出容器 */
-    height: auto; /* 保持比例缩放 */
-    display: block; /* 避免 inline 元素带来的间隙 */
-    margin: 0 auto; /* 居中显示 */
-    object-fit: contain; /* 或者用 cover，根据需要 */
   }
 </style>

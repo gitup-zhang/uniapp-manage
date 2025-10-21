@@ -42,7 +42,7 @@ export class groupService {
   // 获取群组消息
   static getGroupMessage(id: number, params: any) {
     return request.get<MessageListResponse>({
-      url: `/api/message/byGroups/${id}`,
+      url: `/api/message/allByGroupID/${id}`,
       params
     })
   }
