@@ -66,10 +66,22 @@
             <div class="tab-content">
               <!-- 成员操作栏 -->
               <div class="member-actions-bar">
-                <ElButton type="primary" @click="showAddUserDialog">
+                <ElButton
+                  type="primary"
+                  @click="showAddUserDialog"
+                  :disabled="isSystemGroup"
+                  v-if="groupDetail && groupDetail.is_deleted === 'N'"
+                >
                   <ElIcon><Plus /></ElIcon>
                   添加用户
                 </ElButton>
+                <ElAlert
+                  v-if="isSystemGroup"
+                  title="系统群组成员由系统自动管理，无法手动添加或删除成员"
+                  type="info"
+                  show-icon
+                  style="margin-left: 16px"
+                />
                 <div class="member-count">
                   <ElTag>共 {{ groupStore.groupMemberTotal }} 名成员</ElTag>
                 </div>
@@ -109,6 +121,10 @@
                       link
                       @click="handleDeleteMember(row)"
                       :loading="deletingMemberId === row.user_id"
+                      :disabled="
+                        isSystemGroup || (groupDetail && (groupDetail as any).is_deleted === 'Y')
+                      "
+                      v-if="groupDetail && groupDetail.is_deleted === 'N'"
                     >
                       <ElIcon><Delete /></ElIcon>
                       删除
@@ -217,7 +233,7 @@
 </template>
 
 <script setup lang="ts">
-  import { ref, reactive, onMounted } from 'vue'
+  import { ref, reactive, onMounted, computed } from 'vue'
   import { useRoute, useRouter } from 'vue-router'
   import { ElMessage, ElMessageBox } from 'element-plus'
   import { ArrowLeft, Search, Refresh, Plus, Delete, InfoFilled } from '@element-plus/icons-vue'
@@ -274,6 +290,11 @@
 
   // 获取群组ID
   const groupId = parseInt(route.params.id as string)
+
+  // 计算属性：是否为系统群组
+  const isSystemGroup = computed(() => {
+    return groupDetail.value?.include_all_user === 'Y'
+  })
 
   // 从sessionStorage获取群组信息
   const getStoredGroupInfo = (): GroupItem | null => {
@@ -365,6 +386,11 @@
 
   // 显示添加用户对话框
   const showAddUserDialog = async () => {
+    // 系统群组不允许添加用户
+    if (isSystemGroup.value) {
+      ElMessage.warning('系统群组成员由系统自动管理，无法手动添加成员')
+      return
+    }
     addUserDialogVisible.value = true
     await loadUserList()
   }
@@ -451,6 +477,12 @@
 
   // 删除群组成员
   const handleDeleteMember = async (member: GroupMember) => {
+    // 系统群组不允许删除用户
+    if (isSystemGroup.value) {
+      ElMessage.warning('系统群组成员由系统自动管理，无法手动删除成员')
+      return
+    }
+
     ElMessageBox.confirm(
       `确定要将用户 "${member.name || member.nickname || '未知用户'}" 从群组中删除吗？`,
       '确认删除',
