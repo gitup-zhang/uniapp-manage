@@ -149,6 +149,7 @@
 <script setup lang="ts">
   import { Plus } from '@element-plus/icons-vue'
   import { ArticleService } from '@/api/articleApi'
+  import { AIService } from '@/api/aiApi'
   import { ApiStatus } from '@/utils/http/status'
   import { ElMessage } from 'element-plus'
   import { useUserStore } from '@/store/modules/user'
@@ -398,7 +399,7 @@
 
     // 过滤掉 null、undefined、空字符串 的键值
     return Object.fromEntries(
-      Object.entries(params).filter(([_, v]) => v !== null && v !== undefined && v !== '')
+      Object.entries(params).filter(([, v]) => v !== null && v !== undefined && v !== '')
     )
   }
 
@@ -412,6 +413,25 @@
 
       if (res.code === ApiStatus.success) {
         ElMessage.success(`发布成功 ${EmojiText[200]}`)
+
+        // 异步同步到 AI 向量库（不阻塞主流程）
+        if (res.data?.article_id) {
+          AIService.indexArticle({
+            article_id: res.data.article_id,
+            article_title: formData.value.article_title,
+            article_content: formData.value.article_content,
+            brief_content: formData.value.brief_content,
+            article_type: formData.value.article_type,
+            field_name: formData.value.field_type
+          })
+            .then(() => {
+              ElMessage.success('AI 向量库已同步')
+            })
+            .catch(() => {
+              ElMessage.warning('AI 向量库同步失败，不影响文章发布')
+            })
+        }
+
         goBack()
       }
     } catch (err) {
@@ -429,6 +449,23 @@
 
       if (res.code === ApiStatus.success) {
         ElMessage.success(`修改成功 ${EmojiText[200]}`)
+
+        // 异步同步到 AI 向量库（不阻塞主流程）
+        AIService.indexArticle({
+          article_id: articleId,
+          article_title: formData.value.article_title,
+          article_content: formData.value.article_content,
+          brief_content: formData.value.brief_content,
+          article_type: formData.value.article_type,
+          field_name: formData.value.field_type
+        })
+          .then(() => {
+            ElMessage.success('AI 向量库已同步')
+          })
+          .catch(() => {
+            ElMessage.warning('AI 向量库同步失败，不影响文章修改')
+          })
+
         goBack()
       }
     } catch (err) {

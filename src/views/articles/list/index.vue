@@ -75,7 +75,7 @@
                       />
                       <ElSkeletonItem
                         variant="h3"
-                        style="width: 70%; height: 20px; border-radius: 4px; margin-top: 6px"
+                        style="width: 70%; height: 20px; margin-top: 6px; border-radius: 4px"
                       />
                     </div>
 
@@ -96,11 +96,11 @@
                       />
                       <ElSkeletonItem
                         variant="button"
-                        style="width: 45px; height: 24px; border-radius: 6px; margin-left: 6px"
+                        style="width: 45px; height: 24px; margin-left: 6px; border-radius: 6px"
                       />
                       <ElSkeletonItem
                         variant="button"
-                        style="width: 45px; height: 24px; border-radius: 6px; margin-left: 6px"
+                        style="width: 45px; height: 24px; margin-left: 6px; border-radius: 6px"
                       />
                     </div>
                   </div>
@@ -168,7 +168,7 @@
                         />
                         <ElSkeletonItem
                           variant="h3"
-                          style="width: 65%; height: 18px; border-radius: 4px; margin-top: 6px"
+                          style="width: 65%; height: 18px; margin-top: 6px; border-radius: 4px"
                         />
                       </div>
                       <div class="skeleton-meta">
@@ -178,7 +178,7 @@
                         />
                         <ElSkeletonItem
                           variant="rect"
-                          style="width: 80px; height: 20px; border-radius: 10px; margin-left: 8px"
+                          style="width: 80px; height: 20px; margin-left: 8px; border-radius: 10px"
                         />
                       </div>
                     </div>
@@ -192,11 +192,11 @@
                     />
                     <ElSkeletonItem
                       variant="p"
-                      style="width: 95%; height: 14px; border-radius: 3px; margin-top: 6px"
+                      style="width: 95%; height: 14px; margin-top: 6px; border-radius: 3px"
                     />
                     <ElSkeletonItem
                       variant="p"
-                      style="width: 80%; height: 14px; border-radius: 3px; margin-top: 6px"
+                      style="width: 80%; height: 14px; margin-top: 6px; border-radius: 3px"
                     />
                   </div>
 
@@ -215,11 +215,11 @@
                       />
                       <ElSkeletonItem
                         variant="button"
-                        style="width: 45px; height: 28px; border-radius: 6px; margin-left: 8px"
+                        style="width: 45px; height: 28px; margin-left: 8px; border-radius: 6px"
                       />
                       <ElSkeletonItem
                         variant="button"
-                        style="width: 45px; height: 28px; border-radius: 6px; margin-left: 8px"
+                        style="width: 45px; height: 28px; margin-left: 8px; border-radius: 6px"
                       />
                     </div>
                   </div>
@@ -317,6 +317,7 @@
   import { ArticleType } from '@/api/modules'
   import { useArticlesStore } from '@/store/modules/article'
   import { ArticleService } from '@/api/articleApi'
+  import { AIService } from '@/api/aiApi'
 
   defineOptions({ name: 'ArticleList' })
 
@@ -451,9 +452,15 @@
       type: 'warning'
     }).then(async () => {
       try {
-        // 这里应该调用删除文章的API
+        // 调用删除文章的API
         await ArticleService.deleteArticle(item.article_id)
         ElMessage.success('删除成功')
+
+        // 异步从 AI 向量库删除（不阻塞主流程）
+        AIService.deleteArticleIndex(item.article_id)
+          .then(() => ElMessage.success('AI 向量库已同步删除'))
+          .catch(() => ElMessage.warning('AI 向量库同步删除失败，不影响文章删除'))
+
         // 重新获取文章列表
         articlestore.getArticles(Params)
       } catch {
@@ -499,29 +506,29 @@
         .news-item {
           // 现代化骨架屏样式（增强动画效果）
           .modern-skeleton-news {
-            height: 100%;
+            position: relative;
             display: flex;
             flex-direction: column;
+            height: 100%;
+            overflow: hidden;
             background: linear-gradient(
               135deg,
-              rgba(255, 255, 255, 0.95) 0%,
-              rgba(248, 250, 252, 0.98) 100%
+              rgb(255 255 255 / 95%) 0%,
+              rgb(248 250 252 / 98%) 100%
             );
-            border-radius: 16px;
-            overflow: hidden;
-            position: relative;
             backdrop-filter: blur(20px);
-            border: 1px solid rgba(226, 232, 240, 0.8);
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            border: 1px solid rgb(226 232 240 / 80%);
+            border-radius: 16px;
+            box-shadow: 0 4px 12px rgb(0 0 0 / 5%);
 
             // 添加顶部光效边框
             &::before {
-              content: '';
               position: absolute;
               top: 0;
-              left: 0;
               right: 0;
+              left: 0;
               height: 3px;
+              content: '';
               background: linear-gradient(90deg, #3b82f6 0%, #8b5cf6 50%, #06b6d4 100%);
               opacity: 0.6;
               animation: rainbow-glow 3s ease-in-out infinite;
@@ -529,21 +536,18 @@
 
             // 添加整体光波效果
             &::after {
-              content: '';
               position: absolute;
-              top: 0;
-              left: 0;
-              right: 0;
-              bottom: 0;
+              inset: 0;
+              z-index: 1;
+              pointer-events: none;
+              content: '';
               background: linear-gradient(
                 45deg,
                 transparent 30%,
-                rgba(255, 255, 255, 0.4) 50%,
+                rgb(255 255 255 / 40%) 50%,
                 transparent 70%
               );
               animation: shimmer 2.5s infinite ease-in-out;
-              pointer-events: none;
-              z-index: 1;
             }
 
             .skeleton-image-container {
@@ -564,22 +568,22 @@
                 position: absolute;
                 top: 8px;
                 right: 8px;
-                background: rgba(255, 255, 255, 0.9);
-                border-radius: 12px;
                 padding: 6px;
+                background: rgb(255 255 255 / 90%);
                 backdrop-filter: blur(15px);
-                box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+                border-radius: 12px;
+                box-shadow: 0 2px 8px rgb(0 0 0 / 10%);
                 animation: pulse-glow 2s ease-in-out infinite;
               }
             }
 
             .skeleton-content {
-              flex: 1;
-              padding: 16px;
-              display: flex;
-              flex-direction: column;
               position: relative;
               z-index: 2;
+              display: flex;
+              flex: 1;
+              flex-direction: column;
+              padding: 16px;
 
               .skeleton-title {
                 margin-bottom: 12px;
@@ -594,9 +598,9 @@
                     #f1f5f9 100%
                   );
                   background-size: 400% 100%;
-                  animation: skeleton-wave 2s ease-in-out infinite;
                   border-radius: 6px;
-                  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+                  box-shadow: 0 1px 3px rgb(0 0 0 / 10%);
+                  animation: skeleton-wave 2s ease-in-out infinite;
                 }
               }
 
@@ -615,16 +619,16 @@
                     #e2e8f0 100%
                   );
                   background-size: 300% 100%;
-                  animation: skeleton-wave 1.8s ease-in-out infinite;
                   border-radius: 8px;
+                  animation: skeleton-wave 1.8s ease-in-out infinite;
                 }
               }
 
               .skeleton-buttons {
-                margin-top: auto;
                 display: flex;
-                justify-content: center;
                 gap: 8px;
+                justify-content: center;
+                margin-top: auto;
 
                 .el-skeleton__item {
                   background: linear-gradient(
@@ -636,9 +640,9 @@
                     #e0e7ff 100%
                   );
                   background-size: 300% 300%;
-                  animation: button-glow 2.2s ease-in-out infinite;
                   border-radius: 8px;
-                  box-shadow: 0 2px 6px rgba(59, 130, 246, 0.2);
+                  box-shadow: 0 2px 6px rgb(59 130 246 / 20%);
+                  animation: button-glow 2.2s ease-in-out infinite;
                 }
               }
             }
@@ -678,15 +682,15 @@
           }
 
           .bottom {
-            padding: 5px 10px;
             display: flex;
             flex-direction: column;
+            padding: 5px 10px;
 
             h2 {
+              margin: 0 0 8px;
               font-size: 16px;
               font-weight: 500;
               color: #333;
-              margin: 0 0 8px 0;
 
               @include ellipsis();
             }
@@ -694,8 +698,8 @@
             .time-info {
               display: flex;
               align-items: center;
-              color: var(--art-text-gray-600);
               margin-bottom: 12px;
+              color: var(--art-text-gray-600);
 
               i {
                 margin-right: 5px;
@@ -709,27 +713,27 @@
 
               // 为field_name添加样式
               span:first-child {
-                background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
-                color: white;
                 padding: 2px 8px;
-                border-radius: 12px;
+                margin-right: 8px;
                 font-size: 12px;
                 font-weight: 500;
-                margin-right: 8px;
+                color: white;
+                background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+                border-radius: 12px;
               }
             }
 
             .action-buttons {
               display: flex;
-              justify-content: center;
               gap: 8px;
+              justify-content: center;
+              margin-top: auto;
               opacity: 0;
               transition: all 0.3s;
-              margin-top: auto;
 
               .el-button {
-                font-size: 12px;
                 padding: 4px 8px;
+                font-size: 12px;
               }
             }
           }
@@ -737,37 +741,37 @@
 
         // POLICY类型的样式（全新设计）
         .policy-item {
+          position: relative;
           min-height: 220px;
+          overflow: hidden;
           background: linear-gradient(
             135deg,
-            rgba(255, 255, 255, 0.95) 0%,
-            rgba(248, 250, 252, 0.98) 100%
+            rgb(255 255 255 / 95%) 0%,
+            rgb(248 250 252 / 98%) 100%
           );
-          border: 1px solid rgba(226, 232, 240, 0.8);
-          border-radius: 16px;
-          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-          transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
           backdrop-filter: blur(20px);
-          position: relative;
-          overflow: hidden;
+          border: 1px solid rgb(226 232 240 / 80%);
+          border-radius: 16px;
+          box-shadow: 0 4px 12px rgb(0 0 0 / 5%);
+          transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 
           // 添加微妙的边框光效
           &::before {
-            content: '';
             position: absolute;
             top: 0;
-            left: 0;
             right: 0;
+            left: 0;
             height: 3px;
+            content: '';
             background: linear-gradient(90deg, #3b82f6 0%, #8b5cf6 50%, #06b6d4 100%);
             opacity: 0;
             transition: opacity 0.3s ease;
           }
 
           &:hover {
+            border-color: rgb(59 130 246 / 40%);
+            box-shadow: 0 20px 40px rgb(0 0 0 / 12%);
             transform: translateY(-8px) scale(1.02);
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.12);
-            border-color: rgba(59, 130, 246, 0.4);
 
             &::before {
               opacity: 1;
@@ -781,11 +785,11 @@
 
           // 现代化骨架屏样式
           .modern-skeleton-policy {
-            height: 100%;
-            padding: 20px;
             display: flex;
             flex-direction: column;
             gap: 16px;
+            height: 100%;
+            padding: 20px;
 
             .skeleton-card-header {
               display: flex;
@@ -831,8 +835,8 @@
 
             .skeleton-card-footer {
               display: flex;
-              justify-content: space-between;
               align-items: center;
+              justify-content: space-between;
 
               .skeleton-stats {
                 .el-skeleton__item {
@@ -854,28 +858,28 @@
           }
 
           .policy-content {
-            height: 100%;
             display: flex;
             flex-direction: column;
+            height: 100%;
 
             .card-header {
-              padding: 20px 20px 0 20px;
+              padding: 20px 20px 0;
 
               .header-left {
                 display: flex;
-                align-items: flex-start;
                 gap: 14px;
+                align-items: flex-start;
 
                 .policy-icon {
-                  width: 46px;
-                  height: 46px;
-                  border-radius: 12px;
-                  background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
                   display: flex;
+                  flex-shrink: 0;
                   align-items: center;
                   justify-content: center;
-                  flex-shrink: 0;
-                  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+                  width: 46px;
+                  height: 46px;
+                  background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+                  border-radius: 12px;
+                  box-shadow: 0 4px 12px rgb(59 130 246 / 30%);
 
                   i {
                     font-size: 20px;
@@ -888,56 +892,56 @@
                   min-width: 0;
 
                   .article-title {
+                    display: -webkit-box;
+                    margin: 0 0 10px;
+                    overflow: hidden;
                     font-size: 17px;
                     font-weight: 600;
-                    color: #1e293b;
                     line-height: 1.4;
-                    margin: 0 0 10px 0;
-                    display: -webkit-box;
+                    color: #1e293b;
                     -webkit-line-clamp: 2;
                     line-clamp: 2;
                     -webkit-box-orient: vertical;
-                    overflow: hidden;
                   }
 
                   .meta-info {
                     display: flex;
-                    align-items: center;
-                    gap: 12px;
                     flex-wrap: wrap;
+                    gap: 12px;
+                    align-items: center;
 
                     .type-badge {
                       padding: 4px 10px;
                       font-size: 11px;
                       font-weight: 600;
                       color: #3b82f6;
-                      background: linear-gradient(
-                        135deg,
-                        rgba(59, 130, 246, 0.1) 0%,
-                        rgba(147, 197, 253, 0.15) 100%
-                      );
-                      border: 1px solid rgba(59, 130, 246, 0.2);
-                      border-radius: 12px;
                       text-transform: uppercase;
                       letter-spacing: 0.5px;
+                      background: linear-gradient(
+                        135deg,
+                        rgb(59 130 246 / 10%) 0%,
+                        rgb(147 197 253 / 15%) 100%
+                      );
+                      border: 1px solid rgb(59 130 246 / 20%);
+                      border-radius: 12px;
                     }
 
                     // 为field_name添加特殊样式
                     .type-badge:nth-child(2) {
-                      background: linear-gradient(135deg, #8b5cf6 0%, #ec4899 100%);
                       color: white;
-                      box-shadow: 0 2px 6px rgba(139, 92, 246, 0.3);
+                      background: linear-gradient(135deg, #8b5cf6 0%, #ec4899 100%);
+                      box-shadow: 0 2px 6px rgb(139 92 246 / 30%);
                     }
 
                     .time-badge {
                       display: flex;
-                      align-items: center;
                       gap: 4px;
+                      align-items: center;
                       padding: 4px 8px;
-                      background: rgba(100, 116, 139, 0.1);
-                      border-radius: 8px;
                       font-size: 12px;
                       color: #64748b;
+                      background: rgb(100 116 139 / 10%);
+                      border-radius: 8px;
 
                       i {
                         font-size: 12px;
@@ -955,36 +959,36 @@
 
               .content-preview {
                 .description {
-                  font-size: 14px;
-                  color: #64748b;
-                  line-height: 1.6;
-                  margin: 0;
                   display: -webkit-box;
+                  margin: 0;
+                  overflow: hidden;
+                  font-size: 14px;
+                  line-height: 1.6;
+                  color: #64748b;
                   -webkit-line-clamp: 3;
                   line-clamp: 3;
                   -webkit-box-orient: vertical;
-                  overflow: hidden;
                 }
               }
             }
 
             .card-footer {
-              padding: 0 20px 20px 20px;
               display: flex;
-              justify-content: space-between;
               align-items: center;
-              border-top: 1px solid rgba(226, 232, 240, 0.6);
-              margin: 0 20px;
+              justify-content: space-between;
+              padding: 0 20px 20px;
               padding-top: 16px;
+              margin: 0 20px;
+              border-top: 1px solid rgb(226 232 240 / 60%);
 
               .stats-info {
                 .view-count {
                   display: flex;
-                  align-items: center;
                   gap: 6px;
+                  align-items: center;
                   font-size: 13px;
-                  color: #64748b;
                   font-weight: 500;
+                  color: #64748b;
 
                   i {
                     font-size: 14px;
@@ -997,8 +1001,8 @@
                 display: flex;
                 gap: 8px;
                 opacity: 0;
-                transform: translateY(4px);
                 transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+                transform: translateY(4px);
 
                 .el-button {
                   font-size: 12px;
@@ -1007,41 +1011,41 @@
                   transition: all 0.2s ease;
 
                   &.el-button--primary {
+                    color: white;
                     background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
                     border: none;
-                    color: white;
-                    box-shadow: 0 2px 8px rgba(59, 130, 246, 0.3);
+                    box-shadow: 0 2px 8px rgb(59 130 246 / 30%);
 
                     &:hover {
                       background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);
+                      box-shadow: 0 4px 12px rgb(59 130 246 / 40%);
                       transform: translateY(-1px);
-                      box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
                     }
                   }
 
                   &.el-button--warning {
+                    color: white;
                     background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
                     border: none;
-                    color: white;
-                    box-shadow: 0 2px 8px rgba(245, 158, 11, 0.3);
+                    box-shadow: 0 2px 8px rgb(245 158 11 / 30%);
 
                     &:hover {
                       background: linear-gradient(135deg, #d97706 0%, #b45309 100%);
+                      box-shadow: 0 4px 12px rgb(245 158 11 / 40%);
                       transform: translateY(-1px);
-                      box-shadow: 0 4px 12px rgba(245, 158, 11, 0.4);
                     }
                   }
 
                   &.el-button--danger {
+                    color: white;
                     background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
                     border: none;
-                    color: white;
-                    box-shadow: 0 2px 8px rgba(239, 68, 68, 0.3);
+                    box-shadow: 0 2px 8px rgb(239 68 68 / 30%);
 
                     &:hover {
                       background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+                      box-shadow: 0 4px 12px rgb(239 68 68 / 40%);
                       transform: translateY(-1px);
-                      box-shadow: 0 4px 12px rgba(239, 68, 68, 0.4);
                     }
                   }
                 }
@@ -1068,6 +1072,7 @@
     0% {
       background-position: -200% 0;
     }
+
     100% {
       background-position: 200% 0;
     }
@@ -1077,6 +1082,7 @@
     0% {
       transform: translateX(-100%) rotate(45deg);
     }
+
     100% {
       transform: translateX(200%) rotate(45deg);
     }
@@ -1086,14 +1092,16 @@
   @keyframes skeleton-wave {
     0% {
       background-position: -400% 0;
-      transform: translateY(0px);
+      transform: translateY(0);
     }
+
     50% {
       transform: translateY(-1px);
     }
+
     100% {
       background-position: 400% 0;
-      transform: translateY(0px);
+      transform: translateY(0);
     }
   }
 
@@ -1101,15 +1109,19 @@
     0% {
       background-position: 0% 0%;
     }
+
     25% {
       background-position: 100% 0%;
     }
+
     50% {
       background-position: 100% 100%;
     }
+
     75% {
       background-position: 0% 100%;
     }
+
     100% {
       background-position: 0% 0%;
     }
@@ -1118,28 +1130,31 @@
   @keyframes rainbow-glow {
     0%,
     100% {
-      opacity: 0.6;
       filter: hue-rotate(0deg);
+      opacity: 0.6;
     }
+
     33% {
-      opacity: 0.8;
       filter: hue-rotate(120deg);
+      opacity: 0.8;
     }
+
     66% {
-      opacity: 0.9;
       filter: hue-rotate(240deg);
+      opacity: 0.9;
     }
   }
 
   @keyframes pulse-glow {
     0%,
     100% {
+      box-shadow: 0 2px 8px rgb(0 0 0 / 10%);
       transform: scale(1);
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
     }
+
     50% {
+      box-shadow: 0 4px 16px rgb(59 130 246 / 20%);
       transform: scale(1.05);
-      box-shadow: 0 4px 16px rgba(59, 130, 246, 0.2);
     }
   }
 
@@ -1148,10 +1163,12 @@
       background-position: 0% 0%;
       transform: scale(1);
     }
+
     50% {
       background-position: 100% 100%;
       transform: scale(1.02);
     }
+
     100% {
       background-position: 0% 0%;
       transform: scale(1);

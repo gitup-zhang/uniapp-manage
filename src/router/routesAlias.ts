@@ -46,5 +46,8 @@ export enum RoutesAlias {
   GroupMessage = '/groups/message', // 群组消息
 
   // 调试页面
-  RouteDebug = '/debug/route-debug' // 路由调试
+  RouteDebug = '/debug/route-debug', // 路由调试
+
+  // AI 管理
+  VectorDB = '/ai/vector-db' // 向量数据库管理
 }

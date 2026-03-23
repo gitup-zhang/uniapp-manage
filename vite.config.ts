@@ -15,9 +15,10 @@ import vueDevTools from 'vite-plugin-vue-devtools'
 export default ({ mode }: { mode: string }) => {
   const root = process.cwd()
   const env = loadEnv(mode, root)
-  const { VITE_VERSION, VITE_PORT, VITE_BASE_URL, VITE_API_URL } = env
+  const { VITE_VERSION, VITE_PORT, VITE_BASE_URL, VITE_API_URL, VITE_AI_API_URL } = env
 
   console.log(`🚀 API_URL = ${VITE_API_URL}`)
+  console.log(`🚀 AI_API_URL = ${VITE_AI_API_URL}`)
   console.log(`🚀 VERSION = ${VITE_VERSION}`)
 
   return defineConfig({
@@ -32,6 +33,11 @@ export default ({ mode }: { mode: string }) => {
           target: VITE_API_URL,
           changeOrigin: true,
           rewrite: (path) => path.replace(/^\/api/, '')
+        },
+        '/ai-api': {
+          target: VITE_AI_API_URL,
+          changeOrigin: true,
+          rewrite: (path) => path.replace(/^\/ai-api/, '')
         }
       },
       host: true

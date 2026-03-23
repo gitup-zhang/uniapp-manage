@@ -378,5 +378,27 @@ export const asyncRoutes: AppRouteRecord[] = [
         }
       }
     ]
+  },
+  {
+    path: '/ai',
+    name: 'AI',
+    component: RoutesAlias.Layout,
+    meta: {
+      title: 'AI 管理',
+      icon: '&#xe65e;',
+      roles: ['R_SUPER', 'R_ADMIN', 'SUPERADMIN', 'ADMIN']
+    },
+    children: [
+      {
+        path: 'vector-db',
+        name: 'VectorDB',
+        component: RoutesAlias.VectorDB,
+        meta: {
+          title: '向量数据库',
+          keepAlive: false,
+          roles: ['R_SUPER', 'R_ADMIN', 'SUPERADMIN', 'ADMIN']
+        }
+      }
+    ]
   }
 ]

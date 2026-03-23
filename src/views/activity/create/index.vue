@@ -228,6 +228,7 @@
   import { imageService } from '@/api/image'
   import { ApiStatus } from '@/utils/http/status'
   import { ActivityService } from '@/api/activityApi'
+  import { AIService } from '@/api/aiApi'
   import { useActivityStore } from '@/store/modules/activity'
   import { ref, reactive, onMounted, watch } from 'vue'
   import { useRoute, useRouter } from 'vue-router'
@@ -518,10 +519,53 @@
         // 编辑模式：更新活动
         await ActivityService.updateActivity(activityId.value, formData)
         ElMessage.success('活动更新成功!')
+
+        // 异步同步到 AI 向量库（不阻塞主流程）
+        AIService.indexEvent({
+          id: activityId.value,
+          title: formData.title,
+          detail: formData.detail,
+          event_address: formData.event_address,
+          event_start_time: formData.event_start_time,
+          event_end_time: formData.event_end_time,
+          registration_fee: formData.registration_fee
+        })
+          .then(() => {
+            ElMessage.success('AI 向量库已同步')
+          })
+          .catch(() => {
+            ElMessage.warning('AI 向量库同步失败，不影响活动更新')
+          })
       } else {
         // 创建模式：创建新活动
-        await ActivityService.createActivity(formData)
+        const res = await ActivityService.createActivity(formData)
         ElMessage.success('活动创建成功!')
+
+        // 调试：打印后端返回值，确认数据结构
+        console.log('创建活动返回值:', JSON.stringify(res))
+
+        // 尝试多种路径提取新活动 ID
+        const eventId = (res as any)?.data?.event_id || (res as any)?.data?.id || (res as any)?.id
+        if (eventId) {
+          // 异步同步到 AI 向量库
+          AIService.indexEvent({
+            id: eventId,
+            title: formData.title,
+            detail: formData.detail,
+            event_address: formData.event_address,
+            event_start_time: formData.event_start_time,
+            event_end_time: formData.event_end_time,
+            registration_fee: formData.registration_fee
+          })
+            .then(() => {
+              ElMessage.success('AI 向量库已同步')
+            })
+            .catch(() => {
+              ElMessage.warning('AI 向量库同步失败，不影响活动创建')
+            })
+        } else {
+          console.warn('创建活动后未获取到活动ID，无法同步AI向量库。返回值:', res)
+        }
       }
       resetFormData()
 
@@ -608,8 +652,8 @@
 
 <style lang="scss" scoped>
   .activity-create-page {
-    padding: 20px;
     min-height: 100vh;
+    padding: 20px;
     overflow-y: auto;
 
     .card-header {
@@ -634,11 +678,11 @@
 
     .avatar-uploader {
       :deep(.el-upload) {
-        border: 1px dashed var(--el-border-color);
-        border-radius: 6px;
-        cursor: pointer;
         position: relative;
         overflow: hidden;
+        cursor: pointer;
+        border: 1px dashed var(--el-border-color);
+        border-radius: 6px;
         transition: var(--el-transition-duration-fast);
 
         &:hover {
@@ -647,31 +691,31 @@
       }
 
       .avatar-uploader-icon {
-        font-size: 28px;
-        color: #8c939d;
         width: 178px;
         height: 178px;
-        text-align: center;
+        font-size: 28px;
         line-height: 178px;
+        color: #8c939d;
+        text-align: center;
       }
 
       .avatar {
+        display: block;
         width: 178px;
         height: 178px;
-        display: block;
         object-fit: cover;
       }
     }
 
     .display-images-uploader {
       :deep(.el-upload--picture-card) {
+        position: relative;
         width: 100px;
         height: 100px;
+        overflow: hidden;
+        cursor: pointer;
         border: 1px dashed var(--el-border-color);
         border-radius: 6px;
-        cursor: pointer;
-        position: relative;
-        overflow: hidden;
         transition: var(--el-transition-duration-fast);
 
         &:hover {
@@ -682,26 +726,26 @@
       :deep(.el-upload-list--picture-card .el-upload-list__item) {
         width: 100px;
         height: 100px;
-        border-radius: 6px;
         margin-right: 8px;
         margin-bottom: 8px;
+        border-radius: 6px;
       }
 
       .display-uploader-icon {
-        font-size: 24px;
-        color: #8c939d;
         width: 100px;
         height: 100px;
-        text-align: center;
+        font-size: 24px;
         line-height: 100px;
+        color: #8c939d;
+        text-align: center;
       }
     }
 
     .upload-tip {
-      font-size: 12px;
-      color: #999;
       margin-top: 8px;
+      font-size: 12px;
       line-height: 1.4;
+      color: #999;
     }
   }
 </style>

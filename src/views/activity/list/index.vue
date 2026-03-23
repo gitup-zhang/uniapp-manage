@@ -40,7 +40,7 @@
         <ElTable
           :data="activityStore.ActivityListing"
           @selection-change="handleSelectionChange"
-          style="width: 100%; flex: 1"
+          style="flex: 1; width: 100%"
           stripe
         >
           <ElTableColumn type="index" label="序号" width="60" />
@@ -57,7 +57,7 @@
           <ElTableColumn label="活动名称" min-width="200">
             <template #default="{ row }">
               <div style="display: flex; flex-direction: column">
-                <span style="font-weight: 500; margin-bottom: 4px">{{ row.title }}</span>
+                <span style="margin-bottom: 4px; font-weight: 500">{{ row.title }}</span>
                 <!-- <span style="font-size: 12px; color: #999">{{ row.description }}</span> -->
               </div>
             </template>
@@ -137,6 +137,7 @@
   import { ref, onMounted } from 'vue'
   import { formatTime } from '@/utils/date'
   import { ActivityService } from '@/api/activityApi'
+  import { AIService } from '@/api/aiApi'
 
   defineOptions({ name: 'ActivityList' })
 
@@ -252,6 +253,12 @@
       // 用户点击了确认
       await ActivityService.deleteActivity(row.id)
       ElMessage.success('删除成功')
+
+      // 异步从 AI 向量库删除（不阻塞主流程）
+      AIService.deleteEventIndex(row.id)
+        .then(() => ElMessage.success('AI 向量库已同步删除'))
+        .catch(() => ElMessage.warning('AI 向量库同步删除失败，不影响活动删除'))
+
       activityStore.getActivityList(requestParams)
     } catch (error) {
       console.log('删除活动失败：', error)
@@ -268,16 +275,16 @@
 
 <style lang="scss" scoped>
   .activity-list-page {
-    padding: 20px;
-    height: calc(100vh - 120px);
     display: flex;
     flex-direction: column;
+    height: calc(100vh - 120px);
+    padding: 20px;
     overflow: hidden;
 
     .search-card {
-      margin-bottom: 12px;
-      padding: 0;
       flex-shrink: 0;
+      padding: 0;
+      margin-bottom: 12px;
 
       :deep(.el-card__body) {
         padding: 16px 20px;
@@ -285,12 +292,12 @@
 
       .compact-form {
         .form-item {
-          margin-bottom: 0;
           margin-right: 20px;
+          margin-bottom: 0;
 
           :deep(.el-form-item__label) {
-            font-size: 14px;
             padding-right: 8px;
+            font-size: 14px;
           }
 
           :deep(.el-form-item__content) {
@@ -301,23 +308,23 @@
     }
 
     .table-card {
-      flex: 1;
       display: flex;
+      flex: 1;
       flex-direction: column;
-      overflow: hidden;
       padding: 0;
+      overflow: hidden;
 
       :deep(.el-card__body) {
-        padding: 16px 20px;
-        flex: 1;
         display: flex;
+        flex: 1;
         flex-direction: column;
+        padding: 16px 20px;
         overflow: hidden;
       }
 
       .status-tabs {
-        margin-bottom: 12px;
         flex-shrink: 0;
+        margin-bottom: 12px;
 
         .compact-tabs {
           :deep(.el-tabs__header) {
@@ -329,41 +336,41 @@
           }
 
           :deep(.el-tabs__item) {
+            height: 36px;
             padding: 8px 16px;
             font-size: 14px;
-            height: 36px;
             line-height: 20px;
           }
         }
 
         .tab-label {
           display: flex;
-          align-items: center;
           gap: 6px;
+          align-items: center;
         }
 
         .tab-badge {
           :deep(.el-badge__content) {
-            font-size: 10px;
-            height: 16px;
-            line-height: 16px;
-            padding: 0 4px;
             min-width: 16px;
+            height: 16px;
+            padding: 0 4px;
+            font-size: 10px;
+            line-height: 16px;
           }
         }
       }
 
       :deep(.art-table-header) {
-        margin-bottom: 12px;
         flex-shrink: 0;
+        margin-bottom: 12px;
       }
 
       .table-header {
         display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 12px;
         flex-shrink: 0;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 12px;
 
         .header-left {
           display: flex;
@@ -377,8 +384,8 @@
       }
 
       .table-wrapper {
-        flex: 1;
         display: flex;
+        flex: 1;
         flex-direction: column;
         overflow: hidden;
 
@@ -387,10 +394,10 @@
         }
 
         .pagination-wrapper {
-          margin-top: 16px;
           display: flex;
-          justify-content: flex-end;
           flex-shrink: 0;
+          justify-content: flex-end;
+          margin-top: 16px;
         }
       }
     }
